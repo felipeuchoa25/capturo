@@ -2604,23 +2604,35 @@ async function startBioSearch(){
       setProg(10+Math.round((bi/activeBio.length)*80));
       try{
         const url=`https://www.googleapis.com/customsearch/v1?key=${gKey}&cx=${cseId}&q=${encodeURIComponent(searchQ)}&num=10`;
-        const data=await fetchFallback(url);
+        const r = await fetch(url, {signal: AbortSignal.timeout(10000)});
+        const data = await r.json();
+        if(data.error){
+          const msg = data.error.message||'Erro CSE';
+          setStat(`⚠️ CSE erro: ${msg}`);
+          console.error('CSE error:', data.error);
+          if(data.error.code===429||msg.includes('quota')){
+            toast('Cota CSE esgotada (100/dia). Tente amanhã.','warn',6000);
+            break;
+          }
+          continue;
+        }
         const items=data.items||[];
         for(let ii=0;ii<items.length;ii++){
           const item=items[ii];
           const name=item.title.replace(/\|.*$/,'').replace(/-.*$/,'').trim();
           const bioUrl=item.link;
           const snippet=item.snippet||'';
-          // deduplicate
           if(leads.find(l=>l.bioUrl===bioUrl))continue;
-          // extract phone from snippet
           const phoneMatch=snippet.match(/[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}/);
           const phone=phoneMatch?phoneMatch[0]:'';
           const lead={id:'g'+Date.now()+bi+'_'+ii,name,formatted_address:snippet.substring(0,120),t:'volcano',score:10,status:'new',notes:'',siteScore:null,siteIssues:[],sitePitch:'',email:'',emailVerified:false,emailConfidence:0,source:'google',bioUrl,bioSite:bioSite.domain,snippet,formatted_phone_number:phone,website:bioUrl,mapsUrl:`https://www.google.com/maps/search/${encodeURIComponent(name)}`};
           leads.push(lead);
           renderAll();
         }
-      }catch(e){console.log('CSE error:',e.message);}
+      }catch(e){
+        console.error('CSE fetch error:',e.message);
+        setStat(`⚠️ Erro ao buscar ${bioSite.label}: ${e.message}`);
+      }
       await new Promise(r=>setTimeout(r,200));
     }
     finishSearch();
@@ -2712,7 +2724,13 @@ async function startBioSearchInternal(gKey,cseId){
     setProg(50+Math.round((bi/activeBio.length)*40));
     try{
       const url=`https://www.googleapis.com/customsearch/v1?key=${gKey}&cx=${cseId}&q=${encodeURIComponent(searchQ)}&num=10`;
-      const data=await fetchFallback(url);
+      const r = await fetch(url, {signal: AbortSignal.timeout(10000)});
+      const data = await r.json();
+      if(data.error){
+        console.error('CSE error:', data.error.message);
+        if(data.error.code===429||( data.error.message||'').includes('quota')) break;
+        continue;
+      }
       const items=data.items||[];
       for(let ii=0;ii<items.length;ii++){
         const item=items[ii];
@@ -2722,7 +2740,7 @@ async function startBioSearchInternal(gKey,cseId){
         leads.push({id:'g'+Date.now()+bi+'_'+ii,name,formatted_address:(item.snippet||'').substring(0,120),t:'volcano',score:10,status:'new',notes:'',siteScore:null,siteIssues:[],sitePitch:'',email:'',emailVerified:false,emailConfidence:0,source:'google',bioUrl:item.link,bioSite:bioSite.domain,snippet:item.snippet||'',formatted_phone_number:phoneMatch?phoneMatch[0]:'',website:item.link,mapsUrl:`https://www.google.com/maps/search/${encodeURIComponent(name)}`});
         renderAll();
       }
-    }catch(e){}
+    }catch(e){ console.error('CSE internal error:',e.message); }
     await new Promise(r=>setTimeout(r,200));
   }
 }
