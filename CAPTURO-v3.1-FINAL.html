@@ -2485,7 +2485,7 @@ function cardHTML(l){
       <button class="card-btn btn-wa" onclick="openMsgModal('${l.id}')">💬 WhatsApp/Email IA</button>
       <button class="card-btn" onclick="pitchRapido('${l.id}')" style="color:#25D366;border-color:#1a3d28;background:#031a0e;font-weight:700" title="Pitch completo LP + Google Local → abre WhatsApp">🚀 Pitch LP+GMB</button>
       <button class="card-btn" onclick="openLovableModal('${l.id}')" style="color:#7c6aff;border-color:#2a1f50;background:#0e0a20">✦ Prompt Lovable</button>
-      ${!l.email&&l.website&&!isBioLink(l.website)?`<button class="card-btn btn-hunter" onclick="findEmailManual('${l.id}')">🔍 Buscar Email</button>`:''}
+      ${!l.email?`<button class="card-btn btn-hunter" onclick="findEmailManual('${l.id}')">🔍 Buscar Email</button>`:''}
       <button class="card-btn move-btn" onclick="toggleMoveMenu('${l.id}',event)" title="Mover para outra coluna">↕ Mover</button>
       <button class="card-btn seen-toggle ${l.seen?'active-seen':''}" onclick="toggleSeen('${l.id}')" title="${l.seen?'Marcar como não visto':'Marcar como visto'}">👁 ${l.seen?'Visto':'Ver'}</button>
       <button class="card-btn" onclick="openProfile('${l.id}')" style="color:var(--accent2);border-color:var(--accent)">🧑 Perfil</button>
