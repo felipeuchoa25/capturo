@@ -650,8 +650,69 @@ select option{background:#8a9099}
 
 </style>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23222840'/><circle cx='50' cy='50' r='32' fill='none' stroke='%234e7fff' stroke-width='3' opacity='0.6'/><circle cx='50' cy='50' r='22' fill='none' stroke='%234e7fff' stroke-width='2' opacity='0.7'/><circle cx='50' cy='50' r='12' fill='none' stroke='%234e7fff' stroke-width='2' opacity='0.8'/><circle cx='50' cy='50' r='4' fill='%234e7fff'/><line x1='50' y1='50' x2='74' y2='50' stroke='%234e7fff' stroke-width='2' opacity='0.7' stroke-dasharray='3 2'/><circle cx='68' cy='34' r='5' fill='%23ff4d4d' opacity='0.9'/><circle cx='32' cy='62' r='4' fill='%23f5b833' opacity='0.9'/><text x='50' y='92' font-family='monospace' font-size='14' font-weight='700' fill='%234e7fff' text-anchor='middle' opacity='0.9'>C</text></svg>">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="theme-blue">
+
+<!-- ══ LOGIN SCREEN ══════════════════════════════════════════ -->
+<div id="loginScreen" style="display:none;position:fixed;inset:0;z-index:99999;background:var(--bg);align-items:center;justify-content:center;padding:20px">
+  <div style="width:100%;max-width:420px">
+
+    <!-- Logo -->
+    <div style="text-align:center;margin-bottom:36px">
+      <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="width:44px;height:44px;background:linear-gradient(135deg,var(--accent),#0056cc);border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,122,255,.35)">
+          <svg width="24" height="24" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="14" stroke="white" stroke-width="1.5" opacity="0.5"/><circle cx="18" cy="18" r="9" stroke="white" stroke-width="1.5" opacity="0.7"/><circle cx="18" cy="18" r="4" stroke="white" stroke-width="1.5"/><circle cx="18" cy="18" r="2" fill="white"/></svg>
+        </div>
+        <div style="font-size:24px;font-weight:900;letter-spacing:-.04em;color:var(--text)">CAPTURO</div>
+      </div>
+      <div id="authSubtitle" style="font-size:14px;color:var(--muted2)">Entre na sua conta para continuar</div>
+    </div>
+
+    <!-- Card do formulário -->
+    <div style="background:var(--s1);border:1px solid var(--border);border-radius:20px;padding:28px 28px;box-shadow:var(--shadow-lg)">
+
+      <!-- Campo Nome (só no cadastro) -->
+      <div id="authNameField" style="display:none;margin-bottom:14px">
+        <label style="display:block;font-size:12px;font-weight:600;color:var(--muted2);margin-bottom:6px;letter-spacing:.02em">NOME</label>
+        <input id="authName" type="text" placeholder="Seu nome completo" style="width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--s2);color:var(--text);font-size:14px;outline:none;transition:border .2s" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+      </div>
+
+      <!-- Email -->
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:12px;font-weight:600;color:var(--muted2);margin-bottom:6px;letter-spacing:.02em">E-MAIL</label>
+        <input id="authEmail" type="email" placeholder="seu@email.com" style="width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--s2);color:var(--text);font-size:14px;outline:none;transition:border .2s" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'" onkeydown="if(event.key==='Enter')authAction()">
+      </div>
+
+      <!-- Senha -->
+      <div style="margin-bottom:20px">
+        <label style="display:block;font-size:12px;font-weight:600;color:var(--muted2);margin-bottom:6px;letter-spacing:.02em">SENHA</label>
+        <input id="authPassword" type="password" placeholder="••••••••" style="width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--s2);color:var(--text);font-size:14px;outline:none;transition:border .2s" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'" onkeydown="if(event.key==='Enter')authAction()">
+      </div>
+
+      <!-- Botão principal -->
+      <button id="authBtn" onclick="authAction()" style="width:100%;padding:13px;background:linear-gradient(135deg,var(--accent),#0056cc);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,122,255,.35);transition:opacity .2s">
+        Entrar
+      </button>
+
+      <!-- Mensagem de erro/sucesso -->
+      <div id="authMsg" style="margin-top:12px;font-size:12px;text-align:center;min-height:18px;color:var(--red)"></div>
+
+      <!-- Toggle login/cadastro -->
+      <div style="text-align:center;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+        <span id="authToggleText" style="font-size:13px;color:var(--muted2)">Não tem conta? </span>
+        <button id="authToggleBtn" onclick="toggleAuthMode()" style="background:none;border:none;color:var(--accent);font-size:13px;font-weight:600;cursor:pointer">Criar conta grátis</button>
+      </div>
+    </div>
+
+    <!-- Rodapé -->
+    <div style="text-align:center;margin-top:20px;font-size:11px;color:var(--muted2)">
+      CAPTURO v5.0 · Prospecção inteligente de leads
+    </div>
+  </div>
+</div>
+<!-- ══ /LOGIN SCREEN ══════════════════════════════════════════ -->
+
 <script>
 // Warn if not running via localhost
 if(location.protocol === 'file:'){
@@ -907,6 +968,8 @@ function toast(msg, type='info', duration=3500){
       <div class="tn-swatch" id="swGray"  style="background:#b2cece;box-shadow:inset 0 0 0 1px rgba(0,0,0,.1)"      onclick="applyTheme('gray')"  title="🌿 Teal"></div>
       <div class="tn-swatch" id="swWhite" style="background:#f2f2f7;box-shadow:inset 0 0 0 1px #ccc"                 onclick="applyTheme('white')" title="☀️ Claro"></div>
     </div>
+    <!-- User info + logout -->
+    <div id="userHeaderInfo" style="display:flex;align-items:center;gap:8px;flex-shrink:0;padding-left:8px;border-left:1px solid var(--border)"></div>
     <button class="btn-new" onclick="openCampaignModal()" style="flex-shrink:0">+ Campanha</button>
   </div>
 </div>
@@ -3076,6 +3139,11 @@ function saveCampaigns(){
     console.error('[CAPTURO] saveCampaigns error:',e);
   }
   updateFavBadge();
+  // ── Sync para Supabase (debounced 2s) ──
+  if(typeof currentUser!=='undefined' && currentUser){
+    clearTimeout(window._supabaseSyncTimeout);
+    window._supabaseSyncTimeout=setTimeout(saveToSupabase,2000);
+  }
 }
 
 // ══════════════════════════════════════════
@@ -7766,6 +7834,9 @@ function guiaScroll(sectionId){
     if(campaigns.reduce((s,c)=>s+(c.leads||[]).length,0)>0)
       syncAllToSheets(null,true);
   });
+
+  // ── Inicializar autenticação Supabase ──
+  if(typeof initAuth==='function') initAuth();
 })();
 
 // ── BULK ACTIONS ──
@@ -7951,6 +8022,245 @@ function selectAllBulkLeads(){
     </div>
   </div>
 </div>
+
+<!-- ══ SUPABASE AUTH + SYNC ══════════════════════════════════ -->
+<script>
+// ── Configuração ──────────────────────────────────────────────
+const SUPABASE_URL = 'https://qnxabfowdvohrolamktx.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_OWpi6DYEuhNmbPY-eUZkzA_hqZ3BGXD';
+let _sb = null;
+let currentUser = null;
+let _authMode = 'login'; // 'login' | 'signup'
+
+function getSupabase(){
+  if(!_sb && window.supabase){
+    _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  }
+  return _sb;
+}
+
+// ── Inicializar Auth ──────────────────────────────────────────
+async function initAuth(){
+  const sb = getSupabase();
+  if(!sb){ console.warn('[CAPTURO] Supabase não carregado'); showLoginScreen(); return; }
+
+  const { data:{ session } } = await sb.auth.getSession();
+  if(session){
+    currentUser = session.user;
+    hideLoginScreen();
+    await loadFromSupabase();
+  } else {
+    showLoginScreen();
+  }
+
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if(event === 'SIGNED_IN'){
+      currentUser = session.user;
+      hideLoginScreen();
+      await loadFromSupabase();
+    } else if(event === 'SIGNED_OUT'){
+      currentUser = null;
+      campaigns = [];
+      leads = [];
+      if(typeof renderNavTabs === 'function') renderNavTabs();
+      showLoginScreen();
+    }
+  });
+}
+
+// ── UI helpers ────────────────────────────────────────────────
+function showLoginScreen(){
+  const el = document.getElementById('loginScreen');
+  if(el) el.style.display = 'flex';
+}
+
+function hideLoginScreen(){
+  const el = document.getElementById('loginScreen');
+  if(el) el.style.display = 'none';
+  updateUserHeader();
+}
+
+function updateUserHeader(){
+  const el = document.getElementById('userHeaderInfo');
+  if(!el || !currentUser) return;
+  const meta = currentUser.user_metadata || {};
+  const name = meta.name || currentUser.email.split('@')[0];
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#0056cc);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">${name.charAt(0).toUpperCase()}</div>
+      <span style="font-size:11px;color:var(--muted2);max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${name}</span>
+      <button onclick="doSignOut()" title="Sair" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:12px;padding:2px 4px;border-radius:4px;line-height:1" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--muted2)'">✕</button>
+    </div>`;
+}
+
+function setAuthMsg(msg, color){
+  const el = document.getElementById('authMsg');
+  if(el){ el.textContent = msg; el.style.color = color || 'var(--red)'; }
+}
+
+function toggleAuthMode(){
+  _authMode = _authMode === 'login' ? 'signup' : 'login';
+  const isSignup = _authMode === 'signup';
+  document.getElementById('authNameField').style.display = isSignup ? 'block' : 'none';
+  document.getElementById('authSubtitle').textContent  = isSignup ? 'Crie sua conta gratuita' : 'Entre na sua conta para continuar';
+  document.getElementById('authBtn').textContent        = isSignup ? 'Criar conta' : 'Entrar';
+  document.getElementById('authToggleText').textContent = isSignup ? 'Já tem conta? ' : 'Não tem conta? ';
+  document.getElementById('authToggleBtn').textContent  = isSignup ? 'Fazer login' : 'Criar conta grátis';
+  setAuthMsg('');
+}
+
+async function authAction(){
+  if(_authMode === 'login') await doSignIn();
+  else await doSignUp();
+}
+
+// ── Login ─────────────────────────────────────────────────────
+async function doSignIn(){
+  const sb = getSupabase();
+  const email    = (document.getElementById('authEmail')?.value||'').trim();
+  const password = document.getElementById('authPassword')?.value||'';
+  const btn      = document.getElementById('authBtn');
+  if(!email || !password){ setAuthMsg('Preencha e-mail e senha.'); return; }
+  btn.disabled = true; btn.textContent = 'Entrando…';
+  setAuthMsg('');
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if(error){
+    const msg = error.message.includes('Invalid login') ? 'E-mail ou senha incorretos.' : error.message;
+    setAuthMsg(msg);
+    btn.disabled = false; btn.textContent = 'Entrar';
+  }
+}
+
+// ── Cadastro ──────────────────────────────────────────────────
+async function doSignUp(){
+  const sb       = getSupabase();
+  const email    = (document.getElementById('authEmail')?.value||'').trim();
+  const password = document.getElementById('authPassword')?.value||'';
+  const name     = (document.getElementById('authName')?.value||'').trim();
+  const btn      = document.getElementById('authBtn');
+  if(!email || !password){ setAuthMsg('Preencha e-mail e senha.'); return; }
+  if(password.length < 6){ setAuthMsg('Senha deve ter pelo menos 6 caracteres.'); return; }
+  btn.disabled = true; btn.textContent = 'Criando conta…';
+  setAuthMsg('');
+  const { error } = await sb.auth.signUp({ email, password, options:{ data:{ name } } });
+  if(error){
+    setAuthMsg(error.message);
+    btn.disabled = false; btn.textContent = 'Criar conta';
+  } else {
+    setAuthMsg('✅ Conta criada! Verifique seu e-mail para confirmar.', 'var(--green)');
+    btn.disabled = false; btn.textContent = 'Criar conta';
+  }
+}
+
+// ── Logout ────────────────────────────────────────────────────
+async function doSignOut(){
+  const sb = getSupabase();
+  if(sb) await sb.auth.signOut();
+  toast('Até logo! 👋','info');
+}
+
+// ── Salvar no Supabase ────────────────────────────────────────
+async function saveToSupabase(){
+  const sb = getSupabase();
+  if(!sb || !currentUser) return;
+  try{
+    const snap = JSON.parse(JSON.stringify(campaigns));
+    if(typeof activeCampaignId!=='undefined' && activeCampaignId){
+      const c = snap.find(x=>x.id===activeCampaignId);
+      if(c) c.leads = typeof leads!=='undefined' ? [...leads] : c.leads||[];
+    }
+    for(const camp of snap){
+      await sb.from('campaigns').upsert({
+        id: camp.id,
+        user_id: currentUser.id,
+        name: camp.name||'Campanha',
+        niche: camp.niche||'',
+        city: camp.city||'',
+        settings: camp.settings||{},
+        updated_at: new Date().toISOString()
+      });
+      const campLeads = (camp.leads||[]).map(l=>({
+        id: l.id,
+        campaign_id: camp.id,
+        user_id: currentUser.id,
+        name: l.name||'',
+        niche: l.niche||'',
+        city: l.city||'',
+        address: l.address||'',
+        phone: l.phone||'',
+        whatsapp: l.whatsapp||'',
+        email: l.email||'',
+        website: l.website||l.site||'',
+        instagram: l.instagram||'',
+        temperature: l.temp||'cold',
+        status: l.status||'new',
+        is_favorite: l.favorite||false,
+        notes: l.notes||'',
+        ai_analysis: l.ai||{},
+        source: l.source||'manual',
+        updated_at: new Date().toISOString()
+      }));
+      if(campLeads.length > 0){
+        await sb.from('leads').upsert(campLeads);
+      }
+    }
+  }catch(e){
+    console.error('[CAPTURO] saveToSupabase error:',e);
+  }
+}
+
+// ── Carregar do Supabase ──────────────────────────────────────
+async function loadFromSupabase(){
+  const sb = getSupabase();
+  if(!sb || !currentUser) return;
+  try{
+    const { data:campData, error:campErr } = await sb
+      .from('campaigns').select('*')
+      .eq('user_id', currentUser.id)
+      .order('created_at',{ ascending:true });
+    if(campErr){ console.error('[CAPTURO] load campaigns:',campErr); return; }
+    if(!campData || campData.length === 0){ return; } // primeiro acesso
+
+    const { data:leadsData } = await sb
+      .from('leads').select('*')
+      .eq('user_id', currentUser.id);
+
+    campaigns = campData.map(c=>({
+      id: c.id,
+      name: c.name,
+      niche: c.niche||'',
+      city: c.city||'',
+      settings: c.settings||{},
+      leads: (leadsData||[]).filter(l=>l.campaign_id===c.id).map(l=>({
+        id: l.id,
+        name: l.name,
+        niche: l.niche,
+        city: l.city,
+        address: l.address,
+        phone: l.phone,
+        whatsapp: l.whatsapp,
+        email: l.email,
+        site: l.website,
+        website: l.website,
+        instagram: l.instagram,
+        temp: l.temperature,
+        status: l.status,
+        favorite: l.is_favorite,
+        notes: l.notes,
+        ai: l.ai_analysis,
+        source: l.source
+      }))
+    }));
+
+    try{ localStorage.setItem('pr6', JSON.stringify(campaigns)); }catch(e){}
+    if(typeof renderNavTabs==='function') renderNavTabs();
+    toast(`☁️ ${campData.length} campanha(s) carregada(s) da nuvem`,'success',3000);
+  }catch(e){
+    console.error('[CAPTURO] loadFromSupabase error:',e);
+  }
+}
+</script>
+<!-- ══ /SUPABASE AUTH + SYNC ═══════════════════════════════════ -->
 
 </body>
 </html>
