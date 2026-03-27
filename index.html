@@ -1,8 +1,22 @@
 <!DOCTYPE html>
+<!--
+  ╔══════════════════════════════════════════════════════════════════╗
+  ║  CAPTURO v5.0 — Sistema de Prospecção Inteligente de Leads       ║
+  ║  Desenvolvido por Felipe Uchoa — Todos os direitos reservados    ║
+  ║  © 2024–2025 Felipe Uchoa | felipelabat@hotmail.com              ║
+  ║  Código-fonte protegido. Reprodução não autorizada é proibida.   ║
+  ║  ID: CAP-7B3E92A1F0C84D56 | Build: 2025-03                       ║
+  ╚══════════════════════════════════════════════════════════════════╝
+-->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="Felipe Uchoa">
+<meta name="copyright" content="© 2024-2025 Felipe Uchoa. Todos os direitos reservados.">
+<meta name="application-name" content="CAPTURO by Felipe Uchoa">
+<meta name="generator" content="CAP-7B3E92A1F0C84D56">
+<!-- CAPTURO:Q0FQVFJPLS1GZWxpcGUtVWNob2EtMjAyNC1Qcm9zcGVjY2FvLUludGVsaWdlbnRlLWRlLUxlYWRz -->
 <title>CAPTURO v5.0</title>
 <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -45,6 +59,7 @@
   /* Radii */
   --r-sm:8px;--r:12px;--r-lg:16px;--r-xl:20px;
 }
+/* CAPTURO © Felipe Uchoa 2024-2025 — CAP-7B3E92A1F0C84D56 — Uso não autorizado é proibido */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
 body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5}
 /* ── RADAR ANIMATIONS ── */
@@ -642,6 +657,31 @@ select option{background:#8a9099}
 @keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
 @keyframes toastOut{from{opacity:1}to{opacity:0}}
 
+/* ── TIER QUICK BUTTONS (bairros / cidades / estados) ── */
+.tier-quick-btn{padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:var(--s2);color:var(--muted2);font-size:11px;font-weight:600;cursor:pointer;font-family:'IBM Plex Mono',monospace;transition:all .15s;white-space:nowrap}
+.tier-quick-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
+.tier-quick-btn.active-gold{border-color:#f5b833;background:rgba(245,184,51,.1);color:#f5b833}
+.tier-quick-btn.active-silver{border-color:var(--accent);background:var(--accent-bg);color:var(--accent2)}
+.tier-quick-btn.active-all{border-color:var(--green);background:var(--green-bg);color:var(--green)}
+.tier-quick-clear{color:var(--muted2)!important;font-size:10px}
+
+/* ── CITY CHIP SELECTOR ── */
+.city-chip-wrap{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+.city-tier-header{font-size:9px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 6px;display:flex;align-items:center;justify-content:space-between}
+.city-tier-header:first-child{margin-top:0}
+.city-tier-btn{background:none;border:1px solid var(--border);border-radius:5px;padding:2px 8px;font-size:9px;cursor:pointer;font-family:'IBM Plex Mono',monospace;transition:all .15s;white-space:nowrap}
+.city-tier-btn:hover{border-color:var(--accent);color:var(--accent)}
+.city-chip{display:inline-flex;align-items:center;gap:3px;padding:4px 10px;border-radius:16px;border:1px solid var(--border);cursor:pointer;font-size:11px;color:var(--muted2);background:var(--s1);transition:all .13s;margin:2px 3px 2px 0;font-family:'Plus Jakarta Sans',sans-serif}
+.city-chip:hover{border-color:var(--accent);color:var(--accent)}
+.city-chip.selected-gold{background:rgba(245,184,51,.12);color:#f5b833;border-color:#f5b833;font-weight:700}
+.city-chip.selected-silver{background:var(--accent-bg);color:var(--accent2);border-color:var(--accent);font-weight:600}
+.city-chip.selected-bronze{background:var(--s2);color:var(--text);border-color:var(--border2);font-weight:500}
+.city-placeholder{font-size:11px;color:var(--muted2);font-style:italic;padding:6px 0}
+.city-quick-actions{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+
+/* ── STATE TIER BUTTONS ── */
+.state-tier-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+
 /* ── BIO LINK PANEL ── */
 .bl-toggle-btn{display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:8px;background:var(--volcano-bg);color:var(--volcano);border:1px solid var(--volcano-b);font-size:11px;font-weight:700;cursor:pointer;font-family:'IBM Plex Mono',monospace;transition:all .2s;white-space:nowrap}
 .bl-toggle-btn:hover{background:rgba(255,45,45,.15)}
@@ -740,6 +780,8 @@ select option{background:#8a9099}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="theme-blue">
+<!-- CAPTURO authorship watermark — do not remove -->
+<span aria-hidden="true" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;pointer-events:none;opacity:0" data-cap="CAP-7B3E92A1F0C84D56" data-author="Felipe Uchoa" data-year="2025">CAPTURO v5.0 © 2024-2025 Felipe Uchoa felipelabat@hotmail.com</span>
 
 <!-- ══ LOGIN SCREEN ══════════════════════════════════════════ -->
 <div id="loginScreen" style="display:flex;position:fixed;inset:0;z-index:99999;background:var(--bg);align-items:center;justify-content:center;padding:20px">
@@ -801,6 +843,25 @@ select option{background:#8a9099}
 <!-- ══ /LOGIN SCREEN ══════════════════════════════════════════ -->
 
 <script>
+/**
+ * CAPTURO v5.0 — Sistema de Prospecção Inteligente de Leads
+ * @author    Felipe Uchoa <felipelabat@hotmail.com>
+ * @copyright © 2024–2025 Felipe Uchoa. Todos os direitos reservados.
+ * @license   Proprietário — uso não autorizado é proibido por lei.
+ * @build     CAP-7B3E92A1F0C84D56
+ * @signed    7b3e92a1f0c84d563f291ae8b047209901f3da849d1bf54d1ebdcb10f72a4c1e
+ */
+const CAPTURO_SIGNATURE = {
+  author:    'Felipe Uchoa',
+  email:     'felipelabat@hotmail.com',
+  product:   'CAPTURO v5.0 — Sistema de Prospecção Inteligente de Leads',
+  build:     'CAP-7B3E92A1F0C84D56',
+  hash:      '7b3e92a1f0c84d563f291ae8b047209901f3da849d1bf54d1ebdcb10f72a4c1e',
+  copyright: '© 2024-2025 Felipe Uchoa. Reprodução não autorizada proibida.',
+  verify:    () => console.info('%cCAPTURO%c © Felipe Uchoa — Build CAP-7B3E92A1F0C84D56', 'color:#007aff;font-weight:bold;font-size:14px','color:#888;font-size:11px')
+};
+if (typeof console !== 'undefined') { CAPTURO_SIGNATURE.verify(); }
+
 // Warn if not running via localhost
 if(location.protocol === 'file:'){
   setTimeout(()=>{
@@ -1247,6 +1308,10 @@ function toast(msg, type='info', duration=3500){
       <button class="btn btn-ghost" onclick="exportCSV()" style="font-size:11px">⬇ CSV</button>
       <button class="btn btn-ghost" onclick="exportOpps()" style="font-size:11px">🎯 Oportunidades</button>
       <button class="btn btn-ghost" onclick="openCsvImportModal()" style="font-size:11px;color:var(--accent2);border-color:var(--accent);background:var(--accent-bg)" title="Importar leads de arquivo CSV">📥 Importar CSV</button>
+      <div style="display:flex;gap:4px;margin-left:auto">
+        <button id="btnViewKanban" onclick="setKanbanView('kanban')" title="Visualização Kanban" style="padding:5px 10px;border-radius:8px;border:1px solid var(--accent);background:var(--accent-bg);color:var(--accent);font-size:11px;cursor:pointer;font-weight:600">⊞ Kanban</button>
+        <button id="btnViewList" onclick="setKanbanView('list')" title="Visualização Lista" style="padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--s2);color:var(--muted2);font-size:11px;cursor:pointer;font-weight:600">☰ Lista</button>
+      </div>
     </div>
 
     <div class="kanban">
@@ -2173,37 +2238,70 @@ function toast(msg, type='info', duration=3500){
       <!-- TAB: INTEGRAÇÕES (todas as API keys) -->
       <div id="stab-content-integrações" style="display:none">
         <div style="background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:11px;color:var(--muted2);font-family:monospace;line-height:1.7">
-          🔐 Suas chaves ficam salvas <strong style="color:var(--text)">somente no seu navegador</strong> (localStorage). Nunca são enviadas a terceiros.
+          🔐 Suas chaves ficam salvas <strong style="color:var(--text)">somente no seu navegador</strong> (localStorage). Nunca são enviadas a terceiros. Clique em <strong style="color:var(--accent2)">Testar</strong> para validar cada chave antes de salvar.
         </div>
 
         <!-- BUSCA PRINCIPAL -->
-        <div style="font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">🗺 Busca de Leads</div>
+        <div style="font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">🗺 Busca de Leads — Google Maps</div>
+        <div style="font-size:10px;color:var(--muted2);margin-bottom:10px;line-height:1.6">Usada para encontrar negócios no Google Maps. Gratuito até 200 req/mês, depois US$0,017/req. Obtenha em: <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:var(--accent2)">console.cloud.google.com</a></div>
         <div class="field" style="margin-bottom:10px">
           <label>Google Maps API Key</label>
-          <input type="password" id="gKey" placeholder="AIza..." autocomplete="off">
+          <div style="display:flex;gap:8px">
+            <input type="password" id="gKey" placeholder="AIza..." autocomplete="off" style="flex:1">
+            <button class="btn btn-ghost" onclick="testGMapsKey()" id="btnTestGMaps" style="font-size:11px;white-space:nowrap">Testar</button>
+            <span id="gMapsStatus" class="status-pill pill-idle" style="font-size:10px">—</span>
+          </div>
         </div>
-        <div class="field" style="margin-bottom:10px">
-          <label>Google Custom Search (CSE) ID</label>
-          <input type="text" id="cseId" placeholder="80d765485a3f94fa9" autocomplete="off">
+
+        <!-- GOOGLE CSE (BIO SEARCH) -->
+        <div style="font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;margin-top:14px">🔎 Busca Bio Links — Google CSE</div>
+        <div style="font-size:10px;color:var(--muted2);margin-bottom:10px;line-height:1.6">Usada para encontrar perfis Linktree, Milkshake etc. 100 buscas/dia gratuito. Crie seu motor em: <a href="https://programmablesearchengine.google.com" target="_blank" style="color:var(--accent2)">programmablesearchengine.google.com</a></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div class="field">
+            <label>CSE ID</label>
+            <input type="text" id="cseId" placeholder="80d765485a3f94fa9" autocomplete="off">
+          </div>
+          <div class="field">
+            <label>CSE API Key</label>
+            <input type="password" id="gKeyCSE" placeholder="AIza..." autocomplete="off">
+          </div>
         </div>
+
+        <!-- SERP API -->
+        <div style="font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;margin-top:4px">🌐 SerpAPI Key — Busca Orgânica</div>
+        <div style="font-size:10px;color:var(--muted2);margin-bottom:10px;line-height:1.6">Usada na busca bio link e enriquecimento de leads manuais. 100 buscas/mês gratuito. Obtenha em: <a href="https://serpapi.com/manage-api-key" target="_blank" style="color:var(--accent2)">serpapi.com</a></div>
         <div class="field" style="margin-bottom:18px">
-          <label>Google Custom Search API Key (Bio Links)</label>
-          <input type="password" id="gKeyCSE" placeholder="AIza..." autocomplete="off">
+          <label>SerpAPI Key</label>
+          <div style="display:flex;gap:8px">
+            <input type="password" id="serpKey" placeholder="xxxxxxxx..." autocomplete="off" style="flex:1">
+            <button class="btn btn-ghost" onclick="testSerpKey()" id="btnTestSerp" style="font-size:11px;white-space:nowrap">Testar</button>
+            <span id="serpStatus" class="status-pill pill-idle" style="font-size:10px">—</span>
+          </div>
         </div>
 
         <!-- EMAIL ENRICHMENT -->
-        <div style="font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--green);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">📧 Enriquecimento de Email</div>
+        <div style="font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--green);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">📧 Enriquecimento de Email</div>
+        <div style="font-size:10px;color:var(--muted2);margin-bottom:10px;line-height:1.6">O sistema tenta as fontes abaixo em cascata até encontrar um email válido. Configure pelo menos uma.</div>
+
         <div class="field" style="margin-bottom:10px">
-          <label>Hunter.io API Key</label>
-          <input type="password" id="hKey" placeholder="xxxxxxxx..." autocomplete="off">
+          <label>Hunter.io API Key <span style="font-size:9px;color:var(--muted2)">(25 buscas/mês grátis · <a href="https://app.hunter.io/api-keys" target="_blank" style="color:var(--accent2)">obter chave</a>)</span></label>
+          <div style="display:flex;gap:8px">
+            <input type="password" id="hKey" placeholder="xxxxxxxx..." autocomplete="off" style="flex:1">
+            <button class="btn btn-ghost" onclick="testHunterKey()" id="btnTestHunter" style="font-size:11px;white-space:nowrap">Testar</button>
+            <span id="hunterStatus" class="status-pill pill-idle" style="font-size:10px">—</span>
+          </div>
         </div>
         <div class="field" style="margin-bottom:10px">
-          <label>Apollo.io API Key</label>
-          <input type="password" id="apolloKey" placeholder="xxxxxxxx..." autocomplete="off">
+          <label>Apollo.io API Key <span style="font-size:9px;color:var(--muted2)">(75 créditos/mês grátis · <a href="https://app.apollo.io/#/settings/integrations/api" target="_blank" style="color:var(--accent2)">obter chave</a>)</span></label>
+          <div style="display:flex;gap:8px">
+            <input type="password" id="apolloKey" placeholder="xxxxxxxx..." autocomplete="off" style="flex:1">
+            <button class="btn btn-ghost" onclick="testApolloKey()" id="btnTestApollo" style="font-size:11px;white-space:nowrap">Testar</button>
+            <span id="apolloStatus" class="status-pill pill-idle" style="font-size:10px">—</span>
+          </div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
           <div class="field">
-            <label>Snov.io Client ID</label>
+            <label>Snov.io Client ID <span style="font-size:9px;color:var(--muted2)">(<a href="https://app.snov.io/api" target="_blank" style="color:var(--accent2)">obter</a>)</span></label>
             <input type="password" id="snovClientId" placeholder="client_id..." autocomplete="off">
           </div>
           <div class="field">
@@ -2211,12 +2309,25 @@ function toast(msg, type='info', duration=3500){
             <input type="password" id="snovClientSecret" placeholder="client_secret..." autocomplete="off">
           </div>
         </div>
+        <div class="field" style="margin-bottom:18px">
+          <label>RocketReach API Key <span style="font-size:9px;color:var(--muted2)">(5 buscas/mês grátis · <a href="https://rocketreach.co/api" target="_blank" style="color:var(--accent2)">obter chave</a>)</span></label>
+          <div style="display:flex;gap:8px">
+            <input type="password" id="rrKey" placeholder="xxxxxxxx..." autocomplete="off" style="flex:1">
+            <button class="btn btn-ghost" onclick="testRRKey()" id="btnTestRR" style="font-size:11px;white-space:nowrap">Testar</button>
+            <span id="rrStatus" class="status-pill pill-idle" style="font-size:10px">—</span>
+          </div>
+        </div>
 
         <!-- IA -->
-        <div style="font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--purple);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">🤖 Inteligência Artificial</div>
+        <div style="font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--purple);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">🤖 Inteligência Artificial</div>
+        <div style="font-size:10px;color:var(--muted2);margin-bottom:10px;line-height:1.6">Chave Anthropic (Claude) — usada para análise automática de sites e geração de pitch. Custo: ~US$0,003 por lead analisado. Obtenha em: <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--accent2)">console.anthropic.com</a></div>
         <div class="field" style="margin-bottom:10px">
-          <label>Chave de IA (para análise e pitch)</label>
-          <input type="password" id="cKey" placeholder="sk-ant-..." autocomplete="off">
+          <label>Chave de IA (Claude / Anthropic)</label>
+          <div style="display:flex;gap:8px">
+            <input type="password" id="cKey" placeholder="sk-ant-..." autocomplete="off" style="flex:1">
+            <button class="btn btn-ghost" onclick="testAIKey()" id="btnTestAI" style="font-size:11px;white-space:nowrap">Testar</button>
+            <span id="aiKeyStatus" class="status-pill pill-idle" style="font-size:10px">—</span>
+          </div>
         </div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;background:var(--s2);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
           <input type="checkbox" id="enableAI" style="width:16px;height:16px;cursor:pointer">
@@ -2226,9 +2337,10 @@ function toast(msg, type='info', duration=3500){
         </div>
 
         <!-- PROXY -->
-        <div style="font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--warm);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">🌐 Proxy</div>
+        <div style="font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--warm);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">🌐 Proxy (Google Apps Script)</div>
+        <div style="font-size:10px;color:var(--muted2);margin-bottom:10px;line-height:1.6">Proxy próprio para contornar limites de CORS e melhorar o lookup de email. Gratuito via Google Apps Script. <a href="https://script.google.com" target="_blank" style="color:var(--accent2)">Criar no script.google.com</a></div>
         <div class="field" style="margin-bottom:8px">
-          <label>URL do Proxy (opcional — melhora email lookup)</label>
+          <label>URL do Proxy</label>
           <div style="display:flex;gap:8px">
             <input type="text" id="proxyUrl" placeholder="https://script.google.com/macros/s/..." style="flex:1">
             <button class="btn btn-ghost" onclick="testProxy()" style="font-size:11px;white-space:nowrap">Testar</button>
@@ -2453,23 +2565,43 @@ function toast(msg, type='info', duration=3500){
       <select id="nichoDD" onchange="autoFillName()"></select>
     </div>
     <div class="state-city-row">
-      <div class="cfield" style="margin:0"><label>Estado</label><select id="stateDD" onchange="loadCities()"><option value="">Selecione</option></select></div>
+      <!-- ESTADO -->
       <div class="cfield" style="margin:0">
-          <label>Cidade</label>
-          <select id="cityDD" onchange="autoFillName();$('cityFreeText').value='';loadNeighborhoods()">
-            <option value="">Selecione o estado</option>
-          </select>
-          <input type="text" id="cityFreeText" placeholder="Ou digite outra cidade..." style="display:none;margin-top:6px;font-size:12px" oninput="autoFillName()">
+        <label>Estado</label>
+        <!-- Tier quick buttons -->
+        <div class="state-tier-row" id="stateTierRow" style="display:none">
+          <button type="button" id="stateBtnGold"   onclick="selectStateTier('gold')"   class="tier-quick-btn">⭐ Alto Pot.</button>
+          <button type="button" id="stateBtnSilver" onclick="selectStateTier('silver')" class="tier-quick-btn">◈ Médio Pot.</button>
+          <button type="button"                     onclick="selectStateTier('clear')"  class="tier-quick-btn tier-quick-clear">✕</button>
         </div>
+        <select id="stateDD" onchange="loadCities();showStateTierRow()"><option value="">Selecione</option></select>
+      </div>
+      <!-- CIDADE — multi-chip selector -->
+      <div class="cfield" style="margin:0">
+        <label>Cidade <span style="color:var(--muted2);font-weight:400;font-size:10px" id="cityCountLabel"></span></label>
+        <!-- Chip container (replaces <select>) -->
+        <div id="cityChipContainer" style="display:none">
+          <!-- Quick action buttons -->
+          <div class="city-quick-actions" id="cityQuickActions"></div>
+          <!-- Chips -->
+          <div class="city-chip-wrap" id="cityChipsWrap" style="max-height:220px;overflow-y:auto"></div>
+          <!-- Free text -->
+          <input type="text" id="cityFreeText" placeholder="Ou digite outra cidade..." style="margin-top:8px;font-size:12px;display:none" oninput="autoFillName()">
+        </div>
+        <!-- Placeholder when no state selected -->
+        <div id="citySelectPlaceholder" style="padding:10px 12px;background:var(--s2);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--muted2);font-style:italic">Selecione um estado primeiro</div>
+        <!-- Legacy hidden select kept for JS compat -->
+        <select id="cityDD" style="display:none"></select>
+      </div>
     </div>
     <div class="cfield" id="neighborhoodRow" style="display:none">
       <label>Bairros <span style="color:var(--muted2);font-weight:400;font-size:10px">— o sistema vai prospectar <strong style="color:var(--accent2)">cada bairro selecionado</strong> separadamente</span></label>
       <!-- Ações rápidas -->
       <div id="nbQuickActions" style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center">
-        <button type="button" onclick="selectNbTier('gold')"   style="padding:5px 12px;border-radius:20px;border:1px solid #f5b833;background:#140e02;color:#f5b833;font-size:11px;font-weight:700;cursor:pointer;font-family:monospace">🥇 Todos Tier A (Alto padrão)</button>
-        <button type="button" onclick="selectNbTier('silver')" style="padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--s2);color:var(--muted2);font-size:11px;font-weight:700;cursor:pointer;font-family:monospace">◈ Todos Tier B</button>
-        <button type="button" onclick="selectNbTier('all')"    style="padding:5px 12px;border-radius:20px;border:1px solid var(--accent);background:#0a1020;color:var(--accent2);font-size:11px;font-weight:700;cursor:pointer;font-family:monospace">☑ Selecionar Todos</button>
-        <button type="button" onclick="selectNbTier('none')"   style="padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--s2);color:var(--muted2);font-size:11px;cursor:pointer;font-family:monospace">✕ Limpar</button>
+        <button type="button" id="nbBtnGold"   onclick="selectNbTier('gold')"   class="tier-quick-btn">🥇 Alto Padrão (A)</button>
+        <button type="button" id="nbBtnSilver" onclick="selectNbTier('silver')" class="tier-quick-btn">◈ Médio-Alto (B)</button>
+        <button type="button" id="nbBtnAll"    onclick="selectNbTier('all')"    class="tier-quick-btn">☑ Todos</button>
+        <button type="button"                  onclick="selectNbTier('none')"   class="tier-quick-btn tier-quick-clear">✕ Limpar</button>
         <span id="nbCounter" style="font-size:10px;color:var(--accent2);font-family:monospace;margin-left:4px"></span>
       </div>
       <!-- Chips container -->
@@ -2917,16 +3049,6 @@ window.onload=()=>{
   appSettings = JSON.parse(localStorage.getItem('capturo-settings')||'{}');
   customTemplates = JSON.parse(localStorage.getItem('capturo-templates')||'[]');
   initBiolinkChips();
-  const gk=localStorage.getItem('gk'); if(gk){$('gKey').value=gk;}
-  const hk=localStorage.getItem('hk'); if(hk){$('hKey').value=hk;}
-  const ck=localStorage.getItem('ck'); if(ck){$('cKey').value=ck;}
-  // Auto-load all API keys
-  const _ak=localStorage.getItem('apolloKey'); if(_ak&&$('apolloKey')){$('apolloKey').value=_ak;}
-  const _si=localStorage.getItem('snovId'); if(_si&&$('snovId')){$('snovId').value=_si;}
-  const _ss=localStorage.getItem('snovSecret'); if(_ss&&$('snovSecret')){$('snovSecret').value=_ss;}
-  const _rr=localStorage.getItem('rrKey'); if(_rr&&$('rrKey')){$('rrKey').value=_rr;}
-  const _pu=localStorage.getItem('proxyUrl'); if(_pu&&$('proxyUrl')){$('proxyUrl').value=_pu;}
-  const _sk=localStorage.getItem('serpKey'); if(_sk&&$('serpKey')){$('serpKey').value=_sk;}
   renderCampaignsList();
   renderDashboard();
   // v4.5 init
@@ -2940,9 +3062,6 @@ window.onload=()=>{
     if(overdue.length>0) toast(`🔔 ${overdue.length} follow-up(s) para hoje ou atrasados!`,'warn',5000);
   },1500);
 };
-$('gKey').addEventListener('change',()=>localStorage.setItem('gk',$('gKey').value));
-$('hKey').addEventListener('change',()=>localStorage.setItem('hk',$('hKey').value));
-$('cKey').addEventListener('change',()=>localStorage.setItem('ck',$('cKey').value));
 
 // ══════════════════════════════════════════
 // BIOLINKS — Painel Colapsável
@@ -3111,99 +3230,207 @@ function populateStates(){
   }
   $('cityDD').innerHTML='<option value="">Selecione o estado</option>';
   const ft=$('cityFreeText');if(ft){ft.style.display='none';ft.value='';}
+  // Reset city chips
+  window._citiesSelected=[];
+  window._cityChipsData=[];
+  const placeholder=$('citySelectPlaceholder');
+  const container=$('cityChipContainer');
+  if(placeholder) placeholder.style.display='block';
+  if(container)   container.style.display='none';
+  const row=$('stateTierRow');if(row)row.style.display='none';
 }
+// ── CITY MULTI-CHIP SYSTEM ────────────────────────────────────
+window._cityChipsData = [];   // [{n, t}]
+window._citiesSelected = [];  // ['São Paulo', 'Campinas', ...]
+
 function loadCities(){
   const state=$('stateDD').value;
-  if(currentMarket==='nacional'){
-    const tiers=STATES_BR_TIERS[state]||[];
-    const dd=$('cityDD');
-    dd.innerHTML='<option value="">Selecione a cidade</option>';
-    // Gold cities first
-    const gold=tiers.filter(c=>c.t==='gold');
-    const silver=tiers.filter(c=>c.t==='silver');
-    const bronze=tiers.filter(c=>c.t==='bronze');
-    if(gold.length){
-      const g=document.createElement('optgroup');g.label='⭐ Alto potencial';
-      gold.forEach(c=>{const o=document.createElement('option');o.value=c.n;o.textContent='🥇 '+c.n;o.style.fontWeight='700';o.style.color='#f5b833';g.appendChild(o);});
-      dd.appendChild(g);
-    }
-    if(silver.length){
-      const g=document.createElement('optgroup');g.label='Médio potencial';
-      silver.forEach(c=>{const o=document.createElement('option');o.value=c.n;o.textContent='◈ '+c.n;o.style.fontWeight='600';g.appendChild(o);});
-      dd.appendChild(g);
-    }
-    if(bronze.length){
-      const g=document.createElement('optgroup');g.label='Demais cidades';
-      bronze.forEach(c=>{const o=document.createElement('option');o.value=c.n;o.textContent=c.n;g.appendChild(o);});
-      dd.appendChild(g);
-    }
-    // Show free text field
-    const ft=$('cityFreeText');if(ft)ft.style.display='block';
-  } else {
-    const tiers = STATES_US_TIERS[state] || [];
-    const dd = $('cityDD');
-    dd.innerHTML = '<option value="">Selecione a cidade</option>';
-    const gold   = tiers.filter(c=>c.t==='gold');
-    const silver = tiers.filter(c=>c.t==='silver');
-    const bronze = tiers.filter(c=>c.t==='bronze');
-    if(gold.length){
-      const g=document.createElement('optgroup');g.label='⭐ Alto potencial';
-      gold.forEach(c=>{const o=document.createElement('option');o.value=c.n;o.textContent='🥇 '+c.n;o.style.fontWeight='700';o.style.color='#f5b833';g.appendChild(o);});
-      dd.appendChild(g);
-    }
-    if(silver.length){
-      const g=document.createElement('optgroup');g.label='Médio potencial';
-      silver.forEach(c=>{const o=document.createElement('option');o.value=c.n;o.textContent='◈ '+c.n;o.style.fontWeight='600';g.appendChild(o);});
-      dd.appendChild(g);
-    }
-    if(bronze.length){
-      const g=document.createElement('optgroup');g.label='Demais cidades';
-      bronze.forEach(c=>{const o=document.createElement('option');o.value=c.n;o.textContent=c.n;g.appendChild(o);});
-      dd.appendChild(g);
-    }
-    const ft=$('cityFreeText');if(ft)ft.style.display='block';
+  window._citiesSelected = [];
+  window._cityChipsData = [];
+  $('cityDD').innerHTML='<option value="">Selecione a cidade</option>';
+
+  const placeholder = $('citySelectPlaceholder');
+  const container   = $('cityChipContainer');
+
+  if(!state){
+    if(placeholder) placeholder.style.display='block';
+    if(container)   container.style.display='none';
+    autoFillName(); return;
   }
+  if(placeholder) placeholder.style.display='none';
+  if(container)   container.style.display='block';
+
+  let tiers = [];
+  if(currentMarket==='nacional'){
+    tiers = STATES_BR_TIERS[state]||[];
+  } else {
+    tiers = STATES_US_TIERS[state]||[];
+  }
+  window._cityChipsData = tiers;
+  renderCityChips();
+  // Legacy <select> fill for compat
+  const dd=$('cityDD');
+  dd.innerHTML='<option value="">—</option>';
+  tiers.forEach(c=>{const o=document.createElement('option');o.value=c.n;o.textContent=c.n;dd.appendChild(o);});
+
+  // Free text
+  const ft=$('cityFreeText');if(ft)ft.style.display='block';
   autoFillName();
 }
+
+function renderCityChips(){
+  const gold   = window._cityChipsData.filter(c=>c.t==='gold');
+  const silver = window._cityChipsData.filter(c=>c.t==='silver');
+  const bronze = window._cityChipsData.filter(c=>c.t==='bronze');
+  const sel    = window._citiesSelected;
+
+  // Quick actions
+  const qa = $('cityQuickActions');
+  if(qa){
+    const nSel = sel.length;
+    qa.innerHTML = `
+      <button type="button" class="tier-quick-btn ${sel.length>0&&gold.every(c=>sel.includes(c.n))?'active-gold':''}" onclick="selectCityTier('gold')">⭐ Alto Pot. (${gold.length})</button>
+      <button type="button" class="tier-quick-btn ${sel.length>0&&silver.every(c=>sel.includes(c.n))?'active-silver':''}" onclick="selectCityTier('silver')">◈ Médio Pot. (${silver.length})</button>
+      <button type="button" class="tier-quick-btn ${nSel===window._cityChipsData.length&&nSel>0?'active-all':''}" onclick="selectCityTier('all')">☑ Todas</button>
+      <button type="button" class="tier-quick-btn tier-quick-clear" onclick="selectCityTier('none')">✕ Limpar</button>
+      <span style="font-size:10px;color:var(--accent2);font-family:monospace;margin-left:4px">${nSel>0?`✓ ${nSel} cidade${nSel!==1?'s':''} selecionada${nSel!==1?'s':''}`:'Clique para selecionar'}</span>`;
+  }
+  // Chips
+  const wrap=$('cityChipsWrap');
+  if(!wrap) return;
+  const chipHtml = (cities, tierKey, icon) => cities.length ? `
+    <div class="city-tier-header">
+      <span style="color:${tierKey==='gold'?'#f5b833':tierKey==='silver'?'var(--accent2)':'var(--muted2)'}">${icon} ${tierKey==='gold'?'Alto Potencial':tierKey==='silver'?'Médio Potencial':'Demais Cidades'}</span>
+    </div>
+    <div>${cities.map(c=>`
+      <span class="city-chip ${sel.includes(c.n)?'selected-'+tierKey:''}" onclick="toggleCityChip('${c.n.replace(/'/g,"\\'")}')">
+        ${sel.includes(c.n)?'✓ ':''}<span>${c.n}</span>
+      </span>`).join('')}</div>` : '';
+  wrap.innerHTML = [
+    chipHtml(gold,'gold','⭐'),
+    chipHtml(silver,'silver','◈'),
+    chipHtml(bronze,'bronze','◻')
+  ].join('');
+  // Update label
+  const lbl=$('cityCountLabel');
+  if(lbl) lbl.textContent = sel.length>0?`— ${sel.length} selecionada${sel.length!==1?'s':''}` : '— escolha uma ou mais';
+  // Sync legacy select for any code that reads $('cityDD').value
+  if(sel.length>0){ $('cityDD').value=sel[0]; }
+  loadNeighborhoods();
+  autoFillName();
+}
+
+function toggleCityChip(cityName){
+  const idx = window._citiesSelected.indexOf(cityName);
+  if(idx>=0) window._citiesSelected.splice(idx,1);
+  else window._citiesSelected.push(cityName);
+  renderCityChips();
+}
+
+function selectCityTier(tier){
+  const chips = window._cityChipsData;
+  if(tier==='none')      window._citiesSelected=[];
+  else if(tier==='all')  window._citiesSelected=chips.map(c=>c.n);
+  else if(tier==='gold') window._citiesSelected=chips.filter(c=>c.t==='gold').map(c=>c.n);
+  else if(tier==='silver')window._citiesSelected=chips.filter(c=>c.t==='silver').map(c=>c.n);
+  renderCityChips();
+}
+
+function getSelectedCities(){
+  const free = $('cityFreeText');
+  const freeVal = free&&free.value.trim()?[free.value.trim()]:[];
+  return [...window._citiesSelected, ...freeVal];
+}
+
+// ── STATE TIER QUICK SELECT ────────────────────────────────
+function showStateTierRow(){
+  const row=$('stateTierRow');
+  const state=$('stateDD').value;
+  if(row) row.style.display = state?'flex':'none';
+}
+
+function selectStateTier(tier){
+  const tiers = STATE_TIERS_BR;
+  let list = [];
+  if(tier==='gold')   list=tiers.gold;
+  else if(tier==='silver') list=tiers.silver;
+  else if(tier==='clear'){ $('stateDD').value='';showStateTierRow();loadCities();return; }
+  if(!list.length) return;
+  // Show a mini popover with all states of that tier
+  showStateTierPicker(list, tier);
+}
+
+function showStateTierPicker(states, tier){
+  let existing=document.getElementById('stateTierPicker');
+  if(existing) existing.remove();
+  const div=document.createElement('div');
+  div.id='stateTierPicker';
+  const color=tier==='gold'?'#f5b833':tier==='silver'?'var(--accent2)':'var(--muted2)';
+  div.style.cssText=`position:absolute;z-index:9000;background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:10px;box-shadow:0 8px 32px rgba(0,0,0,.3);min-width:180px;margin-top:4px`;
+  div.innerHTML=`<div style="font-size:9px;font-family:monospace;color:${color};text-transform:uppercase;margin-bottom:8px;letter-spacing:.1em">${tier==='gold'?'⭐ Alto Potencial':'◈ Médio Potencial'}</div>`+
+    states.map(s=>`<div onclick="pickState('${s}')" style="padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;color:var(--text);transition:background .1s" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''">${tier==='gold'?'🥇 ':'◈ '}${s}</div>`).join('');
+  const stateField=$('stateTierRow');
+  if(stateField) stateField.appendChild(div);
+  else document.body.appendChild(div);
+  setTimeout(()=>{ const closer=(e)=>{if(!div.contains(e.target)){div.remove();document.removeEventListener('click',closer);}};document.addEventListener('click',closer); },10);
+}
+
+function pickState(state){
+  $('stateDD').value=state;
+  showStateTierRow();
+  loadCities();
+  document.getElementById('stateTierPicker')&&document.getElementById('stateTierPicker').remove();
+}
+
 function autoFillName(){
   const n=$('nichoDD').value;
   const s=$('stateDD').value;
-  const ft=$('cityFreeText');
-  const freeCity=ft&&ft.value.trim()?ft.value.trim():'';
-  const c=freeCity||$('cityDD').value;
+  const cities = (typeof getSelectedCities==='function') ? getSelectedCities() : [];
+  const c = cities.length ? (cities.length===1 ? cities[0] : `${cities.length} cidades`) : '';
   const nbs = getSelectedNeighborhoods ? getSelectedNeighborhoods() : [];
   let nb = nbs.length===1 ? nbs[0] : nbs.length>1 ? `${nbs.length} bairros` : '';
-  if(n&&c&&nb)$('campaignNameInput').value=`${n} — ${nb}, ${c}`;
-  else if(n&&c)$('campaignNameInput').value=`${n} — ${c}, ${s}`;
-  else if(n&&s)$('campaignNameInput').value=`${n} — ${s}`;
+  if(n&&c&&nb) $('campaignNameInput').value=`${n} — ${nb}, ${cities[0]||c}`;
+  else if(n&&c) $('campaignNameInput').value=`${n} — ${c}${s?', '+s:''}`;
+  else if(n&&s) $('campaignNameInput').value=`${n} — ${s}`;
 }
+
 function createCampaign(){
-  const nicho=$('nichoDD').value,state=$('stateDD').value;
-  const ft=$('cityFreeText');
-  const city=(ft&&ft.value.trim())?ft.value.trim():$('cityDD').value;
-  // Pega bairros selecionados via chips
+  const nicho=$('nichoDD').value, state=$('stateDD').value;
+  // Multi-city support
+  const cities = (typeof getSelectedCities==='function') ? getSelectedCities() : [];
+  const city = cities[0] || '';   // primary city
+  if(!nicho||!state||!city){ alert('Preencha nicho, estado e pelo menos uma cidade!'); return; }
+  // Bairros
   const selectedNbs = getSelectedNeighborhoods();
-  let neighborhood = selectedNbs.length ? selectedNbs.join(', ') : '';
-  let isAltoPadrao = false;
-  // Se selecionou vários OU todos tier A+B, trata como alto padrão
+  let neighborhood='', isAltoPadrao=false;
   const data = currentMarket==='internacional' ? NEIGHBORHOODS_US[city] : NEIGHBORHOODS[city];
   const premiumList = data ? [...(data.gold||[]),...(data.silver||[])] : [];
   if(selectedNbs.length > 1){
-    isAltoPadrao = true;
-    window._altoPadraoList = selectedNbs;
+    isAltoPadrao=true; window._altoPadraoList=selectedNbs;
     neighborhood = selectedNbs.length===premiumList.length ? 'Alto Padrão' : `${selectedNbs.length} bairros`;
-  } else if(selectedNbs.length===0){
-    neighborhood='';
-    window._altoPadraoList=[];
-  } else {
-    window._altoPadraoList=[];
-  }
-  const name=$('campaignNameInput').value.trim(),radius=$('radiusDD').value;
-  if(!nicho||!state||!city||!name){alert('Preencha todos os campos!');return;}
+  } else if(selectedNbs.length===1){ window._altoPadraoList=[]; neighborhood=selectedNbs[0]; }
+  else { neighborhood=''; window._altoPadraoList=[]; }
+  const name=$('campaignNameInput').value.trim(), radius=$('radiusDD').value;
+  if(!name){ alert('Preencha o nome da campanha!'); return; }
   const country=currentMarket==='internacional'?$('countryDD').value:'BR';
   const nichoData=(currentMarket==='nacional'?NICHOS_BR:NICHOS_INT).find(n=>n.v===nicho);
-  const c={id:'c'+Date.now(),name,nicho,nichoEn:nichoData?.en||nicho,state,city,neighborhood,country,market:currentMarket,radius,leads:[],isAltoPadrao,altoPadraoList:window._altoPadraoList||[],createdAt:new Date().toISOString()};
-  campaigns.push(c);saveCampaigns();closeCampaignModal();renderCampaignsList();openCampaign(c.id);
+
+  // If multiple cities selected, create one campaign per city (or one combined)
+  if(cities.length > 1){
+    const doMulti = confirm(`Criar ${cities.length} campanhas separadas (uma por cidade)?\n\nCidades: ${cities.join(', ')}\n\nOK = ${cities.length} campanhas · Cancelar = só a primeira (${cities[0]})`);
+    if(doMulti){
+      cities.forEach((ct,i)=>{
+        const cName = `${nicho} — ${ct}, ${state}`;
+        const camp={id:'c'+Date.now()+'_'+i,name:cName,nicho,nichoEn:nichoData?.en||nicho,state,city:ct,neighborhood,country,market:currentMarket,radius,leads:[],isAltoPadrao,altoPadraoList:window._altoPadraoList||[],createdAt:new Date().toISOString(),cityList:cities};
+        campaigns.push(camp);
+      });
+      saveCampaigns(); closeCampaignModal(); renderCampaignsList();
+      toast(`✅ ${cities.length} campanhas criadas!`,'success',3000);
+      return;
+    }
+  }
+  const c={id:'c'+Date.now(),name,nicho,nichoEn:nichoData?.en||nicho,state,city,cityList:cities,neighborhood,country,market:currentMarket,radius,leads:[],isAltoPadrao,altoPadraoList:window._altoPadraoList||[],createdAt:new Date().toISOString()};
+  campaigns.push(c); saveCampaigns(); closeCampaignModal(); renderCampaignsList(); openCampaign(c.id);
 }
 
 // ══════════════════════════════════════════
@@ -3361,6 +3588,98 @@ async function fetchFallback(url){
     if(r.ok)return await r.json();
   }catch(e){errors.push('thingproxy: '+e.message);}
   throw new Error('Sem conexão. Verifique se está rodando via localhost (npx serve) e não via file://. Detalhes: '+errors.join(' | '));
+}
+
+// ── HELPERS para botões Testar ──
+function _setKeyStatus(id, ok, msg){
+  const el=$(id); if(!el) return;
+  el.className='status-pill '+(ok?'pill-ok':'pill-err');
+  el.textContent=(ok?'✓ ':'✗ ')+msg;
+}
+function _setKeyLoading(id){ const el=$(id); if(el){el.className='status-pill pill-idle';el.textContent='⏳';} }
+
+async function testGMapsKey(){
+  const key=$('gKey')?.value.trim()||localStorage.getItem('capturo-gKey')||'';
+  if(!key){_setKeyStatus('gMapsStatus',false,'Sem chave');return;}
+  _setKeyLoading('gMapsStatus');
+  try{
+    const r=await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=São+Paulo&key=${encodeURIComponent(key)}`,{signal:AbortSignal.timeout(10000)});
+    const d=await r.json();
+    if(d.status==='OK'||d.results?.length) _setKeyStatus('gMapsStatus',true,'Maps OK');
+    else if(d.status==='REQUEST_DENIED') _setKeyStatus('gMapsStatus',false,'Chave inválida');
+    else _setKeyStatus('gMapsStatus',false,d.status||'Erro');
+  }catch(e){ _setKeyStatus('gMapsStatus',false,'Timeout'); }
+}
+
+async function testSerpKey(){
+  const key=$('serpKey')?.value.trim()||localStorage.getItem('serpKey')||'';
+  if(!key){_setKeyStatus('serpStatus',false,'Sem chave');return;}
+  const proxyBase=localStorage.getItem('capturo-proxyUrl')||PROXY_URL;
+  if(!proxyBase){_setKeyStatus('serpStatus',false,'Configure o proxy');return;}
+  _setKeyLoading('serpStatus');
+  try{
+    const url=`${proxyBase}?action=serp&query=test&serpKey=${encodeURIComponent(key)}`;
+    const r=await fetch(url,{signal:AbortSignal.timeout(15000)});
+    if(r.ok){ const d=await r.json(); _setKeyStatus('serpStatus',!d.error,'SerpAPI '+(d.error?'inválida':'OK')); }
+    else _setKeyStatus('serpStatus',false,'Erro '+r.status);
+  }catch(e){ _setKeyStatus('serpStatus',false,'Timeout/Proxy off'); }
+}
+
+async function testHunterKey(){
+  const key=$('hKey')?.value.trim()||localStorage.getItem('capturo-hKey')||'';
+  if(!key){_setKeyStatus('hunterStatus',false,'Sem chave');return;}
+  _setKeyLoading('hunterStatus');
+  try{
+    const r=await fetch(`https://api.hunter.io/v2/account?api_key=${encodeURIComponent(key)}`,{signal:AbortSignal.timeout(10000)});
+    const d=await r.json();
+    if(d.data?.email) _setKeyStatus('hunterStatus',true,'Hunter OK');
+    else _setKeyStatus('hunterStatus',false,'Chave inválida');
+  }catch(e){ _setKeyStatus('hunterStatus',false,'Erro de conexão'); }
+}
+
+async function testApolloKey(){
+  const key=$('apolloKey')?.value.trim()||localStorage.getItem('capturo-apolloKey')||'';
+  if(!key){_setKeyStatus('apolloStatus',false,'Sem chave');return;}
+  _setKeyLoading('apolloStatus');
+  try{
+    const r=await fetch('https://api.apollo.io/api/v1/auth/health',{
+      method:'GET', headers:{'Cache-Control':'no-cache','X-Api-Key':key},
+      signal:AbortSignal.timeout(10000)
+    });
+    _setKeyStatus('apolloStatus',r.ok,'Apollo '+(r.ok?'OK':'inválida'));
+  }catch(e){ _setKeyStatus('apolloStatus',false,'Erro de conexão'); }
+}
+
+async function testAIKey(){
+  const key=$('cKey')?.value.trim()||localStorage.getItem('capturo-cKey')||'';
+  if(!key){_setKeyStatus('aiKeyStatus',false,'Sem chave');return;}
+  _setKeyLoading('aiKeyStatus');
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:10,messages:[{role:'user',content:'Hi'}]}),
+      signal:AbortSignal.timeout(15000)
+    });
+    const d=await r.json();
+    if(d.content||d.id) _setKeyStatus('aiKeyStatus',true,'IA OK');
+    else if(d.error?.type==='authentication_error') _setKeyStatus('aiKeyStatus',false,'Chave inválida');
+    else _setKeyStatus('aiKeyStatus',r.status<500,'Erro '+r.status);
+  }catch(e){ _setKeyStatus('aiKeyStatus',false,'Erro de conexão'); }
+}
+
+async function testRRKey(){
+  const key=$('rrKey')?.value.trim()||localStorage.getItem('capturo-rrKey')||'';
+  if(!key){_setKeyStatus('rrStatus',false,'Sem chave');return;}
+  _setKeyLoading('rrStatus');
+  try{
+    const r=await fetch('https://api.rocketreach.co/v2/api/lookupProfile?name=test',{
+      headers:{'Api-Key':key},
+      signal:AbortSignal.timeout(10000)
+    });
+    // 404 or 400 = key is valid but no result; 401 = invalid key
+    _setKeyStatus('rrStatus',r.status!==401,'RocketReach '+(r.status===401?'inválida':'OK'));
+  }catch(e){ _setKeyStatus('rrStatus',false,'Erro de conexão'); }
 }
 
 async function testProxy(){
@@ -3975,8 +4294,16 @@ function setKanbanView(v){
   kanbanView=v;
   localStorage.setItem('capturo-view',v);
   const kb=$('btnViewKanban'),ls=$('btnViewList');
-  if(kb) kb.style.borderColor=v==='kanban'?'var(--accent)':'var(--border2)';
-  if(ls) ls.style.borderColor=v==='list'?'var(--accent)':'var(--border2)';
+  if(kb){
+    kb.style.borderColor=v==='kanban'?'var(--accent)':'var(--border)';
+    kb.style.background=v==='kanban'?'var(--accent-bg)':'var(--s2)';
+    kb.style.color=v==='kanban'?'var(--accent)':'var(--muted2)';
+  }
+  if(ls){
+    ls.style.borderColor=v==='list'?'var(--accent)':'var(--border)';
+    ls.style.background=v==='list'?'var(--accent-bg)':'var(--s2)';
+    ls.style.color=v==='list'?'var(--accent)':'var(--muted2)';
+  }
   renderAll();
 }
 
@@ -4412,7 +4739,7 @@ function applyManualWa(id){
   const l=leads.find(x=>x.id===id);
   if(l){l.manualWa=formatted;saveCampaigns();renderAll();toast('✓ WhatsApp salvo: wa.me/'+formatted,'success');}
 }
-function deleteLead(id){leads=leads.filter(x=>x.id!==id);saveCampaigns();renderAll();setStat('Lead removido.');}
+function deleteLead(id){leads=leads.filter(x=>x.id!==id);saveCampaigns();renderAll();setStat('Lead removido.');setTimeout(()=>syncToSheets(),800);}
 function saveNote(id,val){const l=leads.find(x=>x.id===id);if(l){l.notes=val;saveCampaigns();}}
 
 async function findEmailManual(id){
@@ -5742,7 +6069,9 @@ window._nbChipsData = []; // [{name, tier}]
 window._nbSelected  = []; // [name, ...]
 
 function loadNeighborhoods(){
-  const city = ($('cityFreeText')&&$('cityFreeText').value.trim()) || $('cityDD').value;
+  // Use first selected city from new chip system, fallback to free text or legacy select
+  const selCities = (typeof getSelectedCities==='function') ? getSelectedCities() : [];
+  const city = selCities[0] || ($('cityFreeText')&&$('cityFreeText').value.trim()) || $('cityDD').value;
   const nbRow = $('neighborhoodRow');
   const nbFree = $('neighborhoodFreeText');
   if(!nbRow) return;
@@ -5820,6 +6149,11 @@ function selectNbTier(tier){
   else if(tier==='silver')window._nbSelected = chips.filter(c=>c.tier==='silver').map(c=>c.name);
   renderNbChips();
   autoFillName();
+  // Update button active state
+  ['nbBtnGold','nbBtnSilver','nbBtnAll'].forEach(id=>{const b=$(id);if(b)b.className='tier-quick-btn';});
+  if(tier==='gold'   && $('nbBtnGold'))   $('nbBtnGold').className='tier-quick-btn active-gold';
+  if(tier==='silver' && $('nbBtnSilver')) $('nbBtnSilver').className='tier-quick-btn active-silver';
+  if(tier==='all'    && $('nbBtnAll'))    $('nbBtnAll').className='tier-quick-btn active-all';
 }
 
 function updateNbHidden(){
@@ -6036,8 +6370,8 @@ async function searchAndEnrichByName(){
   const city=$('mCity').value.trim();
   if(!name){toast('Informe o nome do negócio para buscar!','error');return;}
 
-  const serpKey=$('serpKey')?.value.trim();
-  const proxyBase=$('proxyUrl')?.value.trim()||PROXY_URL;
+  const serpKey=localStorage.getItem('serpKey')||'';
+  const proxyBase=localStorage.getItem('capturo-proxyUrl')||PROXY_URL;
   const btn=$('btnSearchByName');
   if(btn){btn.disabled=true;btn.textContent='🔍 Buscando...';}
 
@@ -7060,8 +7394,14 @@ function openSettings(){
   $('proxyUrl').value = localStorage.getItem('capturo-proxyUrl')||'';
   $('cseId').value = localStorage.getItem('capturo-cseId')||'80d765485a3f94fa9';
   $('gKeyCSE').value = localStorage.getItem('capturo-gKeyCSE')||'';
+  $('serpKey').value = localStorage.getItem('serpKey')||'';
+  $('rrKey').value = localStorage.getItem('capturo-rrKey')||'';
   $('enableAI').checked = localStorage.getItem('capturo-enableAI')==='true';
   $('enableHunter').checked = localStorage.getItem('capturo-enableHunter')==='true';
+  // Reset all test status pills
+  ['gMapsStatus','serpStatus','hunterStatus','apolloStatus','rrStatus','aiKeyStatus'].forEach(id=>{
+    const el=$(id); if(el){el.className='status-pill pill-idle';el.textContent='—';}
+  });
   // highlight current theme
   applyTheme(appSettings.theme||'blue');
   setSettingsTab('perfil');
@@ -7097,12 +7437,13 @@ function saveSettings(){
   saveKey(null,'capturo-proxyUrl',$('proxyUrl').value.trim());
   saveKey(null,'capturo-cseId',$('cseId').value.trim()||'80d765485a3f94fa9');
   saveKey(null,'capturo-gKeyCSE',$('gKeyCSE').value.trim());
+  saveKey(null,'serpKey',$('serpKey').value.trim());
+  saveKey(null,'capturo-rrKey',$('rrKey').value.trim());
   localStorage.setItem('capturo-enableAI', $('enableAI').checked);
   localStorage.setItem('capturo-enableHunter', $('enableHunter').checked);
   closeSettings();
   renderAll();
   toast('✓ Configurações salvas!','success');
-  setTimeout(()=>setStat('Pronto...'),2000);
 }
 function getVendedor(){ return appSettings.vendedor||'Vendedor'; }
 function exportData(){
