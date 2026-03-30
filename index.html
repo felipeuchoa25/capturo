@@ -8807,7 +8807,7 @@ function selectAllBulkLeads(){
 <script>
 // ── Configuração ──────────────────────────────────────────────
 const SUPABASE_URL = 'https://qnxabfowdvohrolamktx.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_OWpi6DYEuhNmbPY-eUZkzA_hqZ3BGXD';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFueGFiZm93ZHZvaHJvbGFta3R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0ODc0MTQsImV4cCI6MjA5MDA2MzQxNH0.FrhemfUDOWL4O632KchesHxM7f3BXDlPfuhZibn7PZ4';
 let _sb = null;
 let currentUser = null;
 let _authMode = 'login'; // 'login' | 'signup'
@@ -8819,6 +8819,54 @@ function getSupabase(){
   return _sb;
 }
 
+// ── Perfil do usuário logado (plano, créditos, expiração) ─────
+let currentProfile = { plan: 'free', credits: 0, expires_at: null };
+
+function planAtivo(){
+  if(!currentProfile) return false;
+  if(currentProfile.plan === 'free') return true;
+  if(!currentProfile.expires_at) return true;
+  return new Date(currentProfile.expires_at) > new Date();
+}
+
+function temPlano(planoMinimo){
+  const ordem = { free:0, starter:1, pro:2, agency:3, lifetime:4 };
+  const atual  = currentProfile?.plan || 'free';
+  return (ordem[atual] || 0) >= (ordem[planoMinimo] || 0) && planAtivo();
+}
+
+async function loadProfile(){
+  const sb = getSupabase();
+  if(!sb || !currentUser) return;
+  const { data } = await sb.from('profiles').select('plan,credits,expires_at').eq('id', currentUser.id).single();
+  if(data){
+    currentProfile = data;
+    if(currentProfile.plan !== 'free' && currentProfile.expires_at && new Date(currentProfile.expires_at) < new Date()){
+      currentProfile.plan = 'free';
+      toast('Seu plano expirou. Acesso gratuito ativado.','warn', 6000);
+    }
+  }
+  renderPlanBadge();
+}
+
+function renderPlanBadge(){
+  const plan = currentProfile?.plan || 'free';
+  const cores = { free:'#8e8e93', starter:'#34c759', pro:'#007aff', agency:'#af52de', lifetime:'#ff9500' };
+  const cor = cores[plan] || '#8e8e93';
+  let badge = document.getElementById('planBadge');
+  if(badge){ badge.textContent = plan.toUpperCase(); badge.style.color = cor; return; }
+  const el = document.getElementById('userHeaderInfo');
+  if(!el) return;
+  const span = el.querySelector('span');
+  if(span){
+    badge = document.createElement('span');
+    badge.id = 'planBadge';
+    badge.style.cssText = 'font-size:9px;font-weight:700;color:'+cor+';background:rgba(0,0,0,.06);padding:2px 6px;border-radius:10px;margin-left:2px';
+    badge.textContent = plan.toUpperCase();
+    span.after(badge);
+  }
+}
+
 // ── Inicializar Auth ──────────────────────────────────────────
 async function initAuth(){
   const sb = getSupabase();
@@ -8828,6 +8876,7 @@ async function initAuth(){
   if(session){
     currentUser = session.user;
     hideLoginScreen();
+    await loadProfile();
     await loadFromSupabase();
     if(typeof window._postAuthInit==='function') window._postAuthInit();
   } else {
@@ -8838,10 +8887,12 @@ async function initAuth(){
     if(event === 'SIGNED_IN'){
       currentUser = session.user;
       hideLoginScreen();
+      await loadProfile();
       await loadFromSupabase();
       if(typeof window._postAuthInit==='function') window._postAuthInit();
     } else if(event === 'SIGNED_OUT'){
       currentUser = null;
+      currentProfile = { plan:'free', credits:0, expires_at:null };
       campaigns = [];
       leads = [];
       if(typeof renderNavTabs === 'function') renderNavTabs();
