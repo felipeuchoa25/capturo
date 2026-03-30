@@ -9827,5 +9827,173 @@ if(_origInitAuth){
   };
 }
 </script>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Capturo</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      font-family: Arial;
+      background: #0a0a0a;
+      color: white;
+      margin: 0;
+    }
+
+    .center {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    input, button {
+      padding: 10px;
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    button {
+      background: #9dcc3a;
+      border: none;
+      cursor: pointer;
+    }
+
+    #app {
+      display: none;
+      padding: 20px;
+    }
+
+    #creditBox {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: #111;
+      color: #9dcc3a;
+      padding: 10px 15px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login" class="center">
+  <div>
+    <h2>Acessar Capturo</h2>
+    <input id="email" placeholder="Seu email">
+    <button onclick="login()">Entrar</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <h1>Capturo</h1>
+  <button onclick="executarBusca()">Buscar Leads</button>
+</div>
+
+<script>
+const supabase = window.supabase.createClient(
+  "https://qnxabfowdvohrolamktx.supabase.co",
+  "sb_publishable_OWpi6DYEuhNmbPY-eUZkzA_hqZ3BGXD"
+);
+
+let user = null;
+let credits = 0;
+
+// ================= LOGIN =================
+
+async function login() {
+  const email = document.getElementById("email").value;
+
+  await supabase.auth.signInWithOtp({ email });
+
+  alert("Verifique seu email para acessar");
+}
+
+// ================= INIT =================
+
+async function init() {
+  const { data } = await supabase.auth.getUser();
+  user = data.user;
+
+  if (!user) return;
+
+  document.getElementById("login").style.display = "none";
+  document.getElementById("app").style.display = "block";
+
+  await loadCredits();
+}
+
+// ================= CRÉDITOS =================
+
+async function loadCredits() {
+  const { data } = await supabase
+    .from("users")
+    .select("credits")
+    .eq("id", user.id)
+    .single();
+
+  credits = data?.credits || 0;
+
+  renderCredits();
+}
+
+function renderCredits() {
+  let el = document.getElementById("creditBox");
+
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "creditBox";
+    document.body.appendChild(el);
+  }
+
+  el.innerText = `Oportunidades: ${credits}`;
+}
+
+// ================= CONSUMO =================
+
+async function consumirCredito(custo = 1) {
+  if (credits < custo) {
+    alert("Sem créditos. Compre mais.");
+    return false;
+  }
+
+  const novo = credits - custo;
+
+  await supabase
+    .from("users")
+    .update({ credits: novo })
+    .eq("id", user.id);
+
+  await supabase.from("usage_logs").insert({
+    user_id: user.id,
+    cost: custo,
+    action_type: "lead"
+  });
+
+  credits = novo;
+  renderCredits();
+
+  return true;
+}
+
+// ================= FUNÇÃO PRINCIPAL =================
+
+async function executarBusca() {
+  const ok = await consumirCredito(1);
+  if (!ok) return;
+
+  // 🔥 SUA LÓGICA REAL AQUI
+  alert("Buscando leads...");
+}
+
+// ================= START =================
+
+init();
+</script>
+
 </body>
 </html>
