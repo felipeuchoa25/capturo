@@ -1066,10 +1066,6 @@ function toast(msg, type='info', duration=3500){
     <span class="sb-label">Favoritos</span>
   </div>
   <div class="sb-divider"></div>
-  <div class="sb-item" id="sb-planos" onclick="showPage('pagePlanos');setSbActive('sb-planos');renderPlanosPage()">
-    <span class="sb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
-    <span class="sb-label">Créditos</span>
-  </div>
   <div class="sb-item" id="sb-guia" onclick="showPage('pageGuia');setSbActive('sb-guia')">
     <span class="sb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
     <span class="sb-label">Manual</span>
@@ -1133,81 +1129,6 @@ function toast(msg, type='info', duration=3500){
 </div>
 
 <div class="main-wrap"><div class="main">
-
-  <!-- ══ PÁGINA DE PLANOS / RECARREGAR CRÉDITOS ══ -->
-  <div class="page" id="pagePlanos">
-    <div style="max-width:700px;margin:0 auto;padding:20px 0">
-      <div style="margin-bottom:28px">
-        <div style="font-size:20px;font-weight:800;color:var(--text);letter-spacing:-.02em">⚡ Oportunidades <span style="font-size:12px;font-weight:500;color:var(--muted2);font-family:'IBM Plex Mono',monospace">// Créditos do sistema</span></div>
-        <div style="font-size:12px;color:var(--muted2);margin-top:4px">Cada busca consome créditos. Recarregue para continuar prospectando.</div>
-      </div>
-
-      <!-- Saldo atual -->
-      <div style="background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
-        <div>
-          <div style="font-size:11px;color:var(--muted2);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Seu saldo atual</div>
-          <div style="font-size:36px;font-weight:800;color:var(--text)" id="planosCreditDisplay">—</div>
-          <div style="font-size:11px;color:var(--muted2);margin-top:4px">oportunidades disponíveis</div>
-        </div>
-        <div style="text-align:right">
-          <div style="font-size:11px;color:var(--muted2);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Plano atual</div>
-          <div style="font-size:15px;font-weight:700;color:var(--accent)" id="planosPlanDisplay">—</div>
-        </div>
-      </div>
-
-      <!-- Tabela de custos -->
-      <div style="background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:20px">
-        <div style="font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px">Custo por ação</div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg);border-radius:8px;font-size:13px">
-            <span>🗺 Busca Google Maps</span><span style="font-weight:700;color:var(--accent)">1 crédito</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg);border-radius:8px;font-size:13px">
-            <span>🌋 Busca Bio Links</span><span style="font-weight:700;color:var(--accent)">1 crédito</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg);border-radius:8px;font-size:13px">
-            <span>📧 Buscar e-mail</span><span style="font-weight:700;color:var(--orange)">2 créditos</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg);border-radius:8px;font-size:13px">
-            <span>🤖 Análise IA (Claude)</span><span style="font-weight:700;color:var(--accent)">1 crédito</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg);border-radius:8px;font-size:13px">
-            <span>🚀 Busca Completa (Maps + Bio)</span><span style="font-weight:700;color:var(--orange)">2 créditos</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Pacotes de recarga -->
-      <div style="font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px">Recarregar créditos</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:24px">
-        <div style="background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center;transition:border-color .2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
-          <div style="font-size:28px;font-weight:800;color:var(--text)">40</div>
-          <div style="font-size:11px;color:var(--muted2);margin-bottom:12px">oportunidades</div>
-          <div style="font-size:18px;font-weight:700;color:var(--accent);margin-bottom:12px">R$ 97</div>
-          <a href="https://pay.hotmart.com/LINK_STARTER" target="_blank" style="display:block;padding:10px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none">Comprar</a>
-        </div>
-        <div style="background:var(--s1);border:2px solid var(--accent);border-radius:14px;padding:20px;text-align:center;position:relative">
-          <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:9px;font-weight:700;padding:2px 10px;border-radius:20px;white-space:nowrap">MAIS POPULAR</div>
-          <div style="font-size:28px;font-weight:800;color:var(--text)">150</div>
-          <div style="font-size:11px;color:var(--muted2);margin-bottom:12px">oportunidades</div>
-          <div style="font-size:18px;font-weight:700;color:var(--accent);margin-bottom:12px">R$ 197</div>
-          <a href="https://pay.hotmart.com/LINK_PRO" target="_blank" style="display:block;padding:10px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none">Comprar</a>
-        </div>
-        <div style="background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center;transition:border-color .2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
-          <div style="font-size:28px;font-weight:800;color:var(--text)">400</div>
-          <div style="font-size:11px;color:var(--muted2);margin-bottom:12px">oportunidades</div>
-          <div style="font-size:18px;font-weight:700;color:var(--accent);margin-bottom:12px">R$ 397</div>
-          <a href="https://pay.hotmart.com/LINK_AGENCY" target="_blank" style="display:block;padding:10px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none">Comprar</a>
-        </div>
-      </div>
-
-      <div style="font-size:11px;color:var(--muted2);text-align:center;font-family:'IBM Plex Mono',monospace">
-        Após a compra, seus créditos serão adicionados automaticamente em até 5 minutos.<br>
-        Dúvidas? Entre em contato: <a href="mailto:suporte@noxvy.com.br" style="color:var(--accent2)">suporte@noxvy.com.br</a>
-      </div>
-    </div>
-  </div>
-
   <!-- HOME / DASHBOARD -->
   <div class="page active" id="pageHome">
     <!-- Dashboard Header -->
@@ -1217,7 +1138,7 @@ function toast(msg, type='info', duration=3500){
       </div>
       <div style="display:flex;align-items:center;gap:12px">
         <div style="font-size:11px;color:var(--muted2);font-family:'IBM Plex Mono',monospace" id="dashGreeting">Carregando...</div>
-        <button onclick="localStorage.removeItem('capturo-tour-done');restartTourFromFloat()" style="background:none;border:none;cursor:pointer;font-size:10px;color:var(--muted2);font-family:'IBM Plex Mono',monospace;padding:0 4px" title="Reiniciar tour de onboarding">🧭 Tour</button>
+        <button onclick="localStorage.removeItem('capturo-tour-done');startOnboardingTour()" style="background:none;border:none;cursor:pointer;font-size:10px;color:var(--muted2);font-family:'IBM Plex Mono',monospace;padding:0 4px" title="Reiniciar tour de onboarding">🧭 Tour</button>
         <button class="btn btn-primary" onclick="openCampaignModal()" style="font-size:11px;padding:6px 14px">+ Nova Campanha</button>
       </div>
     </div>
@@ -3970,10 +3891,6 @@ async function googleSearchEmail(companyName, address, gKey, cseId){
 const PROXY_URL = 'https://script.google.com/macros/s/AKfycbxSHe2x6h96l2oPcL7W6TNFy12S24mnLbg83gBtCiEFC0l23eudB7LKBGWGHAud7PL9sA/exec';
 
 async function findEmailCascade(lead, keys){
-  // ── Verificar crédito por busca de email ──
-  const ok = await consumirCredito(CREDIT_COSTS.email_lookup, 'email_lookup');
-  if(!ok) return null;
-
   const name = lead.name||'';
   const domain = lead.website ? (() => { try { return new URL(lead.website.startsWith('http')?lead.website:'https://'+lead.website).hostname.replace('www.',''); } catch(e){ return ''; } })() : '';
   const city = (lead.formatted_address||'').split(',').slice(-3,-1).join(',').trim();
@@ -4019,9 +3936,6 @@ async function startMapsSearch(){
   if(!gKey){toast('Configure sua Google API Key em ⚙️ Configurações → Integrações!','warn');openSettings();setSettingsTab('integrações');return;}
   if(!activeCampaignId){alert('Selecione uma campanha!');return;}
   if(isSearching){toast('Busca em andamento. Cancele primeiro se quiser iniciar uma nova.','warn');return;}
-  // ── Verificar créditos antes de buscar ──
-  const ok = await consumirCredito(CREDIT_COSTS.maps_search, 'maps_search');
-  if(!ok) return;
   const c=campaigns.find(x=>x.id===activeCampaignId);if(!c)return;
   const useAI=$('enableAI').checked&&(localStorage.getItem('capturo-cKey')||'');
   const useHunter=$('enableHunter').checked&&(localStorage.getItem('capturo-hKey')||'');
@@ -4131,9 +4045,6 @@ async function startBioSearch(){
   const c=campaigns.find(x=>x.id===activeCampaignId);if(!c)return;
   const activeBio=getActiveBiolinks();
   if(!activeBio.length){alert('Ative pelo menos um site de bio link!');return;}
-  // ── Verificar créditos antes de buscar ──
-  const ok = await consumirCredito(CREDIT_COSTS.bio_search, 'bio_search');
-  if(!ok) return;
   const btn=$('btnS2');btn.disabled=true;btn.textContent='Buscando...';showCancelBtn(true);
   leads=[];setProg(5);
   const query=c.market==='nacional'?c.nicho:c.nichoEn;
@@ -4207,9 +4118,6 @@ async function startFullSearch(){
   const gKey=localStorage.getItem('capturo-gKey')||'';
   if(!gKey){toast('Configure sua Google API Key em ⚙️ Configurações → Integrações!','warn');openSettings();setSettingsTab('integrações');return;}
   if(!activeCampaignId){alert('Selecione uma campanha!');return;}
-  // ── Verificar créditos antes de buscar ──
-  const ok = await consumirCredito(CREDIT_COSTS.full_search, 'full_search');
-  if(!ok) return;
   // Run Maps first
   $('btnS3').disabled=true;$('btnS3').textContent='Buscando Maps...';
   const savedAI=$('enableAI').checked;
@@ -4348,9 +4256,6 @@ function finishSearch(){
 // ══════════════════════════════════════════
 async function analyzeWithAI(lead,cKey){
   if(!cKey||!lead.website)return;
-  // ── Verificar crédito por análise IA ──
-  const ok = await consumirCredito(CREDIT_COSTS.ai_analysis, 'ai_analysis');
-  if(!ok) return;
   try{
     const prompt=`You are a web design sales consultant analyzing a local business website.
 Business: ${lead.name}
@@ -8902,7 +8807,7 @@ function selectAllBulkLeads(){
 <script>
 // ── Configuração ──────────────────────────────────────────────
 const SUPABASE_URL = 'https://qnxabfowdvohrolamktx.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFueGFiZm93ZHZvaHJvbGFta3R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0ODc0MTQsImV4cCI6MjA5MDA2MzQxNH0.FrhemfUDOWL4O632KchesHxM7f3BXDlPfuhZibn7PZ4';
+const SUPABASE_KEY = 'sb_publishable_OWpi6DYEuhNmbPY-eUZkzA_hqZ3BGXD';
 let _sb = null;
 let currentUser = null;
 let _authMode = 'login'; // 'login' | 'signup'
@@ -8914,117 +8819,6 @@ function getSupabase(){
   return _sb;
 }
 
-// ── Perfil do usuário logado (plano, créditos, expiração) ─────
-let currentProfile = { plan: 'free', credits: 0, expires_at: null };
-
-function planAtivo(){
-  if(!currentProfile) return false;
-  if(currentProfile.plan === 'free') return true;
-  if(!currentProfile.expires_at) return true;
-  return new Date(currentProfile.expires_at) > new Date();
-}
-
-function temPlano(planoMinimo){
-  const ordem = { free:0, starter:1, pro:2, agency:3, lifetime:4 };
-  const atual  = currentProfile?.plan || 'free';
-  return (ordem[atual] || 0) >= (ordem[planoMinimo] || 0) && planAtivo();
-}
-
-async function loadProfile(){
-  const sb = getSupabase();
-  if(!sb || !currentUser) return;
-  const { data } = await sb.from('profiles').select('plan,credits,expires_at').eq('id', currentUser.id).single();
-  if(data){
-    currentProfile = data;
-    if(currentProfile.plan !== 'free' && currentProfile.expires_at && new Date(currentProfile.expires_at) < new Date()){
-      currentProfile.plan = 'free';
-      toast('Seu plano expirou. Acesso gratuito ativado.','warn', 6000);
-    }
-  }
-  renderPlanBadge();
-  renderCreditsUI();
-}
-
-function renderPlanBadge(){
-  const plan = currentProfile?.plan || 'free';
-  const cores = { free:'#8e8e93', starter:'#34c759', pro:'#007aff', agency:'#af52de', lifetime:'#ff9500' };
-  const cor = cores[plan] || '#8e8e93';
-  let badge = document.getElementById('planBadge');
-  if(badge){ badge.textContent = plan.toUpperCase(); badge.style.color = cor; return; }
-  const el = document.getElementById('userHeaderInfo');
-  if(!el) return;
-  const span = el.querySelector('span');
-  if(span){
-    badge = document.createElement('span');
-    badge.id = 'planBadge';
-    badge.style.cssText = 'font-size:9px;font-weight:700;color:'+cor+';background:rgba(0,0,0,.06);padding:2px 6px;border-radius:10px;margin-left:2px';
-    badge.textContent = plan.toUpperCase();
-    span.after(badge);
-  }
-}
-
-// ── Créditos — exibir na UI ────────────────────────────────────
-function renderCreditsUI(){
-  const creds = currentProfile?.credits ?? 0;
-  // Tenta atualizar badge de créditos no header se existir
-  let el = document.getElementById('creditsBadge');
-  if(!el){
-    const header = document.getElementById('userHeaderInfo');
-    if(header){
-      el = document.createElement('span');
-      el.id = 'creditsBadge';
-      el.style.cssText = 'font-size:10px;font-weight:700;background:rgba(157,204,58,.12);color:#9dcc3a;padding:2px 8px;border-radius:10px;margin-left:6px;border:1px solid rgba(157,204,58,.25)';
-      header.appendChild(el);
-    }
-  }
-  if(el) el.textContent = `⚡ ${creds} oport.`;
-}
-
-// ── Consumir crédito (retorna true se ok, false se bloqueado) ──
-async function consumirCredito(custo = 1, tipoAcao = 'busca'){
-  const sb = getSupabase();
-  if(!sb || !currentUser){
-    toast('Faça login para usar esta função.','warn');
-    return false;
-  }
-
-  const creds = currentProfile?.credits ?? 0;
-
-  if(creds < custo){
-    // Modal de sem créditos
-    const ok = confirm(`⚡ Você não tem créditos suficientes para esta ação.\n\nNecessário: ${custo} | Disponível: ${creds}\n\nClique em OK para saber como recarregar.`);
-    if(ok) showPage('pagePlanos');
-    return false;
-  }
-
-  try{
-    const novo = creds - custo;
-    await sb.from('profiles').update({ credits: novo }).eq('id', currentUser.id);
-    await sb.from('usage_logs').insert({
-      user_id: currentUser.id,
-      action_type: tipoAcao,
-      cost: custo,
-      created_at: new Date().toISOString()
-    });
-    currentProfile.credits = novo;
-    renderCreditsUI();
-    return true;
-  }catch(e){
-    console.error('[CAPTURO] consumirCredito error:', e);
-    toast('Erro ao consumir crédito. Tente novamente.','error');
-    return false;
-  }
-}
-
-// ── Custos por tipo de ação ────────────────────────────────────
-const CREDIT_COSTS = {
-  maps_search:   1,   // busca Google Maps por lead
-  bio_search:    1,   // busca Bio Links por lead
-  email_lookup:  2,   // buscar e-mail (Hunter/Apollo/Snov/RR)
-  ai_analysis:   1,   // análise IA (Claude)
-  full_search:   2,   // busca completa (Maps + Bio)
-};
-
 // ── Inicializar Auth ──────────────────────────────────────────
 async function initAuth(){
   const sb = getSupabase();
@@ -9034,7 +8828,6 @@ async function initAuth(){
   if(session){
     currentUser = session.user;
     hideLoginScreen();
-    await loadProfile();
     await loadFromSupabase();
     if(typeof window._postAuthInit==='function') window._postAuthInit();
   } else {
@@ -9045,12 +8838,10 @@ async function initAuth(){
     if(event === 'SIGNED_IN'){
       currentUser = session.user;
       hideLoginScreen();
-      await loadProfile();
       await loadFromSupabase();
       if(typeof window._postAuthInit==='function') window._postAuthInit();
     } else if(event === 'SIGNED_OUT'){
       currentUser = null;
-      currentProfile = { plan:'free', credits:0, expires_at:null };
       campaigns = [];
       leads = [];
       if(typeof renderNavTabs === 'function') renderNavTabs();
@@ -9434,7 +9225,7 @@ initAuth();
   </div>
 </div>
 <!-- Botão flutuante sempre visível -->
-<button id="tourFloatBtn" onclick="localStorage.removeItem('capturo-tour-done');tourStep=0;showTourStep(0);" title="Abrir tour interativo / ajuda" style="position:fixed;bottom:24px;right:24px;z-index:99100;width:48px;height:48px;border-radius:50%;background:var(--accent);color:#fff;border:none;cursor:pointer;font-size:20px;box-shadow:0 4px 20px rgba(0,122,255,.5);display:flex;align-items:center;justify-content:center;transition:transform .15s,box-shadow .15s" onmouseover="this.style.transform='scale(1.12)';this.style.boxShadow='0 6px 28px rgba(0,122,255,.7)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 4px 20px rgba(0,122,255,.5)'">🧭</button>
+<button id="tourFloatBtn" onclick="if(typeof restartTourFromFloat==='function'){restartTourFromFloat();}else{localStorage.removeItem('capturo-tour-done');location.reload();}" title="Abrir tour interativo / ajuda" style="position:fixed;bottom:24px;right:24px;z-index:99100;width:48px;height:48px;border-radius:50%;background:var(--accent);color:#fff;border:none;cursor:pointer;font-size:20px;box-shadow:0 4px 20px rgba(0,122,255,.5);display:flex;align-items:center;justify-content:center;transition:transform .15s,box-shadow .15s" onmouseover="this.style.transform='scale(1.12)';this.style.boxShadow='0 6px 28px rgba(0,122,255,.7)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 4px 20px rgba(0,122,255,.5)'">🧭</button>
 
 <script>
 /* ══════════════════════════════════════════════════════════════
@@ -9805,7 +9596,7 @@ function renderVisualFunnel(stages){
 const TOUR_STEPS = [
   { title:'🎉 Bem-vindo ao CAPTURO v5.0!', desc:'Este tour vai te guiar pelos principais recursos em poucos minutos. Clique em 🔊 para ativar narração por voz. Clique no botão 🧭 no canto inferior direito para rever o tour a qualquer momento!', target:null, pos:'center' },
   { title:'🗂 Campanhas', desc:'Aqui você cria campanhas para organizar seus leads por nicho e cidade. Ex: "Dentistas — São Paulo". Cada campanha tem seu próprio funil independente.', target:'.campaigns-grid', pos:'top' },
-  { title:'🔍 Motor de Prospecção', desc:'Na aba Prospectar você busca negócios automaticamente via Google Maps, Bio Links ou Busca Completa (Maps + Bio Links em sequência para máxima cobertura).', target:'#sb-home', pos:'right' },
+  { title:'🔍 Motor de Prospecção', desc:'Na aba Prospectar você busca negócios automaticamente via Google Maps, Bio Links ou Busca Completa (Maps + Bio Links em sequência para máxima cobertura).', target:'#sb-prospectar', pos:'right' },
   { title:'📊 Kanban de Leads', desc:'Seus leads ficam organizados por temperatura: 🌋 Vulcão → 🧊 Gelado. Arraste os cards para mover entre estágios do funil. Clique em qualquer card para ver o perfil completo.', target:'#sb-leads', pos:'right' },
   { title:'🔔 Follow-ups', desc:'Agende lembretes para retornar a leads. O CAPTURO te avisa pelo navegador quando o prazo chegar. Configure em ⚙️ Perfil.', target:'#sb-followup', pos:'right' },
   { title:'🔍 Busca Global', desc:'Use Ctrl+K a qualquer momento para buscar leads, campanhas, telefones e e-mails em todo o sistema instantaneamente — sem sair da tela atual.', target:'.gs-btn', pos:'bottom' },
@@ -9819,10 +9610,6 @@ let tourAudioEnabled = false;
 function restartTourFromFloat(){
   localStorage.removeItem('capturo-tour-done');
   tourStep = 0;
-  const ov = document.getElementById('tourOverlay');
-  const bubble = document.getElementById('tourBubble');
-  if(ov) ov.style.display = 'block';
-  if(bubble) bubble.style.display = 'block';
   showTourStep(0);
 }
 
@@ -9976,28 +9763,17 @@ document.addEventListener('DOMContentLoaded', ()=>{
   }
 });
 
-// Hook into initAuth completion to start tour after auth resolves
-const _origInitAuth = typeof initAuth === 'function' ? initAuth : null;
-if(_origInitAuth){
-  window.initAuth = async function(){
-    await _origInitAuth();
-    maybeStartTour();
-  };
-}
 
-// ── Página de Créditos / Planos ──────────────────────────────
-function renderPlanosPage(){
-  const creds = currentProfile?.credits ?? 0;
-  const plan  = currentProfile?.plan    || 'free';
-  const el    = document.getElementById('planosCreditDisplay');
-  const elP   = document.getElementById('planosPlanDisplay');
-  if(el)  el.textContent  = creds;
-  if(elP) elP.textContent = plan.toUpperCase();
-}
+/* ─────────── INIT — POST AUTH ──────────────────────────── */
+// Define _postAuthInit — called by initAuth after successful login
+window._postAuthInit = function(){
+  try{ if(typeof initNotifications==='function') initNotifications(); }catch(e){}
+  try{ if(typeof renderCampaignsList==='function') renderCampaignsList(); }catch(e){}
+  try{ if(typeof renderDashboard==='function') renderDashboard(); }catch(e){}
+  try{ if(typeof maybeStartTour==='function') maybeStartTour(); }catch(e){}
+  try{ if(typeof updateCreditsBadge==='function') updateCreditsBadge(); }catch(e){}
+};
 
-// Expor para uso em onclick
-window.renderPlanosPage = renderPlanosPage;
 </script>
-
 </body>
 </html>
