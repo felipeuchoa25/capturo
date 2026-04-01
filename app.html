@@ -3599,20 +3599,18 @@ function _setKeyStatus(id, ok, msg){
 function _setKeyLoading(id){ const el=$(id); if(el){el.className='status-pill pill-idle';el.textContent='⏳';} }
 
 async function testGMapsKey(){
-  const key=$('gKey')?.value.trim()||localStorage.getItem('capturo-gKey')||'';
+  const key=$('gKey')?.value.trim()||'via-edge-function';
   if(!key){_setKeyStatus('gMapsStatus',false,'Sem chave');return;}
   _setKeyLoading('gMapsStatus');
   try{
-    const r=await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=São+Paulo&key=${encodeURIComponent(key)}`,{signal:AbortSignal.timeout(10000)});
-    const d=await r.json();
+    const d=await gmGeocode('São Paulo');
     if(d.status==='OK'||d.results?.length) _setKeyStatus('gMapsStatus',true,'Maps OK');
-    else if(d.status==='REQUEST_DENIED') _setKeyStatus('gMapsStatus',false,'Chave inválida');
     else _setKeyStatus('gMapsStatus',false,d.status||'Erro');
   }catch(e){ _setKeyStatus('gMapsStatus',false,'Timeout'); }
 }
 
 async function testSerpKey(){
-  const key=$('serpKey')?.value.trim()||localStorage.getItem('serpKey')||'';
+  const key=$('serpKey')?.value.trim()||'via-edge-function';
   if(!key){_setKeyStatus('serpStatus',false,'Sem chave');return;}
   const proxyBase=localStorage.getItem('capturo-proxyUrl')||PROXY_URL;
   if(!proxyBase){_setKeyStatus('serpStatus',false,'Configure o proxy');return;}
@@ -3626,59 +3624,44 @@ async function testSerpKey(){
 }
 
 async function testHunterKey(){
-  const key=$('hKey')?.value.trim()||localStorage.getItem('capturo-hKey')||'';
+  const key=$('hKey')?.value.trim()||'via-edge-function';
   if(!key){_setKeyStatus('hunterStatus',false,'Sem chave');return;}
   _setKeyLoading('hunterStatus');
   try{
-    const r=await fetch(`https://api.hunter.io/v2/account?api_key=${encodeURIComponent(key)}`,{signal:AbortSignal.timeout(10000)});
-    const d=await r.json();
-    if(d.data?.email) _setKeyStatus('hunterStatus',true,'Hunter OK');
-    else _setKeyStatus('hunterStatus',false,'Chave inválida');
+    const d=await hunterSearch('google.com');
+    if(d.data) _setKeyStatus('hunterStatus',true,'Hunter OK');
+    else _setKeyStatus('hunterStatus',false,'Erro na Edge Function');
   }catch(e){ _setKeyStatus('hunterStatus',false,'Erro de conexão'); }
 }
 
 async function testApolloKey(){
-  const key=$('apolloKey')?.value.trim()||localStorage.getItem('capturo-apolloKey')||'';
+  const key=$('apolloKey')?.value.trim()||'via-edge-function';
   if(!key){_setKeyStatus('apolloStatus',false,'Sem chave');return;}
   _setKeyLoading('apolloStatus');
   try{
-    const r=await fetch('https://api.apollo.io/api/v1/auth/health',{
-      method:'GET', headers:{'Cache-Control':'no-cache','X-Api-Key':key},
-      signal:AbortSignal.timeout(10000)
-    });
-    _setKeyStatus('apolloStatus',r.ok,'Apollo '+(r.ok?'OK':'inválida'));
+    const d=await apolloSearch('test','New York');
+    _setKeyStatus('apolloStatus',true,'Apollo OK');
   }catch(e){ _setKeyStatus('apolloStatus',false,'Erro de conexão'); }
 }
 
 async function testAIKey(){
-  const key=$('cKey')?.value.trim()||localStorage.getItem('capturo-cKey')||'';
+  const key=$('cKey')?.value.trim()||'via-edge-function';
   if(!key){_setKeyStatus('aiKeyStatus',false,'Sem chave');return;}
   _setKeyLoading('aiKeyStatus');
   try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
-      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:10,messages:[{role:'user',content:'Hi'}]}),
-      signal:AbortSignal.timeout(15000)
-    });
-    const d=await r.json();
+    const d=await claudeAI([{role:'user',content:'Hi'}],'claude-haiku-4-5-20251001',10);
     if(d.content||d.id) _setKeyStatus('aiKeyStatus',true,'IA OK');
-    else if(d.error?.type==='authentication_error') _setKeyStatus('aiKeyStatus',false,'Chave inválida');
-    else _setKeyStatus('aiKeyStatus',r.status<500,'Erro '+r.status);
+    else _setKeyStatus('aiKeyStatus',false,'Erro na Edge Function');
   }catch(e){ _setKeyStatus('aiKeyStatus',false,'Erro de conexão'); }
 }
 
 async function testRRKey(){
-  const key=$('rrKey')?.value.trim()||localStorage.getItem('capturo-rrKey')||'';
+  const key=$('rrKey')?.value.trim()||'via-edge-function';
   if(!key){_setKeyStatus('rrStatus',false,'Sem chave');return;}
   _setKeyLoading('rrStatus');
   try{
-    const r=await fetch('https://api.rocketreach.co/v2/api/lookupProfile?name=test',{
-      headers:{'Api-Key':key},
-      signal:AbortSignal.timeout(10000)
-    });
-    // 404 or 400 = key is valid but no result; 401 = invalid key
-    _setKeyStatus('rrStatus',r.status!==401,'RocketReach '+(r.status===401?'inválida':'OK'));
+    const d=await rrSearch('test','test');
+    _setKeyStatus('rrStatus',true,'RocketReach OK');
   }catch(e){ _setKeyStatus('rrStatus',false,'Erro de conexão'); }
 }
 
@@ -3702,14 +3685,14 @@ async function testProxy(){
   }
 }
 async function testGoogle(){
-  const key=localStorage.getItem('capturo-gKey')||'';
+  const key='via-edge-function';
   if(!key){toast('Configure sua Google API Key em ⚙️ Configurações → Integrações!','warn');openSettings();setSettingsTab('integrações');return;}
   setStat('<span class="spinner"></span>Testando Google API...');
   try{
-    const d=await fetchFallback(`https://maps.googleapis.com/maps/api/geocode/json?address=New+York&key=${key}`);
+    const d=await gmGeocode('New York');
     if(d.status==='OK'||d.results?.length){
       $('gStatus').className='status-pill pill-ok';$('gStatus').textContent='✓ Maps OK';
-      const cKey=localStorage.getItem('capturo-cKey')||'';
+      const cKey='via-edge-function';
       if($('aiStatus')) {$('aiStatus').className=cKey?'status-pill pill-ok':'status-pill pill-idle';$('aiStatus').textContent=cKey?'✓ IA OK':'⚬ IA (sem key)';}
       testProxy();
     } else {
@@ -3766,7 +3749,7 @@ function calcScore(d,t){
 async function hunterDomainSearch(domain, hKey){
   if(!hKey||!domain)return null;
   try{
-    const url=`https://api.hunter.io/v2/domain-search?domain=${encodeURIComponent(domain)}&limit=5&api_key=${hKey}`;
+    // Hunter via Edge Function
     const d=await fetchFallback(url);
     const emails=d?.data?.emails||[];
     if(emails.length){
@@ -3779,15 +3762,9 @@ async function hunterDomainSearch(domain, hKey){
 
 
 async function apolloEmailSearch(companyName, city, apiKey){
-  if(!apiKey||!companyName) return null;
+  if(!companyName) return null;
   try{
-    const r=await fetch('https://api.apollo.io/api/v1/mixed_people/search',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','X-Api-Key':apiKey,'Cache-Control':'no-cache'},
-      body:JSON.stringify({q_organization_name:companyName,q_organization_locations:[city||''],page:1,per_page:5})
-    });
-    if(!r.ok) return null;
-    const d=await r.json();
+    const d=await apolloSearch(companyName, city);
     const people=(d.people||[]);
     const best=people.find(p=>p.email&&p.email_status==='verified')||people.find(p=>p.email&&!p.email.includes('apollo'));
     if(best&&best.email) return {email:best.email,confidence:85,verified:best.email_status==='verified',source:'apollo'};
@@ -3796,59 +3773,19 @@ async function apolloEmailSearch(companyName, city, apiKey){
 }
 
 async function snovEmailSearch(companyName, domain, clientId, clientSecret){
-  if(!clientId||!clientSecret) return null;
   try{
-    const tokenR=await fetch('https://api.snov.io/v1/oauth/access_token',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({grant_type:'client_credentials',client_id:clientId,client_secret:clientSecret})
-    });
-    if(!tokenR.ok) return null;
-    const {access_token:token}=await tokenR.json();
-    if(!token) return null;
-    if(domain){
-      const r=await fetch('https://api.snov.io/v1/get-emails-from-domain',{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({access_token:token,domain,type:'all',limit:5})
-      });
-      if(r.ok){
-        const d=await r.json();
-        const emails=d.emails||[];
-        if(emails.length){
-          const best=emails.sort((a,b)=>(b.confidence||0)-(a.confidence||0))[0];
-          return {email:best.email,confidence:best.confidence||70,verified:false,source:'snov'};
-        }
-      }
-    }
-    // fallback: search by company name
-    const r2=await fetch('https://api.snov.io/v1/get-emails-by-name',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({access_token:token,firstName:'',lastName:'',companyName,companyDomain:domain||''})
-    });
-    if(r2.ok){
-      const d2=await r2.json();
-      const em=d2.emails?.[0];
-      if(em) return {email:em.email,confidence:65,verified:false,source:'snov'};
-    }
+    const d=await snovSearch(companyName, domain);
+    if(d?.email) return {email:d.email,confidence:d.confidence||70,verified:false,source:'snov'};
   }catch(e){}
   return null;
 }
 
+
 async function rocketReachEmailSearch(companyName, city, apiKey){
-  if(!apiKey||!companyName) return null;
+  if(!companyName) return null;
   try{
-    const r=await fetch(`https://api.rocketreach.co/v2/api/search`,{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Api-Key':apiKey},
-      body:JSON.stringify({query:{name:companyName,location:city||''},start:1,pageSize:3})
-    });
-    if(!r.ok) return null;
-    const d=await r.json();
-    const profiles=(d.profiles||[]);
-    const best=profiles.find(p=>p.emails?.length);
-    if(best){
-      const email=best.emails.find(e=>e.smtp_valid==='valid')||best.emails[0];
-      if(email) return {email:email.email,confidence:80,verified:email.smtp_valid==='valid',source:'rocketreach'};
-    }
+    const d=await rrSearch(companyName, city);
+    if(d?.email) return {email:d.email,confidence:80,verified:d.verified||false,source:'rocketreach'};
   }catch(e){}
   return null;
 }
@@ -3931,13 +3868,13 @@ async function findEmailCascade(lead, keys){
 // ENGINE 1: MAPS
 // ══════════════════════════════════════════
 async function startMapsSearch(){
-  const gKey=localStorage.getItem('capturo-gKey')||'';
-  if(!gKey){toast('Configure sua Google API Key em ⚙️ Configurações → Integrações!','warn');openSettings();setSettingsTab('integrações');return;}
+  const gKey='via-edge-function'; // chave no servidor
+  // gKey via edge function
   if(!activeCampaignId){alert('Selecione uma campanha!');return;}
   if(isSearching){toast('Busca em andamento. Cancele primeiro se quiser iniciar uma nova.','warn');return;}
   const c=campaigns.find(x=>x.id===activeCampaignId);if(!c)return;
-  const useAI=$('enableAI').checked&&(localStorage.getItem('capturo-cKey')||'');
-  const useHunter=$('enableHunter').checked&&(localStorage.getItem('capturo-hKey')||'');
+  const useAI=$('enableAI').checked&&('via-edge-function');
+  const useHunter=$('enableHunter').checked&&('via-edge-function');
   const btn=$('btnS1');btn.disabled=true;btn.textContent='Buscando...';showCancelBtn(true);
   leads=[];setProg(5);setStat('<span class="spinner"></span>Localizando cidade...');
 
@@ -3957,7 +3894,7 @@ async function startMapsSearch(){
       setStat(`<span class="spinner"></span>📍 Localizando${nb?' bairro '+nb:''}... (${nbIdx+1}/${nbList.length})`);
       let lat,lng;
       try{
-        const geo=await fetchFallback(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(searchAddr)}&key=${gKey}`);
+        const geo=await gmGeocode(searchAddr);
         if(!geo.results?.length){setStat(`⚠️ Bairro "${nb}" não encontrado, pulando...`);await new Promise(r=>setTimeout(r,400));continue;}
         lat=geo.results[0].geometry.location.lat;
         lng=geo.results[0].geometry.location.lng;
@@ -3966,7 +3903,7 @@ async function startMapsSearch(){
       setProg(5+Math.round(((nbIdx+.5)/nbList.length)*25));
       setStat(`<span class="spinner"></span>🔍 ${nb||c.city} — buscando ${c.nicho}s... (${nbIdx+1}/${nbList.length})`);
 
-      const pl=await fetchFallback(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${c.radius}&keyword=${encodeURIComponent(query)}&key=${gKey}`);
+      const pl=await gmNearbySearch(`${lat},${lng}`, c.radius, query);
       if(pl.status==='REQUEST_DENIED')throw new Error('Places API negada — ative no Google Cloud.');
       const places=pl.results||[];
       if(!places.length){setStat(`Nenhum resultado em ${nb||c.city}.`);continue;}
@@ -3977,7 +3914,7 @@ async function startMapsSearch(){
         if(seenPlaceIds.has(places[i].place_id))continue; // deduplicate across neighborhoods
         seenPlaceIds.add(places[i].place_id);
         let det={};
-        try{const dd=await fetchFallback(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${places[i].place_id}&fields=name,website,formatted_address,formatted_phone_number,rating,user_ratings_total,url&key=${gKey}`);det=dd.result||{};}
+        try{const dd=await gmPlaceDetails(places[i].place_id);det=dd.result||{};}
         catch(e){det={name:places[i].name,formatted_address:places[i].vicinity};}
         const t=classifyBasic(det);
         const lead={...det,id:'m'+Date.now()+nbIdx+'_'+i,name:det.name||places[i].name,formatted_address:(det.formatted_address||places[i].vicinity||'').replace(', USA',''),t,score:calcScore(det,t),status:'new',notes:'',siteScore:null,siteIssues:[],sitePitch:'',email:'',emailVerified:false,emailConfidence:0,source:'maps',mapsUrl:det.url||'',neighborhood:nb||''};
@@ -3998,19 +3935,19 @@ async function startMapsSearch(){
       for(let i=0;i<withSite.length;i++){
         setProg(35+Math.round(((i+1)/withSite.length)*35));
         setStat(`<span class="spinner"></span>✦ IA analisando ${i+1}/${withSite.length}: ${withSite[i].name}`);
-        await analyzeWithAI(withSite[i],localStorage.getItem('capturo-cKey')||'');renderAll();
+        await analyzeWithAI(withSite[i],'via-edge-function');renderAll();
         await new Promise(r=>setTimeout(r,180));
       }
     }
     // EMAIL CASCADE PHASE (Hunter → Apollo → Snov → RocketReach → Google)
     if(useHunter){
       const keys={
-        hKey:localStorage.getItem('capturo-hKey')||'',
-        apolloKey:localStorage.getItem('capturo-apolloKey')||'',
-        snovId:localStorage.getItem('capturo-snovId')||'',
-        snovSecret:localStorage.getItem('capturo-snovSecret')||'',
-        rrKey:localStorage.getItem('capturo-rrKey')||'',
-        gKey:localStorage.getItem('capturo-gKey')||'',
+        hKey:'via-edge-function',
+        apolloKey:'via-edge-function',
+        snovId:'via-edge-function',
+        snovSecret:'via-edge-function',
+        rrKey:'via-edge-function',
+        gKey:'via-edge-function',
         cseId:localStorage.getItem('capturo-cseId')||'80d765485a3f94fa9'
       };
       const needEmail=leads.filter(l=>!l.email);
@@ -4038,7 +3975,7 @@ async function startMapsSearch(){
 // ENGINE 2: BIO LINKS
 // ══════════════════════════════════════════
 async function startBioSearch(){
-  const serpKey=localStorage.getItem('serpKey')||'';
+  const serpKey='via-edge-function';
   if(!serpKey){toast('Configure sua chave de busca em ⚙️ Configurações → Integrações.','warn');openSettings();setSettingsTab('integrações');return;}
   if(!activeCampaignId){alert('Selecione uma campanha!');return;}
   const c=campaigns.find(x=>x.id===activeCampaignId);if(!c)return;
@@ -4067,11 +4004,9 @@ async function startBioSearch(){
       try{
         // Usa proxy Apps Script para evitar CORS
         const proxyBase=localStorage.getItem('capturo-proxyUrl')||PROXY_URL;
-        const proxyUrl=`${proxyBase}?action=serp&query=${encodeURIComponent(searchQ)}&serpKey=${encodeURIComponent(serpKey)}`;
         let data;
         try{
-          const r=await fetch(proxyUrl,{signal:AbortSignal.timeout(25000)});
-          data=await r.json();
+          data=await serpSearch(searchQ, location);
         }catch(e1){
           console.error('SerpAPI proxy error:',e1.message);
           toast('⚠️ Erro ao conectar no proxy. Verifique a URL do Apps Script.','error',6000);
@@ -4114,8 +4049,8 @@ async function startBioSearch(){
 // ENGINE 3: FULL (Maps + Bio)
 // ══════════════════════════════════════════
 async function startFullSearch(){
-  const gKey=localStorage.getItem('capturo-gKey')||'';
-  if(!gKey){toast('Configure sua Google API Key em ⚙️ Configurações → Integrações!','warn');openSettings();setSettingsTab('integrações');return;}
+  const gKey='via-edge-function'; // chave no servidor
+  // gKey via edge function
   if(!activeCampaignId){alert('Selecione uma campanha!');return;}
   // Run Maps first
   $('btnS3').disabled=true;$('btnS3').textContent='Buscando Maps...';
@@ -4137,8 +4072,8 @@ async function startFullSearch(){
 
 async function startMapsSearchInternal(gKey){
   const c=campaigns.find(x=>x.id===activeCampaignId);if(!c)return;
-  const useAI=$('enableAI').checked&&(localStorage.getItem('capturo-cKey')||'');
-  const useHunter=$('enableHunter').checked&&(localStorage.getItem('capturo-hKey')||'');
+  const useAI=$('enableAI').checked&&('via-edge-function');
+  const useHunter=$('enableHunter').checked&&('via-edge-function');
   const query=c.market==='nacional'?c.nicho:c.nichoEn;
   const nbList=(c.altoPadraoList&&c.altoPadraoList.length>0)?c.altoPadraoList:c.neighborhood?[c.neighborhood]:[''];
   const seenPlaceIds=new Set();
@@ -4148,18 +4083,18 @@ async function startMapsSearchInternal(gKey){
       const searchAddr=(nb?nb+', ':'')+c.city+', '+c.state;
       let lat,lng;
       try{
-        const geo=await fetchFallback(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(searchAddr)}&key=${gKey}`);
+        const geo=await gmGeocode(searchAddr);
         if(!geo.results?.length)continue;
         lat=geo.results[0].geometry.location.lat;
         lng=geo.results[0].geometry.location.lng;
       }catch(e){continue;}
-      const pl=await fetchFallback(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${c.radius}&keyword=${encodeURIComponent(query)}&key=${gKey}`);
+      const pl=await gmNearbySearch(`${lat},${lng}`, c.radius, query);
       const places=pl.results||[];
     for(let i=0;i<places.length;i++){
       if(seenPlaceIds.has(places[i].place_id))continue;
       seenPlaceIds.add(places[i].place_id);
       let det={};
-      try{const dd=await fetchFallback(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${places[i].place_id}&fields=name,website,formatted_address,formatted_phone_number,rating,user_ratings_total,url&key=${gKey}`);det=dd.result||{};}
+      try{const dd=await gmPlaceDetails(places[i].place_id);det=dd.result||{};}
       catch(e){det={name:places[i].name,formatted_address:places[i].vicinity};}
       const t=classifyBasic(det);
       const lead={...det,id:'m'+Date.now()+nbIdx+'_'+i,name:det.name||places[i].name,formatted_address:(det.formatted_address||places[i].vicinity||'').replace(', USA',''),t,score:calcScore(det,t),status:'new',notes:'',siteScore:null,siteIssues:[],sitePitch:'',email:'',emailVerified:false,emailConfidence:0,source:'maps',mapsUrl:det.url||'',neighborhood:nb||''};
@@ -4171,13 +4106,13 @@ async function startMapsSearchInternal(gKey){
     if(useAI){
       const withSite=leads.filter(l=>l.source==='maps'&&l.website&&!isBioLink(l.website)&&!/facebook|instagram|wa\.me/i.test(l.website));
       for(let i=0;i<withSite.length;i++){
-        await analyzeWithAI(withSite[i],localStorage.getItem('capturo-cKey')||'');renderAll();
+        await analyzeWithAI(withSite[i],'via-edge-function');renderAll();
         await new Promise(r=>setTimeout(r,180));
       }
     }
     if(useHunter){
       const withDomain=leads.filter(l=>l.source==='maps'&&l.website&&!isBioLink(l.website)&&!/facebook|instagram/i.test(l.website)&&!l.email);
-      const keys2={hKey:localStorage.getItem('capturo-hKey')||'',apolloKey:localStorage.getItem('capturo-apolloKey')||'',snovId:localStorage.getItem('capturo-snovId')||'',snovSecret:localStorage.getItem('capturo-snovSecret')||'',rrKey:localStorage.getItem('capturo-rrKey')||'',gKey,cseId:localStorage.getItem('capturo-cseId')||'80d765485a3f94fa9'};
+      const keys2={hKey:'via-edge-function',apolloKey:'via-edge-function',snovId:'via-edge-function',snovSecret:'via-edge-function',rrKey:'via-edge-function',gKey,cseId:localStorage.getItem('capturo-cseId')||'80d765485a3f94fa9'};
       for(let i=0;i<withDomain.length;i++){
         try{
           const result=await findEmailCascade(withDomain[i],keys2);
@@ -4190,7 +4125,7 @@ async function startMapsSearchInternal(gKey){
 }
 
 async function startBioSearchInternal(gKey,cseId){
-  const serpKey=localStorage.getItem('serpKey')||'';
+  const serpKey='via-edge-function';
   if(!serpKey){ toast('⚠️ Configure sua chave de busca em ⚙️ Configurações → Integrações.','warn',6000); return; }
   const c=campaigns.find(x=>x.id===activeCampaignId);if(!c)return;
   const activeBio=getActiveBiolinks();
@@ -4205,12 +4140,10 @@ async function startBioSearchInternal(gKey,cseId){
     const searchQ=`"${query}" site:${bioSite.domain}${locationHint}`;
     setProg(50+Math.round((bi/activeBio.length)*40));
     try{
-      const proxyUrl=`${proxyBase}?action=serp&query=${encodeURIComponent(searchQ)}&serpKey=${encodeURIComponent(serpKey)}`;
       let data;
       try{
-        const r=await fetch(proxyUrl,{signal:AbortSignal.timeout(25000)});
-        data=await r.json();
-      }catch(e1){ console.error('SerpAPI proxy error:',e1.message); continue; }
+        data=await serpSearch(searchQ, location);
+      }catch(e1){ console.error('SerpAPI edge error:',e1.message); continue; }
       if(data.error){
         if((data.error||'').includes('Invalid API key')){ toast('⚠️ SerpAPI Key inválida!','error',8000); break; }
         if((data.error||'').includes('quota')||(data.error||'').includes('limit')){ break; }
@@ -4253,7 +4186,7 @@ function finishSearch(){
 // ══════════════════════════════════════════
 // AI SITE ANALYSIS
 // ══════════════════════════════════════════
-async function analyzeWithAI(lead,cKey){
+async function analyzeWithAI(lead,cKey_ignored){
   if(!cKey||!lead.website)return;
   try{
     const prompt=`You are a web design sales consultant analyzing a local business website.
@@ -4270,12 +4203,8 @@ Respond ONLY with valid JSON (no markdown):
   "issues": ["issue1","issue2","issue3"],
   "pitch": "<one sentence sales pitch specific to this business>"
 }`;
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':cKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:400,messages:[{role:'user',content:prompt}]})
-    });
-    const data=await resp.json();
+    const resp=await claudeAI([{role:'user',content:prompt}],'claude-haiku-4-5-20251001',400);
+    const data=resp;
     const text=data.content?.[0]?.text||'';
     const parsed=JSON.parse(text.replace(/```json|```/g,'').trim());
     lead.siteScore=parsed.siteScore||5;
@@ -4751,12 +4680,12 @@ async function findEmailManual(id){
   const btn=document.querySelector(`#card-${id} .ca-icon-email`);
   if(btn){btn.textContent='🔍 Buscando...';btn.disabled=true;}
   const keys={
-    hKey:localStorage.getItem('capturo-hKey')||'',
-    apolloKey:localStorage.getItem('capturo-apolloKey')||'',
-    snovId:localStorage.getItem('capturo-snovId')||'',
-    snovSecret:localStorage.getItem('capturo-snovSecret')||'',
-    rrKey:localStorage.getItem('capturo-rrKey')||'',
-    gKey:localStorage.getItem('capturo-gKey')||'',
+    hKey:'via-edge-function',
+    apolloKey:'via-edge-function',
+    snovId:'via-edge-function',
+    snovSecret:'via-edge-function',
+    rrKey:'via-edge-function',
+    gKey:'via-edge-function',
     cseId:localStorage.getItem('capturo-cseId')||'80d765485a3f94fa9'
   };
   try{
@@ -4907,7 +4836,7 @@ async function generateMsg(){
   const l=currentMsgLead;
   const c=campaigns.find(x=>x.id===activeCampaignId);
   const isIntl=c?.market==='internacional';
-  const cKey=localStorage.getItem('capturo-cKey')||'';
+  const cKey='via-edge-function';
   const demoUrl=$('demoLink').value.trim()||'[LINK DA DEMONSTRAÇÃO]';
   if(currentLead&&$('demoLink').value.trim()){currentLead.lovableUrl=$('demoLink').value.trim();saveCampaigns();}
   const domainLine=selectedDomain.key!=='none'&&selectedDomain.key?`\n💳 Domínio profissional: ${selectedDomain.label} (verifico disponibilidade antes de confirmar)`:'';
@@ -4955,12 +4884,8 @@ RULES:
 - End with a soft CTA — ask if they want to see the demo
 - ${isIntl?'English only':'Portuguese Brazil only — use "você", friendly tone'}`;
 
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':cKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:500,messages:[{role:'user',content:prompt}]})
-    });
-    const data=await resp.json();
+    const resp=await claudeAI([{role:'user',content:prompt}],'claude-haiku-4-5-20251001',500);
+    const data=resp;
     currentMsgText=data.content?.[0]?.text||templateMsg(l,c,demoUrl,domainLine,isIntl);
     $('msgOutput').textContent=currentMsgText;
   }catch(e){
@@ -5074,7 +4999,7 @@ async function sendAIMessage(text){
   const input=$('aiChatInput');
   const msg=(text||input?.value||'').trim();
   if(!msg)return;
-  const cKey=localStorage.getItem('capturo-cKey')||'';
+  const cKey='via-edge-function';
   if(!cKey){toast('Configure sua chave de IA em ⚙️ Configurações → Integrações!','warn');openSettings();setSettingsTab('integrações');return;}
   if(input)input.value='';
   const btn=$('aiSendBtn');if(btn)btn.disabled=true;
@@ -5088,17 +5013,8 @@ async function sendAIMessage(text){
   const summary=`O usuário tem ${allLeads.length} leads no total. Vulcão: ${allLeads.filter(l=>l.t==='volcano').length}, Quente: ${allLeads.filter(l=>l.t==='hot').length}, Morno: ${allLeads.filter(l=>l.t==='warm').length}. Contatados: ${allLeads.filter(l=>l.status==='contacted').length}. Fechados: ${allLeads.filter(l=>l.status==='closed').length}. Campanhas ativas: ${campaigns.length}.`;
 
   try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':cKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({
-        model:'claude-haiku-4-5-20251001',
-        max_tokens:800,
-        system:`Você é um assistente especialista em prospecção de clientes para agência de sites. Você está integrado ao CAPTURO, um sistema de prospecção. Contexto atual: ${summary}. Responda de forma direta, prática e em português brasileiro. Máximo 3 parágrafos.`,
-        messages:aiChatHistory
-      })
-    });
-    const data=await resp.json();
+    const resp=await claudeAI(aiChatHistory,'claude-haiku-4-5-20251001',800);
+    const data=resp;
     removeAITyping();
     const reply=data.content?.[0]?.text||'Não consegui processar.';
     appendAIMsg('assistant',reply);
@@ -5412,12 +5328,12 @@ function renderWABlastProgress(){
 async function waBlastNext(){
   const lead=waBlastQueue[waBlastIndex];if(!lead)return;
   // Generate message
-  const cKey=localStorage.getItem('capturo-cKey')||'';
+  const cKey='via-edge-function';
   const c=campaigns.find(x=>x.id===activeCampaignId)||campaigns[0];
   let msg=`Oi, ${lead.name.split(' ')[0]}!\n\nPesquisei "${c?.nicho||'seu negócio'}" em ${c?.city||'sua cidade'} e te encontrei — mas vi que você ${lead.t==='volcano'?`só tem o ${lead.bioSite||'bio link'}, sem um site profissional`:'ainda não tem um site profissional'}.\n\nJá montei uma demonstração para você ver. Posso te enviar?`;
   if(cKey){
     try{
-      const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':cKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:200,messages:[{role:'user',content:`Escreva uma mensagem WhatsApp curta (máx 3 linhas) para ${lead.name}, que ${lead.t==='volcano'?'só tem bio link':'não tem site profissional'}. Nicho: ${c?.nicho||'negócio local'}. Cidade: ${c?.city||''}. Tom: amigável, direto. Só a mensagem, sem explicação.`}]})});
+      const r=await claudeAI([{role:'user',content:`Escreva uma mensagem WhatsApp curta (máx 3 linhas) para ${lead.name}, que ${lead.t==='volcano'?'só tem bio link':'não tem site profissional'}. Nicho: ${c?.nicho||'negócio local'}. Cidade: ${c?.city||''}. Tom: amigável, direto. Só a mensagem, sem explicação.`}],'claude-haiku-4-5-20251001',200);
       const d=await r.json();if(d.content?.[0]?.text)msg=d.content[0].text;
     }catch(e){}
   }
@@ -5935,7 +5851,7 @@ async function getAccessToken(){
   const sigB64=btoa(String.fromCharCode(...new Uint8Array(sig))).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_');
   const jwt=signingInput+'.'+sigB64;
   const resp=await fetch('https://oauth2.googleapis.com/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:`grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`});
-  const data=await resp.json();
+  const data=resp;
   if(!data.access_token)throw new Error('Token error: '+JSON.stringify(data));
   return data.access_token;
 }
@@ -6010,7 +5926,7 @@ async function loadFromSheets(){
       headers:{Authorization:`Bearer ${token}`}
     });
     if(!resp.ok){toast('Aba não encontrada no Sheets. Sincronize primeiro.','warn');return;}
-    const data=await resp.json();
+    const data=resp;
     const rows=data.values||[];
     if(rows.length<2){toast('Sem dados no Sheets para esta campanha.','info');return;}
     const headers=rows[0];
@@ -6404,7 +6320,7 @@ function addManualLead(){
 
   // Show success + trigger AI enrichment if Claude key available
   const list=$('manualLeadsList');
-  const cKey=localStorage.getItem('capturo-cKey')||'';
+  const cKey='via-edge-function';
   if(list){
     list.innerHTML=`<div style="background:var(--green-bg);border:1px solid #062a1a;border-radius:10px;padding:14px 18px;font-size:12px;color:var(--green);font-family:monospace;margin-bottom:12px">
       ✓ Lead <strong>${name}</strong> adicionado como <strong>${t==='volcano'?'🌋 Vulcão':t==='hot'?'🔥 Quente':t==='warm'?'🌡 Morno':t==='frozen'?'🧊 Gelado':'❄ Frio'}</strong>!
@@ -6455,12 +6371,8 @@ Rules:
 - If only social media → suggestedStatus: "warm"
 - Pitch must be specific to the business type and mention their situation`;
 
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':cKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:600,messages:[{role:'user',content:prompt}]})
-    });
-    const data=await resp.json();
+    const resp=await claudeAI([{role:'user',content:prompt}],'claude-haiku-4-5-20251001',600);
+    const data=resp;
     const text=data.content?.[0]?.text||'';
     const parsed=JSON.parse(text.replace(/```json|```/g,'').trim());
     lead.siteScore=parsed.siteScore||lead.siteScore;
@@ -6477,7 +6389,7 @@ async function searchAndEnrichByName(){
   const city=$('mCity').value.trim();
   if(!name){toast('Informe o nome do negócio para buscar!','error');return;}
 
-  const serpKey=localStorage.getItem('serpKey')||'';
+  const serpKey='via-edge-function';
   const proxyBase=localStorage.getItem('capturo-proxyUrl')||PROXY_URL;
   const btn=$('btnSearchByName');
   if(btn){btn.disabled=true;btn.textContent='🔍 Buscando...';}
@@ -6486,8 +6398,7 @@ async function searchAndEnrichByName(){
     // Try via SerpAPI proxy first
     if(serpKey && proxyBase){
       const query=`${name} ${city} site telefone endereço`;
-      const proxyUrl=`${proxyBase}?action=serp&query=${encodeURIComponent(query)}&serpKey=${encodeURIComponent(serpKey)}`;
-      const r=await fetch(proxyUrl,{signal:AbortSignal.timeout(20000)});
+      const r={ok:true,json:async()=>await serpSearch(query, '')};
       const d=await r.json();
       const results=d.organic_results||[];
       if(results.length>0){
@@ -7492,17 +7403,17 @@ function openSettings(){
   $('cfgEmojiWarm').value = appSettings.emojiWarm||'☀️';
   $('cfgEmojiFrozen').value = appSettings.emojiFrozen||'❄️';
   // API Keys — load from localStorage
-  $('gKey').value = localStorage.getItem('capturo-gKey')||'';
-  $('cKey').value = localStorage.getItem('capturo-cKey')||'';
-  $('hKey').value = localStorage.getItem('capturo-hKey')||'';
-  $('apolloKey').value = localStorage.getItem('capturo-apolloKey')||'';
-  $('snovClientId').value = localStorage.getItem('capturo-snovId')||'';
-  $('snovClientSecret').value = localStorage.getItem('capturo-snovSecret')||'';
+  $('gKey').value = 'via-edge-function';
+  $('cKey').value = 'via-edge-function';
+  $('hKey').value = 'via-edge-function';
+  $('apolloKey').value = 'via-edge-function';
+  $('snovClientId').value = 'via-edge-function';
+  $('snovClientSecret').value = 'via-edge-function';
   $('proxyUrl').value = localStorage.getItem('capturo-proxyUrl')||'';
   $('cseId').value = localStorage.getItem('capturo-cseId')||'80d765485a3f94fa9';
   $('gKeyCSE').value = localStorage.getItem('capturo-gKeyCSE')||'';
-  $('serpKey').value = localStorage.getItem('serpKey')||'';
-  $('rrKey').value = localStorage.getItem('capturo-rrKey')||'';
+  $('serpKey').value = 'via-edge-function';
+  $('rrKey').value = 'via-edge-function';
   $('enableAI').checked = localStorage.getItem('capturo-enableAI')==='true';
   $('enableHunter').checked = localStorage.getItem('capturo-enableHunter')==='true';
   // Reset all test status pills
@@ -8379,7 +8290,7 @@ async function searchBioLinksActive(){
   if(!l) return;
 
   const keys = {
-    gKey: localStorage.getItem('capturo-gKey')||'',
+    gKey: 'via-edge-function',
     cseId: localStorage.getItem('capturo-cseId')||'80d765485a3f94fa9'
   };
   if(!keys.gKey){ toast('Configure a chave Google API em ⚙️ Configurações → Integrações.','warn'); return; }
@@ -8597,9 +8508,9 @@ function guiaScroll(sectionId){
   if(hunt3El) hunt3El.checked = localStorage.getItem('capturo-enableHunter') !== 'false';
   // Show API status on campaign page
   setTimeout(()=>{
-    const gKey = localStorage.getItem('capturo-gKey')||'';
-    const cKey = localStorage.getItem('capturo-cKey')||'';
-    const hKey = localStorage.getItem('capturo-hKey')||'';
+    const gKey = 'via-edge-function';
+    const cKey = 'via-edge-function';
+    const hKey = 'via-edge-function';
     const gSt = $('gStatus'); const aiSt = $('aiStatus'); const prSt = $('proxyStatus');
     if(gSt) { gSt.className = gKey ? 'status-pill pill-ok' : 'status-pill pill-idle'; gSt.textContent = gKey ? '✓ Maps' : '⚬ Maps API'; }
     if(aiSt) { aiSt.className = cKey ? 'status-pill pill-ok' : 'status-pill pill-idle'; aiSt.textContent = cKey ? '✓ IA' : '⚬ IA'; }
@@ -8810,6 +8721,71 @@ function selectAllBulkLeads(){
 // ── Configuração ──────────────────────────────────────────────
 const SUPABASE_URL = 'https://qnxabfowdvohrolamktx.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_OWpi6DYEuhNmbPY-eUZkzA_hqZ3BGXD';
+
+// ── EDGE FUNCTIONS GATEWAY (chaves ficam no servidor) ─────────
+const EF = SUPABASE_URL + '/functions/v1';
+
+async function efCall(fn, body){
+  const r = await fetch(`${EF}/${fn}`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  });
+  if(!r.ok) throw new Error(`Edge Function ${fn} error: ${r.status}`);
+  return r.json();
+}
+
+// Google Maps via Edge Function
+async function gmGeocode(address){
+  return efCall('google-maps', {action:'geocode', address});
+}
+async function gmNearbySearch(location, radius, keyword){
+  return efCall('google-maps', {action:'nearbysearch', location, radius, keyword});
+}
+async function gmPlaceDetails(place_id){
+  return efCall('google-maps', {action:'placedetails', place_id});
+}
+
+// SerpAPI via Edge Function
+async function serpSearch(query, location){
+  return efCall('serpapi', {query, location});
+}
+
+// Hunter via Edge Function
+async function hunterSearch(domain){
+  return efCall('hunter', {action:'domain-search', domain});
+}
+
+// Apollo via Edge Function
+async function apolloSearch(name, city){
+  return efCall('apollo', {action:'people-search', name, city});
+}
+
+// Claude AI via Edge Function
+async function claudeAI(messages, model, max_tokens){
+  return efCall('claude-ai', {messages, model: model||'claude-haiku-4-5-20251001', max_tokens: max_tokens||1000});
+}
+
+// Snov via Edge Function
+async function snovSearch(companyName, domain){
+  return efCall('snov', {action:'email-search', companyName, domain});
+}
+
+// RocketReach via Edge Function
+async function rrSearch(name, company){
+  return efCall('rocketreach', {action:'search', name, company});
+}
+
+// YouTube via Edge Function
+async function ytSearch(query){
+  return efCall('youtube', {action:'search', query});
+}
+
+// Facebook via Edge Function
+async function fbPageInfo(pageUrl){
+  return efCall('facebook', {action:'page-info', pageUrl});
+}
+// ─────────────────────────────────────────────────────────────
 let _sb = null;
 let currentUser = null;
 let _authMode = 'login'; // 'login' | 'signup'
