@@ -3875,9 +3875,9 @@ async function startMapsSearch(){
   const c=campaigns.find(x=>x.id===activeCampaignId);if(!c)return;
   const useAI=$('enableAI').checked&&('via-edge-function');
   const useHunter=$('enableHunter').checked&&('via-edge-function');
-  // ── Verifica saldo de Sinais ──────────────────────────────────
-  if(sinaisRestantes() < 1){
-    toast('⚡ Você não tem Sinais disponíveis. Recarregue para continuar prospectando.','warn',6000);
+  // ── Verifica saldo de Leads ───────────────────────────────────
+  if(leadsRestantes() < 1){
+    toast('⚡ Você não tem Leads disponíveis. Recarregue para continuar prospectando.','warn',6000);
     return;
   }
   const btn=$('btnS1');btn.disabled=true;btn.textContent='Buscando...';showCancelBtn(true);
@@ -3923,9 +3923,9 @@ async function startMapsSearch(){
         catch(e){det={name:places[i].name,formatted_address:places[i].vicinity};}
         const t=classifyBasic(det);
         const lead={...det,id:'m'+Date.now()+nbIdx+'_'+i,name:det.name||places[i].name,formatted_address:(det.formatted_address||places[i].vicinity||'').replace(', USA',''),t,score:calcScore(det,t),status:'new',notes:'',siteScore:null,siteIssues:[],sitePitch:'',email:'',emailVerified:false,emailConfidence:0,source:'maps',mapsUrl:det.url||'',neighborhood:nb||''};
-        // ── Consome 1 Sinal; para se sem saldo ───────────────────
+        // ── Consome 1 Lead; para se sem saldo ───────────────────
         const ok = await consumirSinal('maps_search', {lead_name:lead.name, campaign_id:activeCampaignId});
-        if(!ok){ setStat('⚡ Sinais esgotados! Recarregue para continuar.'); toast('⚡ Sinais esgotados! Acesse o painel para recarregar.','warn',8000); break; }
+        if(!ok){ setStat('⚡ Leads esgotados! Recarregue para continuar.'); toast('⚡ Leads esgotados! Recarregue seus Leads para continuar.','warn',5000); setTimeout(()=>abrirModalRecarga('Seus Leads acabaram durante a busca. Escolha um pack para continuar.'),600); break; }
         leads.push(lead);
         setProg(5+Math.round(((nbIdx+(i+1)/places.length)/nbList.length)*25));
         setStat(`<span class="spinner"></span>[${nb||c.city}] ${i+1}/${places.length}: ${lead.name}`);
@@ -3989,9 +3989,9 @@ async function startBioSearch(){
   const c=campaigns.find(x=>x.id===activeCampaignId);if(!c)return;
   const activeBio=getActiveBiolinks();
   if(!activeBio.length){alert('Ative pelo menos um site de bio link!');return;}
-  // ── Verifica saldo de Sinais ──────────────────────────────────
-  if(sinaisRestantes() < 1){
-    toast('⚡ Você não tem Sinais disponíveis. Recarregue para continuar prospectando.','warn',6000);
+  // ── Verifica saldo de Leads ───────────────────────────────────
+  if(leadsRestantes() < 1){
+    toast('⚡ Você não tem Leads disponíveis. Recarregue para continuar prospectando.','warn',6000);
     return;
   }
   const btn=$('btnS2');btn.disabled=true;btn.textContent='Buscando...';showCancelBtn(true);
@@ -4065,9 +4065,9 @@ async function startFullSearch(){
   const gKey='via-edge-function'; // chave no servidor
   // gKey via edge function
   if(!activeCampaignId){alert('Selecione uma campanha!');return;}
-  // ── Verifica saldo de Sinais ──────────────────────────────────
-  if(sinaisRestantes() < 1){
-    toast('⚡ Você não tem Sinais disponíveis. Recarregue para continuar prospectando.','warn',6000);
+  // ── Verifica saldo de Leads ───────────────────────────────────
+  if(leadsRestantes() < 1){
+    toast('⚡ Você não tem Leads disponíveis. Recarregue para continuar prospectando.','warn',6000);
     return;
   }
   // Run Maps first
@@ -4175,9 +4175,9 @@ async function startBioSearchInternal(gKey,cseId){
         if(countryExclude.length && countryExclude.some(kw=>snippet.includes(kw)))continue;
         const name=(item.title||'').replace(/\|.*$/,'').replace(/-.*$/,'').trim();
         const phoneMatch=(item.snippet||'').match(/[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}/);
-        // ── Consome 1 Sinal; para se sem saldo ───────────────────
+        // ── Consome 1 Lead; para se sem saldo ───────────────────
         const okBio = await consumirSinal('bio_search', {lead_name:name, campaign_id:activeCampaignId});
-        if(!okBio){ setStat('⚡ Sinais esgotados! Recarregue para continuar.'); toast('⚡ Sinais esgotados! Acesse o painel para recarregar.','warn',8000); return; }
+        if(!okBio){ setStat('⚡ Leads esgotados! Recarregue para continuar.'); toast('⚡ Leads esgotados! Recarregue seus Leads para continuar.','warn',5000); setTimeout(()=>abrirModalRecarga('Seus Leads acabaram durante a busca. Escolha um pack para continuar.'),600); return; }
         leads.push({id:'g'+Date.now()+bi+'_'+ii,name,formatted_address:(item.snippet||'').substring(0,120),t:'volcano',score:10,status:'new',notes:'',siteScore:null,siteIssues:[],sitePitch:'',email:'',emailVerified:false,emailConfidence:0,source:'google',bioUrl:item.link,bioSite:bioSite.domain,snippet:item.snippet||'',formatted_phone_number:phoneMatch?phoneMatch[0]:'',website:item.link,mapsUrl:`https://www.google.com/maps/search/${encodeURIComponent(name)}`,country:isBrasil?'BR':c.country||'US'});
         renderAll();
       }
@@ -4268,7 +4268,7 @@ function renderAll(){
   $('sVolcano').textContent=vl.length;
   $('sHot').textContent=hot.length;
   $('sWarm').textContent=warm.length;
-  // Badge de Sinais é atualizado via atualizarBadgeSinais() — não sobrescrever aqui
+  // Badge de Leads é atualizado via atualizarBadgeLeads() — não sobrescrever aqui
   $('sCold').textContent=cold.length;
   $('sFrozen').textContent=frozen.length;
   $('sClosed').textContent=closed.length;
@@ -8739,7 +8739,7 @@ function selectAllBulkLeads(){
 <script>
 // ── Configuração ──────────────────────────────────────────────
 const SUPABASE_URL = 'https://qnxabfowdvohrolamktx.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_OWpi6DYEuhNmbPY-eUZkzA_hqZ3BGXD';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFueGFiZm93ZHZvaHJvbGFta3R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0ODc0MTQsImV4cCI6MjA5MDA2MzQxNH0.FrhemfUDOWL4O632KchesHxM7f3BXDlPfuhZibn7PZ4';
 
 // ── EDGE FUNCTIONS GATEWAY (chaves ficam no servidor) ─────────
 const EF = SUPABASE_URL + '/functions/v1';
@@ -8810,11 +8810,11 @@ let currentUser = null;
 let _authMode = 'login'; // 'login' | 'signup'
 
 // ── SINAIS (créditos) ─────────────────────────────────────────
-let _sinaisProfile = { sinais_limit: 40, sinais_used: 0 };
+let _leadsProfile = { sinais_limit: 40, sinais_used: 0 };
 
-function sinaisRestantes(){ return Math.max(0, _sinaisProfile.sinais_limit - _sinaisProfile.sinais_used); }
+function leadsRestantes(){ return Math.max(0, _leadsProfile.sinais_limit - _leadsProfile.sinais_used); }
 
-async function loadSinaisProfile(){
+async function loadLeadsProfile(){
   const sb = getSupabase();
   if(!sb || !currentUser) return;
   const { data, error } = await sb
@@ -8823,26 +8823,26 @@ async function loadSinaisProfile(){
     .eq('id', currentUser.id)
     .single();
   if(!error && data){
-    _sinaisProfile = data;
-    atualizarBadgeSinais();
+    _leadsProfile = data;
+    atualizarBadgeLeads();
   }
 }
 
-function atualizarBadgeSinais(){
-  const restantes = sinaisRestantes();
-  const el = document.getElementById('sinaisBadge');
+function atualizarBadgeLeads(){
+  const restantes = leadsRestantes();
+  const el = document.getElementById('leadsBadge');
   if(!el) return;
   const numEl  = el.querySelector('span.sb-num');
   const lblEl  = el.querySelector('span.sb-lbl');
   if(numEl) numEl.textContent = restantes;
-  if(lblEl) lblEl.textContent = 'Sinais';
+  if(lblEl) lblEl.textContent = 'Leads';
   const cor = restantes <= 5 ? 'var(--red)' : restantes <= 15 ? 'var(--warm)' : 'var(--accent)';
   if(numEl) numEl.style.color = cor;
   el.style.borderColor = restantes <= 5 ? 'rgba(255,59,48,.3)' : 'rgba(0,122,255,.2)';
-  el.title = `${restantes} sinais restantes de ${_sinaisProfile.sinais_limit}`;
+  el.title = `${restantes} leads restantes de ${_leadsProfile.sinais_limit}`;
 }
 
-// Debita 1 sinal no Supabase e atualiza o badge local.
+// Debita 1 lead no Supabase e atualiza o badge local.
 // Retorna true = ok | false = sem saldo (bloquear ação)
 async function consumirSinal(action, meta={}){
   const sb = getSupabase();
@@ -8854,7 +8854,7 @@ async function consumirSinal(action, meta={}){
     p_meta:    meta
   });
   if(error){ console.error('consumirSinal:', error.message); return false; }
-  if(data === true){ _sinaisProfile.sinais_used++; atualizarBadgeSinais(); return true; }
+  if(data === true){ _leadsProfile.sinais_used++; atualizarBadgeLeads(); return true; }
   return false; // saldo insuficiente
 }
 
@@ -8906,7 +8906,7 @@ function hideLoginScreen(){
   const el = document.getElementById('loginScreen');
   if(el) el.style.display = 'none';
   updateUserHeader();
-  loadSinaisProfile(); // carrega saldo real do Supabase
+  loadLeadsProfile(); // carrega saldo real do Supabase
 }
 
 function updateUserHeader(){
@@ -8914,15 +8914,15 @@ function updateUserHeader(){
   if(!el || !currentUser) return;
   const meta = currentUser.user_metadata || {};
   const name = meta.name || currentUser.email.split('@')[0];
-  // Sinais = créditos restantes (carregados do Supabase via loadSinaisProfile)
-  const restantes = sinaisRestantes();
+  // Leads = créditos restantes (carregados do Supabase via loadLeadsProfile)
+  const restantes = leadsRestantes();
   el.innerHTML = `
     <div style="display:flex;align-items:center;gap:8px">
-      <!-- Sinais badge -->
-      <div id="sinaisBadge" title="${restantes} sinais restantes de ${_sinaisProfile.sinais_limit}" style="display:flex;align-items:center;gap:5px;background:var(--accent-bg);border:1px solid rgba(0,122,255,.2);border-radius:20px;padding:3px 10px 3px 7px;cursor:default">
+      <!-- Leads badge -->
+      <div id="leadsBadge" title="${restantes} leads restantes de ${_leadsProfile.sinais_limit}" onclick="abrirModalRecarga()" style="display:flex;align-items:center;gap:5px;background:var(--accent-bg);border:1px solid rgba(0,122,255,.2);border-radius:20px;padding:3px 10px 3px 7px;cursor:pointer">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><circle cx="12" cy="12" r="3" fill="var(--accent)"/><circle cx="12" cy="12" r="7" stroke="var(--accent)" stroke-width="1.5" opacity=".4" fill="none"/><circle cx="12" cy="12" r="11" stroke="var(--accent)" stroke-width="1" opacity=".2" fill="none"/></svg>
         <span class="sb-num" style="font-size:11px;font-weight:700;color:var(--accent);font-family:'IBM Plex Mono',monospace">${restantes}</span>
-        <span class="sb-lbl" style="font-size:10px;color:var(--muted2)">Sinais</span>
+        <span class="sb-lbl" style="font-size:10px;color:var(--muted2)">Leads</span>
       </div>
       <!-- Avatar + nome -->
       <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#0056cc);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">${name.charAt(0).toUpperCase()}</div>
@@ -9651,21 +9651,21 @@ function renderVisualFunnel(stages){
 /* ─────────── 6. ONBOARDING TOUR (v2 — melhorado) ─────────── */
 const TOUR_STEPS = [
   { title:'📡 Bem-vindo ao Capturo!', desc:'Seu radar inteligente de prospecção. Em menos de 5 minutos você vai conhecer tudo. Clique em Próximo para começar!', target:null, pos:'center' },
-  { title:'🏠 Dashboard', desc:'Sua central de resultados. Veja campanhas ativas, total de Sinais captados, clientes convertidos e leads recentes — tudo em um painel.', target:'#sb-home', pos:'right' },
-  { title:'🗂 Campanhas', desc:'Cada campanha é um nicho + cidade. Ex: "Dentistas em BH". Crie quantas quiser — cada uma tem seu próprio funil de Sinais.', target:'.campaigns-grid', pos:'top' },
+  { title:'🏠 Dashboard', desc:'Sua central de resultados. Veja campanhas ativas, total de Leads captados, clientes convertidos e leads recentes — tudo em um painel.', target:'#sb-home', pos:'right' },
+  { title:'🗂 Campanhas', desc:'Cada campanha é um nicho + cidade. Ex: "Dentistas em BH". Crie quantas quiser — cada uma tem seu próprio funil de Leads.', target:'.campaigns-grid', pos:'top' },
   { title:'🎯 Prospectar — Google Maps', desc:'O coração do sistema. Escolha nicho, cidade e raio. O Capturo varre o Google Maps e retorna empresas reais com telefone, site, avaliação e muito mais — em segundos.', target:'#sb-manual', pos:'right' },
-  { title:'🔗 Bio Links — Ouro Puro', desc:'O radar também detecta empresas que usam só Instagram ou Linktree como site. Esses Sinais são os mais quentes — eles claramente precisam de presença digital.', target:'#sb-manual', pos:'right' },
-  { title:'🌡 Pipeline por Temperatura', desc:'Seus Sinais ficam organizados em Kanban: 🌋 Vulcão (só Linktree) → 🔥 Quente (sem site) → 🟡 Morno (site fraco) → 🔵 Frio → 🧊 Gelado. Arraste conforme avança.', target:'#sb-leads', pos:'right' },
-  { title:'📋 Perfil Completo', desc:'Clique em qualquer Sinal para ver o dossiê: telefone, WhatsApp, e-mail verificado, endereço, Instagram, site, avaliações no Google e score de qualidade digital.', target:'#sb-leads', pos:'right' },
-  { title:'🤖 IA Personalizada', desc:'A IA analisa cada Sinal e gera um pitch sob medida. Ela identifica pontos fracos da presença digital e sugere exatamente o que você pode oferecer.', target:'#sb-ai', pos:'right' },
-  { title:'✅ Clientes Convertidos', desc:'Fechou negócio? Mova o Sinal para Clientes. Assim você separa prospects ativos da sua carteira já conquistada.', target:'#sb-clients', pos:'right' },
-  { title:'🔔 Follow-ups', desc:'Agende retornos para cada Sinal. Quando o prazo chegar, o Capturo notifica você. O ícone vermelho aparece quando há follow-ups para hoje.', target:'#sb-followup', pos:'right' },
-  { title:'💬 Templates', desc:'Crie modelos prontos para WhatsApp, e-mail ou Instagram. Abordagem profissional em segundos, personalizada para cada tipo de Sinal.', target:'#sb-templates', pos:'right' },
-  { title:'⭐ Favoritos', desc:'Marque os Sinais mais promissores com uma estrela. Eles ficam reunidos aqui para acompanhamento rápido, independente da campanha.', target:'#sb-favoritos', pos:'right' },
+  { title:'🔗 Bio Links — Ouro Puro', desc:'O radar também detecta empresas que usam só Instagram ou Linktree como site. Esses Leads são os mais quentes — eles claramente precisam de presença digital.', target:'#sb-manual', pos:'right' },
+  { title:'🌡 Pipeline por Temperatura', desc:'Seus Leads ficam organizados em Kanban: 🌋 Vulcão (só Linktree) → 🔥 Quente (sem site) → 🟡 Morno (site fraco) → 🔵 Frio → 🧊 Gelado. Arraste conforme avança.', target:'#sb-leads', pos:'right' },
+  { title:'📋 Perfil Completo', desc:'Clique em qualquer Lead para ver o dossiê: telefone, WhatsApp, e-mail verificado, endereço, Instagram, site, avaliações no Google e score de qualidade digital.', target:'#sb-leads', pos:'right' },
+  { title:'🤖 IA Personalizada', desc:'A IA analisa cada Lead e gera um pitch sob medida. Ela identifica pontos fracos da presença digital e sugere exatamente o que você pode oferecer.', target:'#sb-ai', pos:'right' },
+  { title:'✅ Clientes Convertidos', desc:'Fechou negócio? Mova o Lead para Clientes. Assim você separa prospects ativos da sua carteira já conquistada.', target:'#sb-clients', pos:'right' },
+  { title:'🔔 Follow-ups', desc:'Agende retornos para cada Lead. Quando o prazo chegar, o Capturo notifica você. O ícone vermelho aparece quando há follow-ups para hoje.', target:'#sb-followup', pos:'right' },
+  { title:'💬 Templates', desc:'Crie modelos prontos para WhatsApp, e-mail ou Instagram. Abordagem profissional em segundos, personalizada para cada tipo de Lead.', target:'#sb-templates', pos:'right' },
+  { title:'⭐ Favoritos', desc:'Marque os Leads mais promissores com uma estrela. Eles ficam reunidos aqui para acompanhamento rápido, independente da campanha.', target:'#sb-favoritos', pos:'right' },
   { title:'📊 Relatórios', desc:'Veja desempenho por campanha, distribuição de temperatura, taxa de conversão e muito mais. Descubra quais nichos convertem melhor.', target:'#sb-relatorio', pos:'right' },
   { title:'🔍 Busca Global — Ctrl+K', desc:'Pressione Ctrl+K a qualquer momento para buscar por nome, telefone, e-mail ou cidade — resultado instantâneo sem trocar de tela.', target:null, pos:'center' },
   { title:'⚙️ Integrações & APIs', desc:'Conecte Google Maps, Hunter, Apollo, SerpAPI e Claude para ativar busca automática, e-mails verificados e análise por IA. Cada integração tem link direto para criar conta grátis.', target:null, pos:'center' },
-  { title:'📥 Exportar / Importar', desc:'Exporte todos os Sinais em planilha com todas as colunas — ou importe listas externas em CSV. Seus dados sempre portáveis.', target:null, pos:'center' },
+  { title:'📥 Exportar / Importar', desc:'Exporte todos os Leads em planilha com todas as colunas — ou importe listas externas em CSV. Seus dados sempre portáveis.', target:null, pos:'center' },
   { title:'🚀 Tudo pronto!', desc:'Crie sua primeira campanha, escolha nicho e cidade, e deixe o radar trabalhar. Para rever este tour, clique na bússola 🧭 no canto inferior direito. Boas vendas!', target:null, pos:'center' }
 ];
 
@@ -9853,6 +9853,124 @@ window._postAuthInit = function(){
   try{ if(typeof updateCreditsBadge==='function') updateCreditsBadge(); }catch(e){}
 };
 
+
+<style>
+/* ── Modal Recarga de Leads ── */
+#modalRecarga{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);align-items:center;justify-content:center}
+#modalRecarga.open{display:flex}
+.recarga-box{background:var(--card-bg,#1a1d23);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:32px 28px;max-width:480px;width:90%;text-align:center;position:relative}
+.recarga-close{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--muted2,#666);cursor:pointer;font-size:20px;line-height:1}
+.recarga-close:hover{color:var(--red,#ff453a)}
+.recarga-title{font-size:20px;font-weight:700;color:var(--fg,#f0f0f0);margin-bottom:4px}
+.recarga-sub{font-size:13px;color:var(--muted2,#888);margin-bottom:24px}
+.recarga-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.recarga-card{background:var(--accent-bg,rgba(0,122,255,.08));border:1.5px solid rgba(0,122,255,.18);border-radius:14px;padding:16px 10px;cursor:pointer;transition:border-color .2s,transform .15s}
+.recarga-card:hover{border-color:var(--accent,#007aff);transform:translateY(-2px)}
+.recarga-card.destaque{border-color:var(--accent,#007aff);background:rgba(0,122,255,.14)}
+.recarga-qtd{font-size:22px;font-weight:800;color:var(--accent,#007aff)}
+.recarga-label{font-size:11px;color:var(--muted2,#888);margin:2px 0 8px}
+.recarga-preco{font-size:15px;font-weight:700;color:var(--fg,#f0f0f0)}
+.recarga-custo{font-size:10px;color:var(--muted2,#888);margin-top:2px}
+.recarga-badge{display:inline-block;font-size:9px;font-weight:700;background:var(--accent,#007aff);color:#fff;border-radius:20px;padding:2px 7px;margin-top:6px}
+.recarga-mensal{border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;cursor:pointer;transition:border-color .2s}
+.recarga-mensal:hover{border-color:var(--accent,#007aff)}
+.recarga-mensal-info{text-align:left}
+.recarga-mensal-titulo{font-size:13px;font-weight:700;color:var(--fg,#f0f0f0)}
+.recarga-mensal-desc{font-size:11px;color:var(--muted2,#888);margin-top:2px}
+.recarga-mensal-btn{font-size:12px;font-weight:700;background:var(--accent,#007aff);color:#fff;border:none;border-radius:8px;padding:7px 14px;cursor:pointer;white-space:nowrap}
+</style>
+
+<!-- ── MODAL RECARGA DE LEADS ── -->
+<div id="modalRecarga" role="dialog" aria-modal="true" aria-label="Recarregar Leads">
+  <div class="recarga-box">
+    <button class="recarga-close" onclick="fecharModalRecarga()" title="Fechar">✕</button>
+    <div class="recarga-title">⚡ Recarregar Leads</div>
+    <div class="recarga-sub" id="recargaSub">Escolha um pack para continuar prospectando</div>
+
+    <!-- Packs avulsos -->
+    <div class="recarga-cards">
+      <!-- Pack 50 -->
+      <div class="recarga-card" onclick="abrirHotmart('PACK_50')">
+        <div class="recarga-qtd">50</div>
+        <div class="recarga-label">Leads</div>
+        <div class="recarga-preco">R$&nbsp;97</div>
+        <div class="recarga-custo">R$&nbsp;1,94/lead</div>
+      </div>
+      <!-- Pack 150 -->
+      <div class="recarga-card destaque" onclick="abrirHotmart('PACK_150')">
+        <div class="recarga-qtd">150</div>
+        <div class="recarga-label">Leads</div>
+        <div class="recarga-preco">R$&nbsp;197</div>
+        <div class="recarga-custo">R$&nbsp;1,31/lead</div>
+        <div class="recarga-badge">Mais popular</div>
+      </div>
+      <!-- Pack 400 -->
+      <div class="recarga-card" onclick="abrirHotmart('PACK_400')">
+        <div class="recarga-qtd">400</div>
+        <div class="recarga-label">Leads</div>
+        <div class="recarga-preco">R$&nbsp;397</div>
+        <div class="recarga-custo">R$&nbsp;0,99/lead</div>
+        <div class="recarga-badge">Melhor custo</div>
+      </div>
+    </div>
+
+    <!-- Plano mensal -->
+    <div class="recarga-mensal" onclick="abrirHotmart('PLANO_MENSAL')">
+      <div class="recarga-mensal-info">
+        <div class="recarga-mensal-titulo">📅 Plano Mensal — R$ 97/mês</div>
+        <div class="recarga-mensal-desc">40 Leads/mês renovados automaticamente + acesso completo</div>
+      </div>
+      <button class="recarga-mensal-btn">Assinar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Modal Recarga ──────────────────────────────────────────────
+
+// URLs das ofertas no Hotmart — preencha após criar as ofertas na plataforma
+const HOTMART_LINKS = {
+  PACK_50:       'https://pay.hotmart.com/E105157382F?off=wnajnkwr',
+  PACK_150:      'https://pay.hotmart.com/E105157382F?off=si62fm4q',
+  PACK_400:      'https://pay.hotmart.com/E105157382F?off=1c61zoyq',
+  PLANO_MENSAL:  'https://pay.hotmart.com/E105157382F?off=1qnc59s6',
+};
+
+function abrirModalRecarga(forceMsg){
+  const modal = document.getElementById('modalRecarga');
+  const sub   = document.getElementById('recargaSub');
+  if(!modal) return;
+  if(forceMsg){
+    sub.textContent = forceMsg;
+    sub.style.color = 'var(--red,#ff453a)';
+  } else {
+    const r = leadsRestantes();
+    sub.textContent = r === 0
+      ? 'Seus Leads acabaram. Escolha um pack para continuar.'
+      : `Você tem ${r} Lead${r!==1?'s':''} restante${r!==1?'s':''}. Quer adicionar mais?`;
+    sub.style.color = '';
+  }
+  modal.classList.add('open');
+  // Fechar ao clicar fora
+  modal.onclick = (e) => { if(e.target === modal) fecharModalRecarga(); };
+}
+
+function fecharModalRecarga(){
+  const modal = document.getElementById('modalRecarga');
+  if(modal) modal.classList.remove('open');
+}
+
+function abrirHotmart(oferta){
+  const url = HOTMART_LINKS[oferta];
+  if(!url || url.includes('SEU_LINK')){
+    toast('⚙️ Link de pagamento ainda não configurado. Contate o suporte.','warn',5000);
+    return;
+  }
+  window.open(url, '_blank', 'noopener');
+}
+
+// Abrir modal automaticamente quando leads chegam a 0 durante uma busca
+// (o toast de "Leads esgotados" já existe nos loops de busca — basta chamar abrirModalRecarga lá se quiser)
 </script>
 </body>
 </html>

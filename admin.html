@@ -261,7 +261,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div class="page" id="pageUsers">
       <div class="page-header">
         <div class="page-title">Usuários <span>// gestão de contas</span></div>
-        <button class="btn btn-primary" onclick="openAddCreditsModal()">+ Ajustar Sinais</button>
+        <button class="btn btn-primary" onclick="openAddCreditsModal()">+ Ajustar Leads</button>
       </div>
       <div class="search-row">
         <input class="input" id="userSearch" type="text" placeholder="Buscar por nome ou e-mail..." oninput="filterUsersTable()">
@@ -276,7 +276,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
           <thead><tr>
             <th>Usuário</th>
             <th>E-mail</th>
-            <th>Sinais</th>
+            <th>Leads</th>
             <th>Campanhas</th>
             <th>Criado em</th>
             <th>Status</th>
@@ -407,13 +407,13 @@ tr:hover td{background:rgba(255,255,255,.02)}
         </div>
 
         <div class="table-wrap" style="padding:24px">
-          <div class="table-title" style="margin-bottom:16px">⚡ Sinais Padrão por Novo Usuário</div>
-          <label class="form-label">Qtd de Sinais liberados no cadastro</label>
+          <div class="table-title" style="margin-bottom:16px">⚡ Leads Padrão por Novo Usuário</div>
+          <label class="form-label">Qtd de Leads liberados no cadastro</label>
           <div style="display:flex;gap:10px">
             <input class="input" type="number" id="defaultCredits" value="100" min="0" style="width:140px">
             <button class="btn btn-primary" onclick="saveDefaultCredits()">Salvar</button>
           </div>
-          <div style="font-size:11px;color:var(--muted2);margin-top:6px;font-family:var(--mono)">Cada novo usuário começa com esta quantidade de Sinais disponíveis.</div>
+          <div style="font-size:11px;color:var(--muted2);margin-top:6px;font-family:var(--mono)">Cada novo usuário começa com esta quantidade de Leads disponíveis.</div>
         </div>
 
       </div>
@@ -422,10 +422,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
   </div><!-- /main -->
 </div><!-- /layout -->
 
-<!-- ── MODAL: Ajustar Sinais ── -->
+<!-- ── MODAL: Ajustar Leads ── -->
 <div class="modal-overlay" id="modalCredits">
   <div class="modal">
-    <div class="modal-title">⚡ Ajustar Sinais do Usuário</div>
+    <div class="modal-title">⚡ Ajustar Leads do Usuário</div>
     <div class="modal-form">
       <div>
         <label class="form-label">E-mail do usuário</label>
@@ -434,7 +434,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <div>
         <label class="form-label">Operação</label>
         <select class="input" id="creditOp" style="width:100%">
-          <option value="add">➕ Adicionar Sinais</option>
+          <option value="add">➕ Adicionar Leads</option>
           <option value="set">🔧 Definir total</option>
           <option value="reset">♻️ Resetar para padrão</option>
         </select>
@@ -458,9 +458,12 @@ tr:hover td{background:rgba(255,255,255,.02)}
 <script>
 // ── CONFIG ────────────────────────────────────────────────
 const SUPABASE_URL = 'https://qnxabfowdvohrolamktx.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_OWpi6DYEuhNmbPY-eUZkzA_hqZ3BGXD';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFueGFiZm93ZHZvaHJvbGFta3R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0ODc0MTQsImV4cCI6MjA5MDA2MzQxNH0.FrhemfUDOWL4O632KchesHxM7f3BXDlPfuhZibn7PZ4';
 const ADM_PASS_KEY = 'capturo_adm_pass';
-const DEFAULT_PASS = 'capturo@adm2025';
+// SEGURANÇA: senha padrão removida do código-fonte.
+// Na primeira vez, defina uma senha em Admin > Configurações > Alterar Senha.
+// O hash SHA-256 da senha fica salvo no localStorage (apenas neste navegador).
+const DEFAULT_PASS_HASH = 'a1b9fa1f7a3b6c8d2e5f4a0c7b8d9e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8'; // substitua pelo hash real
 
 let _sb = null;
 let _admUnlocked = false;
@@ -479,11 +482,28 @@ function startClock(){
   tick(); setInterval(tick, 1000);
 }
 
+// ── HASH SENHA (SHA-256) ──────────────────────────────────
+async function hashSenha(senha){
+  const enc = new TextEncoder().encode(senha);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
 // ── LOCK / UNLOCK ─────────────────────────────────────────
-function tryUnlock(){
+async function tryUnlock(){
   const pass = document.getElementById('lockPass').value;
-  const stored = localStorage.getItem(ADM_PASS_KEY) || DEFAULT_PASS;
-  if(pass === stored){
+  if(!pass){ document.getElementById('lockErr').textContent = 'Digite a senha.'; return; }
+
+  const passHash = await hashSenha(pass);
+  const storedHash = localStorage.getItem(ADM_PASS_KEY);
+
+  // Se não tem hash salvo ainda, pede para definir uma senha pela primeira vez
+  if(!storedHash){
+    document.getElementById('lockErr').textContent = '⚠️ Nenhuma senha configurada. Vá em Configurações e defina uma senha.';
+    return;
+  }
+
+  if(passHash === storedHash){
     _admUnlocked = true;
     document.getElementById('lockScreen').style.display = 'none';
     document.getElementById('admApp').style.display = 'flex';
@@ -555,7 +575,7 @@ async function loadOverview(){
 
   document.getElementById('kpiGrid').innerHTML = `
     <div class="kpi-card accent">
-      <div class="kpi-label">Total de Sinais</div>
+      <div class="kpi-label">Total de Leads</div>
       <div class="kpi-value">${typeof leadCount==='number'?leadCount.toLocaleString('pt-BR'):leadCount}</div>
       <div class="kpi-sub">captados no sistema</div>
     </div>
@@ -587,7 +607,7 @@ async function loadOverview(){
             <div style="font-size:12px;font-weight:600">${escHtml(l.name||'—')}</div>
             <div style="font-family:var(--mono);font-size:10px;color:var(--muted2)">${fmtDate(l.created_at)}</div>
           </div>
-          <span class="badge badge-accent">Sinal</span>
+          <span class="badge badge-accent">Lead</span>
         </div>`).join('');
     } else { ul.innerHTML = '<div style="color:var(--muted2);font-size:12px;padding:8px 0">Sem dados ainda</div>'; }
   } catch(e){}
@@ -646,12 +666,12 @@ function renderUsersTable(users){
     <tr>
       <td><div style="width:28px;height:28px;border-radius:50%;background:var(--accent-bg);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent2)">U</div></td>
       <td><span style="font-family:var(--mono);font-size:11px">${escHtml(u.id.substring(0,12))}…</span></td>
-      <td><span class="badge badge-accent">⚡ ${u.leads} Sinais</span></td>
+      <td><span class="badge badge-accent">⚡ ${u.leads} Leads</span></td>
       <td>${u.campaigns}</td>
       <td>—</td>
       <td><span class="badge badge-green">ativo</span></td>
       <td style="display:flex;gap:6px">
-        <button class="btn btn-ghost btn-sm" onclick="openAddCreditsModal()">+ Sinais</button>
+        <button class="btn btn-ghost btn-sm" onclick="openAddCreditsModal()">+ Leads</button>
       </td>
     </tr>`).join('');
 }
@@ -736,7 +756,7 @@ async function loadLogs(){
       <div class="log-item">
         <div class="log-dot" style="background:${colorMap[l.source]||'var(--muted2)'}"></div>
         <div class="log-content">
-          <div class="log-msg">Sinal capturado: <strong>${escHtml(l.name||'(sem nome)')}</strong></div>
+          <div class="log-msg">Lead capturado: <strong>${escHtml(l.name||'(sem nome)')}</strong></div>
           <div class="log-meta">${fmtDate(l.created_at)} · fonte: ${escHtml(l.source||'—')} · uid: ${l.user_id?.substring(0,8)}…</div>
         </div>
         <span class="badge badge-accent">lead</span>
@@ -748,18 +768,68 @@ async function loadLogs(){
 
 // ── CREDITS ───────────────────────────────────────────────
 async function applyCredits(){
-  const email = document.getElementById('creditUserEmail').value.trim();
-  const op = document.getElementById('creditOp').value;
-  const amount = parseInt(document.getElementById('creditAmount').value)||0;
-  const reason = document.getElementById('creditReason').value.trim();
+  const email    = document.getElementById('creditUserEmail').value.trim();
+  const op       = document.getElementById('creditOp').value;       // 'add' | 'set' | 'reset'
+  const amount   = parseInt(document.getElementById('creditAmount').value) || 0;
+  const reason   = document.getElementById('creditReason').value.trim() || '(sem motivo)';
 
   if(!email){ toast('Informe o e-mail do usuário.','error'); return; }
+  if(op !== 'reset' && amount <= 0){ toast('Informe uma quantidade válida.','error'); return; }
 
-  // In a real setup, this would call a Supabase function/RPC to manage a credits table
-  // For now we log the intent and show feedback
-  toast(`Operação "${op}" de ${amount} Sinais para ${email} registrada. Implemente a tabela "credits" no Supabase para persistir.`, 'info');
-  console.log('[ADM] Credits adjustment:', {email, op, amount, reason, ts: new Date().toISOString()});
-  closeModal('modalCredits');
+  const sb = getSB();
+  toast('Buscando usuário...', 'info');
+
+  try {
+    // 1. Busca o perfil pelo e-mail via RPC (requer a função SQL no Supabase — ver capturo_migration_v3.sql)
+    const { data: profile, error: rpcErr } = await sb.rpc('adm_get_profile_by_email', { p_email: email });
+
+    if(rpcErr || !profile || profile.length === 0){
+      toast(`Usuário não encontrado: ${email}. Verifique se o email está correto e se rodou o SQL v3.`, 'error');
+      return;
+    }
+
+    const userId     = profile[0].id;
+    const curLimit   = profile[0].sinais_limit || 0;
+    const curUsed    = profile[0].sinais_used  || 0;
+
+    let newLimit = curLimit;
+    let logOp    = op;
+
+    if(op === 'add')   newLimit = curLimit + amount;
+    if(op === 'set')   newLimit = amount;
+    if(op === 'reset'){ newLimit = curLimit; } // reset não muda limite, zera used
+
+    // 2. Atualiza o perfil
+    const updateData = op === 'reset'
+      ? { sinais_used: 0 }
+      : { sinais_limit: newLimit };
+
+    const { error: upErr } = await sb.from('profiles').update(updateData).eq('id', userId);
+    if(upErr){ toast('Erro ao atualizar perfil: ' + upErr.message, 'error'); return; }
+
+    // 3. Registra no log de créditos
+    await sb.from('credits_log').insert({
+      user_id   : userId,
+      operation : logOp,
+      amount    : op === 'reset' ? curUsed : amount,
+      reason    : reason,
+      created_at: new Date().toISOString()
+    });
+
+    const resultado = op === 'reset'
+      ? `Uso zerado. Limit atual: ${newLimit} Leads.`
+      : `Limit atualizado: ${curLimit} → ${newLimit} Leads.`;
+
+    toast(`✅ ${resultado}`, 'ok');
+    closeModal('modalCredits');
+    document.getElementById('creditUserEmail').value = '';
+    document.getElementById('creditAmount').value = '';
+    document.getElementById('creditReason').value = '';
+
+  } catch(e){
+    toast('Erro inesperado: ' + e.message, 'error');
+    console.error('[ADM] applyCredits error:', e);
+  }
 }
 
 // ── GLOBAL APIs ───────────────────────────────────────────
@@ -770,15 +840,17 @@ function saveGlobalAPI(key, value){
 }
 
 // ── CONFIG ────────────────────────────────────────────────
-function changeAdmPassword(){
+async function changeAdmPassword(){
   const np = document.getElementById('newAdmPass').value;
   const cp = document.getElementById('confirmAdmPass').value;
   if(np.length < 8){ toast('Mínimo 8 caracteres.','error'); return; }
   if(np !== cp){ toast('Senhas não coincidem.','error'); return; }
-  localStorage.setItem(ADM_PASS_KEY, np);
+  // Armazena o HASH SHA-256 da senha — nunca a senha em texto puro
+  const hash = await hashSenha(np);
+  localStorage.setItem(ADM_PASS_KEY, hash);
   document.getElementById('newAdmPass').value = '';
   document.getElementById('confirmAdmPass').value = '';
-  toast('Senha alterada com sucesso!','ok');
+  toast('Senha definida com segurança (hash SHA-256). Anote-a — não pode ser recuperada.','ok');
 }
 
 function saveSysMessage(){
@@ -797,7 +869,7 @@ function clearSysMessage(){
 function saveDefaultCredits(){
   const val = parseInt(document.getElementById('defaultCredits').value)||100;
   localStorage.setItem('capturo_default_credits', val);
-  toast(`Padrão de ${val} Sinais por novo usuário salvo.`,'ok');
+  toast(`Padrão de ${val} Leads por novo usuário salvo.`,'ok');
 }
 
 // ── UTILS ─────────────────────────────────────────────────
