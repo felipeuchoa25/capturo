@@ -3880,6 +3880,7 @@ async function startMapsSearch(){
     toast('⚡ Você não tem Leads disponíveis. Recarregue para continuar prospectando.','warn',6000);
     return;
   }
+  _leadsEsgotadosAlertado = false;
   const btn=$('btnS1');btn.disabled=true;btn.textContent='Buscando...';showCancelBtn(true);
   leads=[];setProg(5);setStat('<span class="spinner"></span>Localizando cidade...');
 
@@ -3925,7 +3926,7 @@ async function startMapsSearch(){
         const lead={...det,id:'m'+Date.now()+nbIdx+'_'+i,name:det.name||places[i].name,formatted_address:(det.formatted_address||places[i].vicinity||'').replace(', USA',''),t,score:calcScore(det,t),status:'new',notes:'',siteScore:null,siteIssues:[],sitePitch:'',email:'',emailVerified:false,emailConfidence:0,source:'maps',mapsUrl:det.url||'',neighborhood:nb||''};
         // ── Consome 1 Lead; para se sem saldo ───────────────────
         const ok = await consumirSinal('maps_search', {lead_name:lead.name, campaign_id:activeCampaignId});
-        if(!ok){ setStat('⚡ Leads esgotados! Recarregue para continuar.'); toast('⚡ Leads esgotados! Recarregue seus Leads para continuar.','warn',5000); setTimeout(()=>abrirModalRecarga('Seus Leads acabaram durante a busca. Escolha um pack para continuar.'),600); break; }
+        if(!ok){ setStat('⚡ Leads esgotados! Recarregue para continuar.'); if(!_leadsEsgotadosAlertado){_leadsEsgotadosAlertado=true; toast('⚡ Leads esgotados! Recarregue seus Leads para continuar.','warn',5000); setTimeout(()=>abrirModalRecarga('Seus Leads acabaram durante a busca. Escolha um pack para continuar.'),600);} break; }
         leads.push(lead);
         setProg(5+Math.round(((nbIdx+(i+1)/places.length)/nbList.length)*25));
         setStat(`<span class="spinner"></span>[${nb||c.city}] ${i+1}/${places.length}: ${lead.name}`);
@@ -3994,6 +3995,7 @@ async function startBioSearch(){
     toast('⚡ Você não tem Leads disponíveis. Recarregue para continuar prospectando.','warn',6000);
     return;
   }
+  _leadsEsgotadosAlertado = false;
   const btn=$('btnS2');btn.disabled=true;btn.textContent='Buscando...';showCancelBtn(true);
   leads=[];setProg(5);
   const query=c.market==='nacional'?c.nicho:c.nichoEn;
@@ -4070,6 +4072,7 @@ async function startFullSearch(){
     toast('⚡ Você não tem Leads disponíveis. Recarregue para continuar prospectando.','warn',6000);
     return;
   }
+  _leadsEsgotadosAlertado = false;
   // Run Maps first
   $('btnS3').disabled=true;$('btnS3').textContent='Buscando Maps...';
   const savedAI=$('enableAI').checked;
@@ -4177,7 +4180,7 @@ async function startBioSearchInternal(gKey,cseId){
         const phoneMatch=(item.snippet||'').match(/[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}/);
         // ── Consome 1 Lead; para se sem saldo ───────────────────
         const okBio = await consumirSinal('bio_search', {lead_name:name, campaign_id:activeCampaignId});
-        if(!okBio){ setStat('⚡ Leads esgotados! Recarregue para continuar.'); toast('⚡ Leads esgotados! Recarregue seus Leads para continuar.','warn',5000); setTimeout(()=>abrirModalRecarga('Seus Leads acabaram durante a busca. Escolha um pack para continuar.'),600); return; }
+        if(!okBio){ setStat('⚡ Leads esgotados! Recarregue para continuar.'); if(!_leadsEsgotadosAlertado){_leadsEsgotadosAlertado=true; toast('⚡ Leads esgotados! Recarregue seus Leads para continuar.','warn',5000); setTimeout(()=>abrirModalRecarga('Seus Leads acabaram durante a busca. Escolha um pack para continuar.'),600);} return; }
         leads.push({id:'g'+Date.now()+bi+'_'+ii,name,formatted_address:(item.snippet||'').substring(0,120),t:'volcano',score:10,status:'new',notes:'',siteScore:null,siteIssues:[],sitePitch:'',email:'',emailVerified:false,emailConfidence:0,source:'google',bioUrl:item.link,bioSite:bioSite.domain,snippet:item.snippet||'',formatted_phone_number:phoneMatch?phoneMatch[0]:'',website:item.link,mapsUrl:`https://www.google.com/maps/search/${encodeURIComponent(name)}`,country:isBrasil?'BR':c.country||'US'});
         renderAll();
       }
@@ -8810,7 +8813,8 @@ let currentUser = null;
 let _authMode = 'login'; // 'login' | 'signup'
 
 // ── SINAIS (créditos) ─────────────────────────────────────────
-let _leadsProfile = { sinais_limit: 40, sinais_used: 0 };
+let _leadsProfile = { sinais_limit: 100, sinais_used: 0 };
+let _leadsEsgotadosAlertado = false; // evita toast duplicado em Busca Completa
 
 function leadsRestantes(){ return Math.max(0, _leadsProfile.sinais_limit - _leadsProfile.sinais_used); }
 

@@ -833,10 +833,18 @@ async function applyCredits(){
 }
 
 // ── GLOBAL APIs ───────────────────────────────────────────
-function saveGlobalAPI(key, value){
+async function saveGlobalAPI(key, value){
   if(!value){ toast('Valor não pode ser vazio.','error'); return; }
+  // Salva localmente (fallback)
   localStorage.setItem('capturo_adm_api_'+key, value);
-  toast(`API "${key}" salva localmente (⚠️ configure também no Supabase Secrets).`,'ok');
+  // Salva no Supabase para persistência entre máquinas
+  try{
+    const sb = getSB();
+    await sb.from('system_config').upsert({ key: 'api_'+key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
+    toast(`API "${key}" salva no Supabase com sucesso.`,'ok');
+  } catch(e){
+    toast(`API "${key}" salva só localmente (erro Supabase: ${e.message}).`,'warn');
+  }
 }
 
 // ── CONFIG ────────────────────────────────────────────────
@@ -853,17 +861,30 @@ async function changeAdmPassword(){
   toast('Senha definida com segurança (hash SHA-256). Anote-a — não pode ser recuperada.','ok');
 }
 
-function saveSysMessage(){
+async function saveSysMessage(){
   const msg = document.getElementById('sysMessage').value.trim();
   const type = document.getElementById('sysMessageType').value;
-  localStorage.setItem('capturo_sys_message', JSON.stringify({msg, type, ts: new Date().toISOString()}));
-  toast('Aviso publicado! Aparecerá no app para todos os usuários.','ok');
+  const payload = JSON.stringify({msg, type, ts: new Date().toISOString()});
+  localStorage.setItem('capturo_sys_message', payload); // fallback local
+  try{
+    const sb = getSB();
+    await sb.from('system_config').upsert({ key: 'sys_message', value: payload, updated_at: new Date().toISOString() }, { onConflict: 'key' });
+    toast('Aviso publicado no Supabase! Todos os usuários verão na próxima abertura do app.','ok');
+  } catch(e){
+    toast('Aviso salvo só localmente (Supabase falhou). Verifique a tabela system_config.','warn');
+  }
 }
 
-function clearSysMessage(){
+async function clearSysMessage(){
   localStorage.removeItem('capturo_sys_message');
   document.getElementById('sysMessage').value = '';
-  toast('Aviso removido.','ok');
+  try{
+    const sb = getSB();
+    await sb.from('system_config').upsert({ key: 'sys_message', value: '', updated_at: new Date().toISOString() }, { onConflict: 'key' });
+    toast('Aviso removido do Supabase.','ok');
+  } catch(e){
+    toast('Aviso removido localmente (Supabase falhou).','warn');
+  }
 }
 
 function saveDefaultCredits(){
