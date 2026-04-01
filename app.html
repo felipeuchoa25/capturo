@@ -132,6 +132,23 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg)
 
 /* ── CRM STATUS ── */
 .crm-status-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600}
+/* ── PIPELINE BOARD ── */
+#pipelineBoard{overflow-x:auto;padding-bottom:8px}
+.pipeline-grid{display:grid;grid-template-columns:repeat(7,minmax(150px,1fr));gap:10px;min-width:1050px}
+.pipe-col{background:var(--s1);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.pipe-col-head{padding:10px 12px;border-bottom:1px solid var(--border);background:var(--s2);flex-shrink:0}
+.pipe-col-body{padding:8px;display:flex;flex-direction:column;gap:6px;min-height:120px;flex:1;transition:background .15s}
+.pipe-col-body.drag-over{background:rgba(0,122,255,.07);outline:2px dashed var(--accent);outline-offset:-2px;border-radius:8px}
+.pipe-card{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:9px 10px;cursor:pointer;transition:all .15s;user-select:none}
+.pipe-card:hover{border-color:var(--accent);box-shadow:0 3px 12px rgba(0,122,255,.12);transform:translateY(-1px)}
+.pipe-card.dragging{opacity:.4}
+/* ── RECORRÊNCIA WIDGET ── */
+.mrr-widget{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.mrr-card{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.mrr-num{font-size:22px;font-weight:800;letter-spacing:-.03em}
+.mrr-label{font-size:10px;color:var(--muted2);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-top:4px}
+/* ── CONVERT TO CLIENT BANNER ── */
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
 
 /* ── PROFILE PANEL ── */
 .profile-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:400;display:none;backdrop-filter:blur(8px)}
@@ -141,7 +158,7 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg)
 
 /* NAV */
 .topnav{background:var(--s1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;box-shadow:0 1px 0 var(--border)}
-.topnav-row1{display:flex;align-items:center;gap:10px;padding:0 20px;height:52px}
+.topnav-row1{display:flex;align-items:center;gap:10px;padding:0 20px;min-height:52px;flex-wrap:wrap;}
 .nav-tabs::-webkit-scrollbar{display:none}
 .logo{font-size:17px;font-weight:700;letter-spacing:-.03em;color:var(--text);white-space:nowrap}
 .logo span{color:var(--accent)}
@@ -1046,7 +1063,7 @@ function toast(msg, type='info', duration=3500){
     <span class="sb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.4 7.05 11.5 7.35 11.76a1 1 0 0 0 1.3 0C12.95 21.5 20 15.4 20 10a8 8 0 0 0-8-8z"/></svg></span><span class="sb-label">GMB</span>
   </div>
   <div class="sb-item" id="sb-manual" onclick="showPage('pageManual');setSbActive('sb-manual')">
-    <span class="sb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span class="sb-label">Prospectar</span>
+    <span class="sb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span class="sb-label">Busca Manual</span>
   </div>
   <div class="sb-item" id="sb-ai" onclick="showPage('pageAI');setSbActive('sb-ai')">
     <span class="sb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/><circle cx="9" cy="13" r="1"/><circle cx="15" cy="13" r="1"/></svg></span><span class="sb-label">Assistente IA</span>
@@ -1073,7 +1090,7 @@ function toast(msg, type='info', duration=3500){
     <span class="sb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
     <span class="sb-label">FAQ</span>
   </div>
-  <div class="sb-item" onclick="openSettings()">
+  <div class="sb-item" onclick="openSettings()" style="display:none">
     <span class="sb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span class="sb-label">Configurações</span>
   </div>
 </div>
@@ -1109,7 +1126,7 @@ function toast(msg, type='info', duration=3500){
     <!-- Separador vertical -->
     <div style="width:1px;height:22px;background:var(--border);flex-shrink:0;margin:0 6px"></div>
     <!-- Prospecções inline -->
-    <div class="nav-tabs" id="navTabs" style="flex:1;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;-ms-overflow-style:none"></div>
+    <div class="nav-tabs" id="navTabs" style="flex:1;flex-wrap:wrap;overflow:visible;max-height:none;"></div>
     <!-- Global Search Button -->
     <button class="gs-btn" onclick="openGlobalSearch()" title="Busca global (Ctrl+K)">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -1175,7 +1192,7 @@ function toast(msg, type='info', duration=3500){
           <button onclick="openQueryGenerator()" style="width:100%;padding:8px;border-radius:8px;background:var(--volcano-bg);color:var(--volcano);border:1px solid var(--volcano-b);font-size:11px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">
             🌋 Gerar Queries Bio Links
           </button>
-          <div style="font-size:9px;color:var(--muted2);font-family:monospace;margin-top:5px;text-align:center">Busca manual grátis · sem gastar cota CSE</div>
+          <div style="font-size:9px;color:var(--muted2);font-family:monospace;margin-top:5px;text-align:center">Busca manual de perfis bio</div>
         </div>
       </div>
       <!-- Leads recentes (ocupa resto) -->
@@ -1216,8 +1233,8 @@ function toast(msg, type='info', duration=3500){
           </div>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
-          <button class="btn btn-ghost" onclick="testGoogle()" style="font-size:10px;padding:5px 12px">Verificar APIs</button>
-          <button class="btn btn-ghost" onclick="openSettings();setSettingsTab('integrações')" style="font-size:10px;padding:5px 12px">⚙️ Integrações</button>
+          <button class="btn btn-ghost" onclick="testGoogle()" style="font-size:10px;padding:5px 12px;display:none">Verificar APIs</button>
+          <button class="btn btn-ghost" onclick="openSettings();setSettingsTab('integrações')" style="font-size:10px;padding:5px 12px;display:none">⚙️ Integrações</button>
         </div>
       </div>
       <div class="campaign-info" id="campaignInfoBar">Selecione uma campanha</div>
@@ -1254,7 +1271,7 @@ function toast(msg, type='info', duration=3500){
         </div>
         <div style="margin-bottom:14px" id="biolinkChips"></div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-          <span style="font-size:10px;color:var(--muted2);font-family:'IBM Plex Mono',monospace">250 buscas/mês grátis · 10 resultados/consulta</span>
+          <span style="font-size:10px;color:var(--muted2);font-family:'IBM Plex Mono',monospace">Bio Links Engine ativo</span>
           <button class="btn" id="btnS2" onclick="startBioSearch()" style="height:37px;margin-left:auto;background:var(--volcano);color:#fff;font-weight:700">🌋 Buscar Bio Links</button>
         </div>
       </div>
@@ -1309,7 +1326,8 @@ function toast(msg, type='info', duration=3500){
       <button class="btn btn-ghost" onclick="exportOpps()" style="font-size:11px">🎯 Oportunidades</button>
       <button class="btn btn-ghost" onclick="openCsvImportModal()" style="font-size:11px;color:var(--accent2);border-color:var(--accent);background:var(--accent-bg)" title="Importar leads de arquivo CSV">📥 Importar CSV</button>
       <div style="display:flex;gap:4px;margin-left:auto">
-        <button id="btnViewKanban" onclick="setKanbanView('kanban')" title="Visualização Kanban" style="padding:5px 10px;border-radius:8px;border:1px solid var(--accent);background:var(--accent-bg);color:var(--accent);font-size:11px;cursor:pointer;font-weight:600">⊞ Kanban</button>
+        <button id="btnViewKanban" onclick="setKanbanView('kanban')" title="Kanban por Temperatura" style="padding:5px 10px;border-radius:8px;border:1px solid var(--accent);background:var(--accent-bg);color:var(--accent);font-size:11px;cursor:pointer;font-weight:600">⊞ Temperatura</button>
+        <button id="btnViewPipeline" onclick="setKanbanView('pipeline')" title="Pipeline de Vendas" style="padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--s2);color:var(--muted2);font-size:11px;cursor:pointer;font-weight:600">🎯 Pipeline</button>
         <button id="btnViewList" onclick="setKanbanView('list')" title="Visualização Lista" style="padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--s2);color:var(--muted2);font-size:11px;cursor:pointer;font-weight:600">☰ Lista</button>
       </div>
     </div>
@@ -1321,6 +1339,8 @@ function toast(msg, type='info', duration=3500){
       <div class="col-cold"><div class="col-head">❄ Frio<span class="cnt" id="bCold">0</span></div><div id="colCold" class="kanban-col" ondragover="onDragOver(event,'cold')" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'cold')"><div class="empty-col">Site ruim<br>IA detectou problemas</div></div></div>
       <div class="col-frozen"><div class="col-head">🧊 Gelado<span class="cnt" id="bFrozen">0</span></div><div id="colFrozen" class="kanban-col" ondragover="onDragOver(event,'frozen')" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'frozen')"><div class="empty-col">Site presente e bom</div></div></div>
     </div>
+    <!-- PIPELINE BOARD (renderizado via JS) -->
+    <div id="pipelineBoard" style="display:none"></div>
   </div>
 
 
@@ -1444,7 +1464,7 @@ function toast(msg, type='info', duration=3500){
           <div style="font-size:11px;font-weight:700;color:var(--purple);font-family:'IBM Plex Mono',monospace;margin-bottom:3px">IA OPCIONAL — Enriquecimento Automático</div>
           <div style="font-size:11px;color:var(--muted2);line-height:1.5">Se a <strong style="color:var(--text)">Claude API Key</strong> estiver configurada em <em>Configurações → Integrações</em>, a IA enriquece cada lead adicionado com: análise do site, pitch personalizado, problemas detectados e temperatura sugerida.</div>
         </div>
-        <button onclick="openSettings();setSettingsTab('integrações')" style="flex-shrink:0;padding:6px 12px;border-radius:8px;background:rgba(168,85,247,.12);color:var(--purple);border:1px solid rgba(168,85,247,.3);font-size:10px;font-weight:700;cursor:pointer;font-family:'IBM Plex Mono',monospace;white-space:nowrap">⚙ Config IA</button>
+        <button onclick="openSettings();setSettingsTab('integrações')" style="display:none;flex-shrink:0;padding:6px 12px;border-radius:8px;background:rgba(168,85,247,.12);color:var(--purple);border:1px solid rgba(168,85,247,.3);font-size:10px;font-weight:700;cursor:pointer;font-family:'IBM Plex Mono',monospace;white-space:nowrap">⚙ Config IA</button>
       </div>
     </div>
     <div id="manualLeadsList"></div>
@@ -2183,7 +2203,7 @@ function toast(msg, type='info', duration=3500){
       <!-- TABS SETTINGS -->
       <div style="display:flex;gap:0;background:var(--s2);border-radius:10px;padding:3px;border:1px solid var(--border);margin-bottom:20px">
         <button onclick="setSettingsTab('perfil')" id="stab-perfil" style="flex:1;padding:7px;border-radius:8px;border:none;background:var(--s1);color:var(--text);font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 1px 4px rgba(0,0,0,.1)">👤 Perfil</button>
-        <button onclick="setSettingsTab('integrações')" id="stab-integrações" style="flex:1;padding:7px;border-radius:8px;border:none;background:transparent;color:var(--muted2);font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">🔌 Integrações</button>
+        <button onclick="setSettingsTab('integrações')" id="stab-integrações" style="flex:1;padding:7px;border-radius:8px;border:none;background:transparent;color:var(--muted2);font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;display:none">🔌 Integrações</button>
         <button onclick="setSettingsTab('interface')" id="stab-interface" style="flex:1;padding:7px;border-radius:8px;border:none;background:transparent;color:var(--muted2);font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">🎨 Interface</button>
         <button onclick="setSettingsTab('dados')" id="stab-dados" style="flex:1;padding:7px;border-radius:8px;border:none;background:transparent;color:var(--muted2);font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">📦 Dados</button>
       </div>
@@ -2389,10 +2409,24 @@ function toast(msg, type='info', duration=3500){
       <div style="font-size:10px;font-family:monospace;color:var(--muted2);text-transform:uppercase;letter-spacing:.1em">// Clientes Ativos</div>
       <button class="btn btn-primary" onclick="openNewClientModal()" style="font-size:11px">+ Novo Cliente</button>
     </div>
-    <div style="background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:18px;font-size:11px;color:var(--muted2);font-family:monospace;line-height:1.8">
-      👥 <strong style="color:var(--text)">Clientes</strong> são negócios que você <strong style="color:var(--green)">fechou</strong> na prospecção e agora presta serviço.
-      Aqui você gerencia a ficha completa, serviços ativos, filiais e histórico.
-      &nbsp;|&nbsp; <span style="color:var(--accent2)">Futuramente: integração Meta Ads + GMB</span>
+    <!-- RECORRÊNCIA WIDGET -->
+    <div class="mrr-widget" id="mrrWidget">
+      <div class="mrr-card">
+        <div class="mrr-num" id="mrrTotal" style="color:var(--green)">R$ 0</div>
+        <div class="mrr-label">MRR Total</div>
+      </div>
+      <div class="mrr-card">
+        <div class="mrr-num" id="mrrCount" style="color:var(--accent)">0</div>
+        <div class="mrr-label">Clientes Ativos</div>
+      </div>
+      <div class="mrr-card">
+        <div class="mrr-num" id="mrrDueToday" style="color:var(--orange)">0</div>
+        <div class="mrr-label">Vencem Hoje / Amanhã</div>
+      </div>
+      <div class="mrr-card">
+        <div class="mrr-num" id="mrrOverdue" style="color:var(--volcano)">0</div>
+        <div class="mrr-label">Em Atraso</div>
+      </div>
     </div>
     <div class="clients-grid" id="clientsGrid">
       <div style="text-align:center;padding:60px 20px;color:var(--muted2);grid-column:1/-1">
@@ -2595,7 +2629,14 @@ function toast(msg, type='info', duration=3500){
       </div>
     </div>
     <div class="cfield" id="neighborhoodRow" style="display:none">
-      <label>Bairros <span style="color:var(--muted2);font-weight:400;font-size:10px">— o sistema vai prospectar <strong style="color:var(--accent2)">cada bairro selecionado</strong> separadamente</span></label>
+      <label>Bairros <span style="color:var(--muted2);font-weight:400;font-size:10px">— escolha bairros de qualquer cidade selecionada</span></label>
+      <!-- Cidade inteira toggle -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:8px 10px;background:var(--s2);border-radius:8px;border:1px solid var(--border)">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;font-weight:500">
+          <input type="checkbox" id="chkCidadeInteira" onchange="toggleCidadeInteira()">
+          🏙️ Prospectar cidade inteira (sem filtrar por bairro)
+        </label>
+      </div>
       <!-- Ações rápidas -->
       <div id="nbQuickActions" style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center">
         <button type="button" id="nbBtnGold"   onclick="selectNbTier('gold')"   class="tier-quick-btn">🥇 Alto Padrão (A)</button>
@@ -2610,6 +2651,20 @@ function toast(msg, type='info', duration=3500){
       <input type="text" id="neighborhoodFreeText" placeholder="Ou digite outro bairro..." style="display:none;margin-top:8px;font-size:12px" oninput="autoFillName()">
       <!-- Hidden field to store value -->
       <input type="hidden" id="neighborhoodDD" value="">
+    </div>
+    <!-- MODO DE CRIAÇÃO — só aparece quando 2+ cidades selecionadas -->
+    <div class="cfield" id="campModeRow" style="display:none">
+      <label>Como criar as campanhas?</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;cursor:pointer;font-size:12px;background:var(--s2);flex:1;transition:border-color .2s" id="campOptSingle">
+          <input type="radio" name="campMode" value="single" checked onchange="updateCampModeUI()">
+          <span><strong style="font-size:13px">Uma campanha</strong><br><span style="color:var(--muted2);font-size:10px">todas as cidades numa só campanha</span></span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;cursor:pointer;font-size:12px;background:var(--s2);flex:1;transition:border-color .2s" id="campOptPerCity">
+          <input type="radio" name="campMode" value="per_city" onchange="updateCampModeUI()">
+          <span><strong style="font-size:13px">Uma por cidade</strong><br><span style="color:var(--muted2);font-size:10px">campanhas separadas automaticamente</span></span>
+        </label>
+      </div>
     </div>
     <div class="cfield">
       <label>Raio de busca</label>
@@ -2657,111 +2712,36 @@ const NICHOS_INT=[
   {v:'Personal Trainer',conv:13.5,en:'Personal Trainer'},{v:'Salon',conv:12.5,en:'Salon'},
   {v:'Barbershop',conv:11.8,en:'Barbershop'},{v:'Restaurant',conv:10.5,en:'Restaurant'},
 ];
-const STATES_BR_TIERS={
-  'São Paulo':[
-    {n:'São Paulo',t:'gold'},{n:'Campinas',t:'gold'},{n:'Santos',t:'gold'},{n:'São José dos Campos',t:'gold'},{n:'Ribeirão Preto',t:'gold'},{n:'Sorocaba',t:'gold'},{n:'Jundiaí',t:'gold'},{n:'Osasco',t:'gold'},
-    {n:'Guarulhos',t:'silver'},{n:'São Bernardo do Campo',t:'silver'},{n:'Santo André',t:'silver'},{n:'Piracicaba',t:'silver'},{n:'Bauru',t:'silver'},{n:'São José do Rio Preto',t:'silver'},{n:'Mogi das Cruzes',t:'silver'},{n:'Americana',t:'silver'},{n:'Limeira',t:'silver'},{n:'Taubaté',t:'silver'},
-    {n:'Presidente Prudente',t:'bronze'},{n:'Marília',t:'bronze'},{n:'Franca',t:'bronze'},{n:'Araçatuba',t:'bronze'},{n:'Araraquara',t:'bronze'}
-  ],
-  'Rio de Janeiro':[
-    {n:'Rio de Janeiro',t:'gold'},{n:'Niterói',t:'gold'},{n:'Petrópolis',t:'gold'},
-    {n:'Nova Iguaçu',t:'silver'},{n:'Duque de Caxias',t:'silver'},{n:'São Gonçalo',t:'silver'},{n:'Volta Redonda',t:'silver'},{n:'Campos dos Goytacazes',t:'silver'},
-    {n:'Belford Roxo',t:'bronze'},{n:'Mesquita',t:'bronze'},{n:'Nova Friburgo',t:'bronze'}
-  ],
-  'Minas Gerais':[
-    {n:'Belo Horizonte',t:'gold'},{n:'Uberlândia',t:'gold'},{n:'Contagem',t:'gold'},{n:'Juiz de Fora',t:'gold'},
-    {n:'Betim',t:'silver'},{n:'Montes Claros',t:'silver'},{n:'Uberaba',t:'silver'},{n:'Ipatinga',t:'silver'},{n:'Sete Lagoas',t:'silver'},{n:'Divinópolis',t:'silver'},{n:'Governador Valadares',t:'silver'},
-    {n:'Teófilo Otoni',t:'bronze'},{n:'Poços de Caldas',t:'bronze'},{n:'Patos de Minas',t:'bronze'}
-  ],
-  'Rio Grande do Sul':[
-    {n:'Porto Alegre',t:'gold'},{n:'Caxias do Sul',t:'gold'},{n:'Canoas',t:'gold'},
-    {n:'Pelotas',t:'silver'},{n:'Santa Maria',t:'silver'},{n:'Gravataí',t:'silver'},{n:'Novo Hamburgo',t:'silver'},{n:'São Leopoldo',t:'silver'},{n:'Passo Fundo',t:'silver'},
-    {n:'Bagé',t:'bronze'},{n:'Lajeado',t:'bronze'},{n:'Cachoeirinha',t:'bronze'}
-  ],
-  'Paraná':[
-    {n:'Curitiba',t:'gold'},{n:'Londrina',t:'gold'},{n:'Maringá',t:'gold'},
-    {n:'Ponta Grossa',t:'silver'},{n:'Cascavel',t:'silver'},{n:'São José dos Pinhais',t:'silver'},{n:'Foz do Iguaçu',t:'silver'},{n:'Colombo',t:'silver'},
-    {n:'Guarapuava',t:'bronze'},{n:'Paranaguá',t:'bronze'},{n:'Araucária',t:'bronze'}
-  ],
-  'Santa Catarina':[
-    {n:'Florianópolis',t:'gold'},{n:'Joinville',t:'gold'},{n:'Blumenau',t:'gold'},
-    {n:'Chapecó',t:'silver'},{n:'Itajaí',t:'silver'},{n:'Criciúma',t:'silver'},{n:'Jaraguá do Sul',t:'silver'},{n:'Palhoça',t:'silver'},{n:'Balneário Camboriú',t:'silver'},
-    {n:'Lages',t:'bronze'},{n:'Caçador',t:'bronze'},{n:'Tubarão',t:'bronze'}
-  ],
-  'Bahia':[
-    {n:'Salvador',t:'gold'},{n:'Feira de Santana',t:'gold'},
-    {n:'Vitória da Conquista',t:'silver'},{n:'Camaçari',t:'silver'},{n:'Ilhéus',t:'silver'},{n:'Itabuna',t:'silver'},{n:'Porto Seguro',t:'silver'},
-    {n:'Jequié',t:'bronze'},{n:'Lauro de Freitas',t:'bronze'},{n:'Barreiras',t:'bronze'}
-  ],
-  'Goiás':[
-    {n:'Goiânia',t:'gold'},{n:'Aparecida de Goiânia',t:'gold'},
-    {n:'Anápolis',t:'silver'},{n:'Rio Verde',t:'silver'},{n:'Catalão',t:'silver'},{n:'Itumbiara',t:'silver'},
-    {n:'Jataí',t:'bronze'},{n:'Luziânia',t:'bronze'}
-  ],
-  'Pernambuco':[
-    {n:'Recife',t:'gold'},{n:'Olinda',t:'gold'},
-    {n:'Caruaru',t:'silver'},{n:'Petrolina',t:'silver'},{n:'Paulista',t:'silver'},{n:'Cabo de Santo Agostinho',t:'silver'},
-    {n:'Jaboatão dos Guararapes',t:'bronze'},{n:'Camaragibe',t:'bronze'}
-  ],
-  'Ceará':[
-    {n:'Fortaleza',t:'gold'},
-    {n:'Caucaia',t:'silver'},{n:'Juazeiro do Norte',t:'silver'},{n:'Sobral',t:'silver'},{n:'Crato',t:'silver'},{n:'Maracanaú',t:'silver'},
-    {n:'Itapipoca',t:'bronze'},{n:'Maranguape',t:'bronze'}
-  ],
-  'Espírito Santo':[
-    {n:'Vitória',t:'gold'},{n:'Serra',t:'gold'},{n:'Vila Velha',t:'gold'},
-    {n:'Cariacica',t:'silver'},{n:'Cachoeiro de Itapemirim',t:'silver'},{n:'Linhares',t:'silver'},
-    {n:'Colatina',t:'bronze'},{n:'Guarapari',t:'bronze'}
-  ],
-  'Distrito Federal':[
-    {n:'Brasília',t:'gold'},{n:'Taguatinga',t:'gold'},{n:'Ceilândia',t:'gold'},
-    {n:'Samambaia',t:'silver'},{n:'Planaltina',t:'silver'},{n:'Águas Claras',t:'silver'}
-  ],
-  'Mato Grosso do Sul':[
-    {n:'Campo Grande',t:'gold'},{n:'Dourados',t:'silver'},{n:'Três Lagoas',t:'silver'},{n:'Corumbá',t:'bronze'}
-  ],
-  'Mato Grosso':[
-    {n:'Cuiabá',t:'gold'},{n:'Várzea Grande',t:'silver'},{n:'Rondonópolis',t:'silver'},{n:'Sinop',t:'silver'},{n:'Tangará da Serra',t:'bronze'}
-  ],
-  'Pará':[
-    {n:'Belém',t:'gold'},{n:'Ananindeua',t:'silver'},{n:'Santarém',t:'silver'},{n:'Marabá',t:'silver'},{n:'Parauapebas',t:'bronze'}
-  ],
-  'Amazonas':[
-    {n:'Manaus',t:'gold'},{n:'Parintins',t:'silver'},{n:'Itacoatiara',t:'bronze'}
-  ],
-  'Maranhão':[
-    {n:'São Luís',t:'gold'},{n:'Imperatriz',t:'silver'},{n:'Timon',t:'bronze'},{n:'Caxias',t:'bronze'}
-  ],
-  'Piauí':[
-    {n:'Teresina',t:'gold'},{n:'Parnaíba',t:'silver'},{n:'Picos',t:'bronze'}
-  ],
-  'Rio Grande do Norte':[
-    {n:'Natal',t:'gold'},{n:'Mossoró',t:'silver'},{n:'Caicó',t:'bronze'}
-  ],
-  'Paraíba':[
-    {n:'João Pessoa',t:'gold'},{n:'Campina Grande',t:'silver'},{n:'Patos',t:'bronze'}
-  ],
-  'Alagoas':[
-    {n:'Maceió',t:'gold'},{n:'Arapiraca',t:'silver'},{n:'Palmeira dos Índios',t:'bronze'}
-  ],
-  'Sergipe':[
-    {n:'Aracaju',t:'gold'},{n:'Nossa Senhora do Socorro',t:'silver'},{n:'Lagarto',t:'bronze'}
-  ],
-  'Tocantins':[
-    {n:'Palmas',t:'gold'},{n:'Araguaína',t:'silver'},{n:'Gurupi',t:'bronze'}
-  ],
-  'Rondônia':[
-    {n:'Porto Velho',t:'gold'},{n:'Ji-Paraná',t:'silver'},{n:'Vilhena',t:'bronze'}
-  ],
-  'Acre':[
-    {n:'Rio Branco',t:'gold'},{n:'Cruzeiro do Sul',t:'silver'}
-  ],
-  'Roraima':[
-    {n:'Boa Vista',t:'gold'},{n:'Rorainópolis',t:'bronze'}
-  ],
-  'Amapá':[
-    {n:'Macapá',t:'gold'},{n:'Santana',t:'silver'}
-  ]
+// IBGE — 1.651 municípios · 27 estados · Gerado automaticamente
+// Tiers: gold=Metrópole/Grande | silver=Médio | bronze=Pequeno II
+const STATES_BR_TIERS = {
+  'Acre':[{n:'Rio Branco',t:'gold'},{n:'Cruzeiro do Sul',t:'silver'},{n:'Brasiléia',t:'bronze'},{n:'Feijó',t:'bronze'},{n:'Sena Madureira',t:'bronze'},{n:'Senador Guiomard',t:'bronze'},{n:'Tarauacá',t:'bronze'}],
+  'Alagoas':[{n:'Maceió',t:'gold'},{n:'Arapiraca',t:'gold'},{n:'Campo Alegre',t:'silver'},{n:'Coruripe',t:'silver'},{n:'Palmeira Dos Índios',t:'silver'},{n:'Penedo',t:'silver'},{n:'Rio Largo',t:'silver'},{n:'São Miguel Dos Campos',t:'silver'},{n:'União Dos Palmares',t:'silver'},{n:'Atalaia',t:'bronze'},{n:'Boca da Mata',t:'bronze'},{n:'Cajueiro',t:'bronze'},{n:'Colônia Leopoldina',t:'bronze'},{n:'Craíbas',t:'bronze'},{n:'Delmiro Gouveia',t:'bronze'},{n:'Feira Grande',t:'bronze'},{n:'Girau do Ponciano',t:'bronze'},{n:'Igaci',t:'bronze'},{n:'Igreja Nova',t:'bronze'},{n:'Joaquim Gomes',t:'bronze'},{n:'Junqueiro',t:'bronze'},{n:'Limoeiro de Anadia',t:'bronze'},{n:'Maragogi',t:'bronze'},{n:'Marechal Deodoro',t:'bronze'},{n:'Mata Grande',t:'bronze'},{n:'Matriz de Camaragibe',t:'bronze'},{n:'Murici',t:'bronze'},{n:'Olho Dágua Das Flores',t:'bronze'},{n:'Pilar',t:'bronze'},{n:'Piranhas',t:'bronze'},{n:'Porto Calvo',t:'bronze'},{n:'Pão de Açúcar',t:'bronze'},{n:'Santana do Ipanema',t:'bronze'},{n:'São José da Laje',t:'bronze'},{n:'São José da Tapera',t:'bronze'},{n:'São Luís do Quitunde',t:'bronze'},{n:'São Sebastião',t:'bronze'},{n:'Teotônio Vilela',t:'bronze'},{n:'Traipu',t:'bronze'},{n:'Viçosa',t:'bronze'}],
+  'Amapá':[{n:'Macapá',t:'gold'},{n:'Santana',t:'gold'},{n:'Laranjal do Jari',t:'bronze'},{n:'Oiapoque',t:'bronze'}],
+  'Amazonas':[{n:'Manaus',t:'gold'},{n:'Parintins',t:'gold'},{n:'Coari',t:'silver'},{n:'Itacoatiara',t:'silver'},{n:'Manacapuru',t:'silver'},{n:'Maués',t:'silver'},{n:'Tabatinga',t:'silver'},{n:'Tefé',t:'silver'},{n:'Autazes',t:'bronze'},{n:'Barcelos',t:'bronze'},{n:'Barreirinha',t:'bronze'},{n:'Benjamin Constant',t:'bronze'},{n:'Boca do Acre',t:'bronze'},{n:'Borba',t:'bronze'},{n:'Carauari',t:'bronze'},{n:'Careiro',t:'bronze'},{n:'Careiro da Várzea',t:'bronze'},{n:'Codajás',t:'bronze'},{n:'Eirunepé',t:'bronze'},{n:'Fonte Boa',t:'bronze'},{n:'Humaitá',t:'bronze'},{n:'Ipixuna',t:'bronze'},{n:'Iranduba',t:'bronze'},{n:'Lábrea',t:'bronze'},{n:'Manaquiri',t:'bronze'},{n:'Manicoré',t:'bronze'},{n:'Nova Olinda do Norte',t:'bronze'},{n:'Novo Aripuanã',t:'bronze'},{n:'Presidente Figueiredo',t:'bronze'},{n:'Rio Preto da Eva',t:'bronze'},{n:'Santo Antônio do Içá',t:'bronze'},{n:'São Gabriel da Cachoeira',t:'bronze'},{n:'São Paulo de Olivença',t:'bronze'}],
+  'Bahia':[{n:'Salvador',t:'gold'},{n:'Alagoinhas',t:'gold'},{n:'Barreiras',t:'gold'},{n:'Camaçari',t:'gold'},{n:'Eunápolis',t:'gold'},{n:'Feira de Santana',t:'gold'},{n:'Ilhéus',t:'gold'},{n:'Itabuna',t:'gold'},{n:'Jequié',t:'gold'},{n:'Juazeiro',t:'gold'},{n:'Lauro de Freitas',t:'gold'},{n:'Paulo Afonso',t:'gold'},{n:'Porto Seguro',t:'gold'},{n:'Simões Filho',t:'gold'},{n:'Teixeira de Freitas',t:'gold'},{n:'Vitória da Conquista',t:'gold'},{n:'Araci',t:'silver'},{n:'Bom Jesus da Lapa',t:'silver'},{n:'Brumado',t:'silver'},{n:'Campo Formoso',t:'silver'},{n:'Candeias',t:'silver'},{n:'Casa Nova',t:'silver'},{n:'Catu',t:'silver'},{n:'Conceição do Coité',t:'silver'},{n:'Cruz Das Almas',t:'silver'},{n:'Dias Dávila',t:'silver'},{n:'Euclides da Cunha',t:'silver'},{n:'Guanambi',t:'silver'},{n:'Ipirá',t:'silver'},{n:'Irecê',t:'silver'},{n:'Itaberaba',t:'silver'},{n:'Itamaraju',t:'silver'},{n:'Itapetinga',t:'silver'},{n:'Jacobina',t:'silver'},{n:'Jaguaquara',t:'silver'},{n:'Luís Eduardo Magalhães',t:'silver'},{n:'Monte Santo',t:'silver'},{n:'Santo Amaro',t:'silver'},{n:'Santo Antônio de Jesus',t:'silver'},{n:'Senhor do Bonfim',t:'silver'},{n:'Serrinha',t:'silver'},{n:'Tucano',t:'silver'},{n:'Valença',t:'silver'},{n:'Alcobaça',t:'bronze'},{n:'Amargosa',t:'bronze'},{n:'Amélia Rodrigues',t:'bronze'},{n:'Anagé',t:'bronze'},{n:'Baixa Grande',t:'bronze'},{n:'Barra',t:'bronze'},{n:'Barra da Estiva',t:'bronze'},{n:'Barra do Choça',t:'bronze'},{n:'Belmonte',t:'bronze'},{n:'Boquira',t:'bronze'},{n:'Cachoeira',t:'bronze'},{n:'Caculé',t:'bronze'},{n:'Caetité',t:'bronze'},{n:'Camacan',t:'bronze'},{n:'Camamu',t:'bronze'},{n:'Campo Alegre de Lourdes',t:'bronze'},{n:'Canarana',t:'bronze'},{n:'Canavieiras',t:'bronze'},{n:'Cansanção',t:'bronze'},{n:'Capim Grosso',t:'bronze'},{n:'Caravelas',t:'bronze'},{n:'Carinhanha',t:'bronze'},{n:'Castro Alves',t:'bronze'},{n:'Coaraci',t:'bronze'},{n:'Conceição da Feira',t:'bronze'},{n:'Conceição do Jacuípe',t:'bronze'},{n:'Conde',t:'bronze'},{n:'Coração de Maria',t:'bronze'},{n:'Correntina',t:'bronze'},{n:'Crisópolis',t:'bronze'},{n:'Curaçá',t:'bronze'},{n:'Cândido Sales',t:'bronze'},{n:'Cícero Dantas',t:'bronze'},{n:'Encruzilhada',t:'bronze'},{n:'Entre Rios',t:'bronze'},{n:'Esplanada',t:'bronze'},{n:'Formosa do Rio Preto',t:'bronze'},{n:'Gandu',t:'bronze'},{n:'Guaratinga',t:'bronze'},{n:'Iaçu',t:'bronze'},{n:'Ibicaraí',t:'bronze'},{n:'Ibirapitanga',t:'bronze'},{n:'Ibotirama',t:'bronze'},{n:'Iguaí',t:'bronze'},{n:'Inhambupe',t:'bronze'},{n:'Ipiaú',t:'bronze'},{n:'Iraquara',t:'bronze'},{n:'Irará',t:'bronze'},{n:'Itabela',t:'bronze'},{n:'Itacaré',t:'bronze'},{n:'Itajuípe',t:'bronze'},{n:'Itambé',t:'bronze'},{n:'Itanhém',t:'bronze'},{n:'Itaparica',t:'bronze'},{n:'Itapicuru',t:'bronze'},{n:'Itiúba',t:'bronze'},{n:'Ituberá',t:'bronze'},{n:'Jaguarari',t:'bronze'},{n:'Jeremoabo',t:'bronze'},{n:'João Dourado',t:'bronze'},{n:'Laje',t:'bronze'},{n:'Lapão',t:'bronze'},{n:'Livramento de Nossa Senhora',t:'bronze'},{n:'Macaúbas',t:'bronze'},{n:'Maracás',t:'bronze'},{n:'Maragogipe',t:'bronze'},{n:'Mata de São João',t:'bronze'},{n:'Medeiros Neto',t:'bronze'},{n:'Miguel Calmon',t:'bronze'},{n:'Morro do Chapéu',t:'bronze'},{n:'Mucuri',t:'bronze'},{n:'Mundo Novo',t:'bronze'},{n:'Muritiba',t:'bronze'},{n:'Mutuípe',t:'bronze'},{n:'Nazaré',t:'bronze'},{n:'Nova Soure',t:'bronze'},{n:'Nova Viçosa',t:'bronze'},{n:'Olindina',t:'bronze'},{n:'Oliveira Dos Brejinhos',t:'bronze'},{n:'Palmas de Monte Alto',t:'bronze'},{n:'Paramirim',t:'bronze'},{n:'Paratinga',t:'bronze'},{n:'Paripiranga',t:'bronze'},{n:'Pilão Arcado',t:'bronze'},{n:'Pindobaçu',t:'bronze'},{n:'Piritiba',t:'bronze'},{n:'Planalto',t:'bronze'},{n:'Pojuca',t:'bronze'},{n:'Poções',t:'bronze'},{n:'Prado',t:'bronze'},{n:'Presidente Tancredo Neves',t:'bronze'},{n:'Queimadas',t:'bronze'},{n:'Quijingue',t:'bronze'},{n:'Rafael Jambeiro',t:'bronze'},{n:'Remanso',t:'bronze'},{n:'Riacho de Santana',t:'bronze'},{n:'Riachão Das Neves',t:'bronze'},{n:'Riachão do Jacuípe',t:'bronze'},{n:'Ribeira do Pombal',t:'bronze'},{n:'Rio Real',t:'bronze'},{n:'Ruy Barbosa',t:'bronze'},{n:'Santa Cruz Cabrália',t:'bronze'},{n:'Santa Maria da Vitória',t:'bronze'},{n:'Santa Rita de Cássia',t:'bronze'},{n:'Santaluz',t:'bronze'},{n:'Santana',t:'bronze'},{n:'Santo Estêvão',t:'bronze'},{n:'Seabra',t:'bronze'},{n:'Sento sé',t:'bronze'},{n:'Serra do Ramalho',t:'bronze'},{n:'Sobradinho',t:'bronze'},{n:'São Desidério',t:'bronze'},{n:'São Felipe',t:'bronze'},{n:'São Francisco do Conde',t:'bronze'},{n:'São Gonçalo Dos Campos',t:'bronze'},{n:'São Sebastião do Passé',t:'bronze'},{n:'Tanhaçu',t:'bronze'},{n:'Teofilândia',t:'bronze'},{n:'Uauá',t:'bronze'},{n:'Ubaitaba',t:'bronze'},{n:'Ubatã',t:'bronze'},{n:'Una',t:'bronze'},{n:'Valente',t:'bronze'},{n:'Vera Cruz',t:'bronze'},{n:'Wenceslau Guimarães',t:'bronze'},{n:'Xique-xique',t:'bronze'}],
+  'Ceará':[{n:'Fortaleza',t:'gold'},{n:'Caucaia',t:'gold'},{n:'Crato',t:'gold'},{n:'Itapipoca',t:'gold'},{n:'Juazeiro do Norte',t:'gold'},{n:'Maracanaú',t:'gold'},{n:'Maranguape',t:'gold'},{n:'Sobral',t:'gold'},{n:'Acaraú',t:'silver'},{n:'Acopiara',t:'silver'},{n:'Aquiraz',t:'silver'},{n:'Aracati',t:'silver'},{n:'Barbalha',t:'silver'},{n:'Boa Viagem',t:'silver'},{n:'Camocim',t:'silver'},{n:'Canindé',t:'silver'},{n:'Cascavel',t:'silver'},{n:'Crateús',t:'silver'},{n:'Granja',t:'silver'},{n:'Horizonte',t:'silver'},{n:'Icó',t:'silver'},{n:'Iguatu',t:'silver'},{n:'Limoeiro do Norte',t:'silver'},{n:'Morada Nova',t:'silver'},{n:'Pacajus',t:'silver'},{n:'Pacatuba',t:'silver'},{n:'Quixadá',t:'silver'},{n:'Quixeramobim',t:'silver'},{n:'Russas',t:'silver'},{n:'Tauá',t:'silver'},{n:'Tianguá',t:'silver'},{n:'Trairi',t:'silver'},{n:'Viçosa do Ceará',t:'silver'},{n:'Amontada',t:'bronze'},{n:'Aracoiaba',t:'bronze'},{n:'Araripe',t:'bronze'},{n:'Assaré',t:'bronze'},{n:'Aurora',t:'bronze'},{n:'Barro',t:'bronze'},{n:'Baturité',t:'bronze'},{n:'Beberibe',t:'bronze'},{n:'Bela Cruz',t:'bronze'},{n:'Brejo Santo',t:'bronze'},{n:'Campos Sales',t:'bronze'},{n:'Caridade',t:'bronze'},{n:'Caririaçu',t:'bronze'},{n:'Cedro',t:'bronze'},{n:'Coreaú',t:'bronze'},{n:'Cruz',t:'bronze'},{n:'Eusébio',t:'bronze'},{n:'Forquilha',t:'bronze'},{n:'Guaiúba',t:'bronze'},{n:'Guaraciaba do Norte',t:'bronze'},{n:'Ibiapina',t:'bronze'},{n:'Independência',t:'bronze'},{n:'Ipu',t:'bronze'},{n:'Ipueiras',t:'bronze'},{n:'Irauçuba',t:'bronze'},{n:'Itaitinga',t:'bronze'},{n:'Itapagé',t:'bronze'},{n:'Itarema',t:'bronze'},{n:'Jaguaribe',t:'bronze'},{n:'Jaguaruana',t:'bronze'},{n:'Jardim',t:'bronze'},{n:'Jucás',t:'bronze'},{n:'Lavras da Mangabeira',t:'bronze'},{n:'Marco',t:'bronze'},{n:'Massapê',t:'bronze'},{n:'Mauriti',t:'bronze'},{n:'Milagres',t:'bronze'},{n:'Missão Velha',t:'bronze'},{n:'Mombaça',t:'bronze'},{n:'Morrinhos',t:'bronze'},{n:'Nova Russas',t:'bronze'},{n:'Novo Oriente',t:'bronze'},{n:'Ocara',t:'bronze'},{n:'Orós',t:'bronze'},{n:'Paracuru',t:'bronze'},{n:'Paraipaba',t:'bronze'},{n:'Parambu',t:'bronze'},{n:'Pedra Branca',t:'bronze'},{n:'Pentecoste',t:'bronze'},{n:'Redenção',t:'bronze'},{n:'Santa Quitéria',t:'bronze'},{n:'Santana do Acaraú',t:'bronze'},{n:'Senador Pompeu',t:'bronze'},{n:'São Benedito',t:'bronze'},{n:'São Gonçalo do Amarante',t:'bronze'},{n:'Tabuleiro do Norte',t:'bronze'},{n:'Tamboril',t:'bronze'},{n:'Ubajara',t:'bronze'},{n:'Várzea Alegre',t:'bronze'}],
+  'Distrito Federal':[{n:'Brasília',t:'gold'}],
+  'Espírito Santo':[{n:'Vitória',t:'gold'},{n:'Cachoeiro de Itapemirim',t:'gold'},{n:'Cariacica',t:'gold'},{n:'Colatina',t:'gold'},{n:'Guarapari',t:'gold'},{n:'Linhares',t:'gold'},{n:'Serra',t:'gold'},{n:'São Mateus',t:'gold'},{n:'Vila Velha',t:'gold'},{n:'Aracruz',t:'silver'},{n:'Viana',t:'silver'},{n:'Afonso Cláudio',t:'bronze'},{n:'Alegre',t:'bronze'},{n:'Anchieta',t:'bronze'},{n:'Baixo Guandu',t:'bronze'},{n:'Barra de São Francisco',t:'bronze'},{n:'Castelo',t:'bronze'},{n:'Conceição da Barra',t:'bronze'},{n:'Domingos Martins',t:'bronze'},{n:'Ecoporanga',t:'bronze'},{n:'Guaçuí',t:'bronze'},{n:'Ibatiba',t:'bronze'},{n:'Itapemirim',t:'bronze'},{n:'Iúna',t:'bronze'},{n:'Jaguaré',t:'bronze'},{n:'Marataízes',t:'bronze'},{n:'Mimoso do Sul',t:'bronze'},{n:'Nova Venécia',t:'bronze'},{n:'Pancas',t:'bronze'},{n:'Pedro Canário',t:'bronze'},{n:'Pinheiros',t:'bronze'},{n:'Santa Maria de Jetibá',t:'bronze'},{n:'Santa Teresa',t:'bronze'},{n:'Sooretama',t:'bronze'},{n:'São Gabriel da Palha',t:'bronze'},{n:'Venda Nova do Imigrante',t:'bronze'}],
+  'Goiás':[{n:'Goiânia',t:'gold'},{n:'Anápolis',t:'gold'},{n:'Aparecida de Goiânia',t:'gold'},{n:'Formosa',t:'gold'},{n:'Luziânia',t:'gold'},{n:'Rio Verde',t:'gold'},{n:'Trindade',t:'gold'},{n:'Valparaíso de Goiás',t:'gold'},{n:'Águas Lindas de Goiás',t:'gold'},{n:'Caldas Novas',t:'silver'},{n:'Catalão',t:'silver'},{n:'Cidade Ocidental',t:'silver'},{n:'Goianésia',t:'silver'},{n:'Itumbiara',t:'silver'},{n:'Jataí',t:'silver'},{n:'Mineiros',t:'silver'},{n:'Novo Gama',t:'silver'},{n:'Planaltina',t:'silver'},{n:'Santo Antônio do Descoberto',t:'silver'},{n:'Senador Canedo',t:'silver'},{n:'Acreúna',t:'bronze'},{n:'Alexânia',t:'bronze'},{n:'Anicuns',t:'bronze'},{n:'Bela Vista de Goiás',t:'bronze'},{n:'Bom Jesus de Goiás',t:'bronze'},{n:'Ceres',t:'bronze'},{n:'Cristalina',t:'bronze'},{n:'Goianira',t:'bronze'},{n:'Goiatuba',t:'bronze'},{n:'Goiás',t:'bronze'},{n:'Inhumas',t:'bronze'},{n:'Ipameri',t:'bronze'},{n:'Iporá',t:'bronze'},{n:'Itaberaí',t:'bronze'},{n:'Itapuranga',t:'bronze'},{n:'Jaraguá',t:'bronze'},{n:'Minaçu',t:'bronze'},{n:'Morrinhos',t:'bronze'},{n:'Nerópolis',t:'bronze'},{n:'Niquelândia',t:'bronze'},{n:'Padre Bernardo',t:'bronze'},{n:'Palmeiras de Goiás',t:'bronze'},{n:'Piracanjuba',t:'bronze'},{n:'Pirenópolis',t:'bronze'},{n:'Pires do Rio',t:'bronze'},{n:'Porangatu',t:'bronze'},{n:'Posse',t:'bronze'},{n:'Quirinópolis',t:'bronze'},{n:'Santa Helena de Goiás',t:'bronze'},{n:'São Luís de Montes Belos',t:'bronze'},{n:'São Miguel do Araguaia',t:'bronze'},{n:'Uruaçu',t:'bronze'}],
+  'Maranhão':[{n:'São Luís',t:'gold'},{n:'Açailândia',t:'gold'},{n:'Bacabal',t:'gold'},{n:'Caxias',t:'gold'},{n:'Codó',t:'gold'},{n:'Imperatriz',t:'gold'},{n:'Paço do Lumiar',t:'gold'},{n:'São José de Ribamar',t:'gold'},{n:'Timon',t:'gold'},{n:'Balsas',t:'silver'},{n:'Barra do Corda',t:'silver'},{n:'Barreirinhas',t:'silver'},{n:'Buriticupu',t:'silver'},{n:'Chapadinha',t:'silver'},{n:'Coroatá',t:'silver'},{n:'Grajaú',t:'silver'},{n:'Itapecuru Mirim',t:'silver'},{n:'Pinheiro',t:'silver'},{n:'Santa Inês',t:'silver'},{n:'Santa Luzia',t:'silver'},{n:'Tutóia',t:'silver'},{n:'zé Doca',t:'silver'},{n:'Alcântara',t:'bronze'},{n:'Aldeias Altas',t:'bronze'},{n:'Alto Alegre do Maranhão',t:'bronze'},{n:'Alto Alegre do Pindaré',t:'bronze'},{n:'Amarante do Maranhão',t:'bronze'},{n:'Anajatuba',t:'bronze'},{n:'Araioses',t:'bronze'},{n:'Arame',t:'bronze'},{n:'Arari',t:'bronze'},{n:'Bequimão',t:'bronze'},{n:'Bom Jardim',t:'bronze'},{n:'Bom Jesus Das Selvas',t:'bronze'},{n:'Brejo',t:'bronze'},{n:'Buriti',t:'bronze'},{n:'Buriti Bravo',t:'bronze'},{n:'Cantanhede',t:'bronze'},{n:'Carolina',t:'bronze'},{n:'Carutapera',t:'bronze'},{n:'Coelho Neto',t:'bronze'},{n:'Colinas',t:'bronze'},{n:'Cururupu',t:'bronze'},{n:'Dom Pedro',t:'bronze'},{n:'Estreito',t:'bronze'},{n:'Governador Nunes Freire',t:'bronze'},{n:'Humberto de Campos',t:'bronze'},{n:'Icatu',t:'bronze'},{n:'Itinga do Maranhão',t:'bronze'},{n:'João Lisboa',t:'bronze'},{n:'Lago da Pedra',t:'bronze'},{n:'Matinha',t:'bronze'},{n:'Matões',t:'bronze'},{n:'Mirador',t:'bronze'},{n:'Miranda do Norte',t:'bronze'},{n:'Monção',t:'bronze'},{n:'Paraibano',t:'bronze'},{n:'Parnarama',t:'bronze'},{n:'Paulo Ramos',t:'bronze'},{n:'Pedreiras',t:'bronze'},{n:'Pedro do Rosário',t:'bronze'},{n:'Penalva',t:'bronze'},{n:'Peritoró',t:'bronze'},{n:'Pindaré-mirim',t:'bronze'},{n:'Pio Xii',t:'bronze'},{n:'Porto Franco',t:'bronze'},{n:'Presidente Dutra',t:'bronze'},{n:'Raposa',t:'bronze'},{n:'Riachão',t:'bronze'},{n:'Rosário',t:'bronze'},{n:'Santa Helena',t:'bronze'},{n:'Santa Luzia do Paruá',t:'bronze'},{n:'Santa Quitéria do Maranhão',t:'bronze'},{n:'Santa Rita',t:'bronze'},{n:'São Bento',t:'bronze'},{n:'São Bernardo',t:'bronze'},{n:'São Domingos do Maranhão',t:'bronze'},{n:'São João Dos Patos',t:'bronze'},{n:'São Luís Gonzaga do Maranhão',t:'bronze'},{n:'São Mateus do Maranhão',t:'bronze'},{n:'São Vicente Ferrer',t:'bronze'},{n:'Timbiras',t:'bronze'},{n:'Tuntum',t:'bronze'},{n:'Turiaçu',t:'bronze'},{n:'Turilândia',t:'bronze'},{n:'Urbano Santos',t:'bronze'},{n:'Vargem Grande',t:'bronze'},{n:'Viana',t:'bronze'},{n:'Vitorino Freire',t:'bronze'},{n:'Vitória do Mearim',t:'bronze'}],
+  'Mato Grosso':[{n:'Cuiabá',t:'gold'},{n:'Rondonópolis',t:'gold'},{n:'Sinop',t:'gold'},{n:'Várzea Grande',t:'gold'},{n:'Barra do Garças',t:'silver'},{n:'Cáceres',t:'silver'},{n:'Primavera do Leste',t:'silver'},{n:'Sorriso',t:'silver'},{n:'Tangará da Serra',t:'silver'},{n:'Alta Floresta',t:'bronze'},{n:'Barra do Bugres',t:'bronze'},{n:'Campo Novo do Parecis',t:'bronze'},{n:'Campo Verde',t:'bronze'},{n:'Colniza',t:'bronze'},{n:'Colíder',t:'bronze'},{n:'Confresa',t:'bronze'},{n:'Diamantino',t:'bronze'},{n:'Guarantã do Norte',t:'bronze'},{n:'Jaciara',t:'bronze'},{n:'Juara',t:'bronze'},{n:'Juína',t:'bronze'},{n:'Lucas do Rio Verde',t:'bronze'},{n:'Mirassol Doeste',t:'bronze'},{n:'Nova Mutum',t:'bronze'},{n:'Peixoto de Azevedo',t:'bronze'},{n:'Poconé',t:'bronze'},{n:'Pontes e Lacerda',t:'bronze'},{n:'Vila Rica',t:'bronze'},{n:'Água Boa',t:'bronze'}],
+  'Mato Grosso do Sul':[{n:'Campo Grande',t:'gold'},{n:'Corumbá',t:'gold'},{n:'Dourados',t:'gold'},{n:'Três Lagoas',t:'gold'},{n:'Ponta Porã',t:'silver'},{n:'Amambaí',t:'bronze'},{n:'Anastácio',t:'bronze'},{n:'Aparecida do Taboado',t:'bronze'},{n:'Aquidauana',t:'bronze'},{n:'Bela Vista',t:'bronze'},{n:'Caarapó',t:'bronze'},{n:'Cassilândia',t:'bronze'},{n:'Coxim',t:'bronze'},{n:'Itaporã',t:'bronze'},{n:'Ivinhema',t:'bronze'},{n:'Jardim',t:'bronze'},{n:'Maracaju',t:'bronze'},{n:'Miranda',t:'bronze'},{n:'Naviraí',t:'bronze'},{n:'Nova Andradina',t:'bronze'},{n:'Paranaíba',t:'bronze'},{n:'Ribas do Rio Pardo',t:'bronze'},{n:'Rio Brilhante',t:'bronze'},{n:'Sidrolândia',t:'bronze'},{n:'São Gabriel do Oeste',t:'bronze'}],
+  'Minas Gerais':[{n:'Belo Horizonte',t:'gold'},{n:'Araguari',t:'gold'},{n:'Barbacena',t:'gold'},{n:'Betim',t:'gold'},{n:'Conselheiro Lafaiete',t:'gold'},{n:'Contagem',t:'gold'},{n:'Coronel Fabriciano',t:'gold'},{n:'Divinópolis',t:'gold'},{n:'Governador Valadares',t:'gold'},{n:'Ibirité',t:'gold'},{n:'Ipatinga',t:'gold'},{n:'Itabira',t:'gold'},{n:'Juiz de Fora',t:'gold'},{n:'Montes Claros',t:'gold'},{n:'Muriaé',t:'gold'},{n:'Passos',t:'gold'},{n:'Patos de Minas',t:'gold'},{n:'Pouso Alegre',t:'gold'},{n:'Poços de Caldas',t:'gold'},{n:'Ribeirão Das Neves',t:'gold'},{n:'Sabará',t:'gold'},{n:'Santa Luzia',t:'gold'},{n:'Sete Lagoas',t:'gold'},{n:'Teófilo Otoni',t:'gold'},{n:'Uberaba',t:'gold'},{n:'Uberlândia',t:'gold'},{n:'Ubá',t:'gold'},{n:'Varginha',t:'gold'},{n:'Vespasiano',t:'gold'},{n:'Alfenas',t:'silver'},{n:'Araxá',t:'silver'},{n:'Campo Belo',t:'silver'},{n:'Caratinga',t:'silver'},{n:'Cataguases',t:'silver'},{n:'Curvelo',t:'silver'},{n:'Esmeraldas',t:'silver'},{n:'Formiga',t:'silver'},{n:'Frutal',t:'silver'},{n:'Itajubá',t:'silver'},{n:'Itaúna',t:'silver'},{n:'Ituiutaba',t:'silver'},{n:'Janaúba',t:'silver'},{n:'Januária',t:'silver'},{n:'João Monlevade',t:'silver'},{n:'Lagoa Santa',t:'silver'},{n:'Lavras',t:'silver'},{n:'Leopoldina',t:'silver'},{n:'Manhuaçu',t:'silver'},{n:'Mariana',t:'silver'},{n:'Nova Lima',t:'silver'},{n:'Nova Serrana',t:'silver'},{n:'Ouro Preto',t:'silver'},{n:'Paracatu',t:'silver'},{n:'Pará de Minas',t:'silver'},{n:'Patrocínio',t:'silver'},{n:'Pedro Leopoldo',t:'silver'},{n:'Pirapora',t:'silver'},{n:'Ponte Nova',t:'silver'},{n:'São Francisco',t:'silver'},{n:'São João Del Rei',t:'silver'},{n:'São Sebastião do Paraíso',t:'silver'},{n:'Timóteo',t:'silver'},{n:'Três Corações',t:'silver'},{n:'Três Pontas',t:'silver'},{n:'Unaí',t:'silver'},{n:'Viçosa',t:'silver'},{n:'Abaeté',t:'bronze'},{n:'Aimorés',t:'bronze'},{n:'Almenara',t:'bronze'},{n:'Além Paraíba',t:'bronze'},{n:'Andradas',t:'bronze'},{n:'Araçuaí',t:'bronze'},{n:'Arcos',t:'bronze'},{n:'Bambuí',t:'bronze'},{n:'Barão de Cocais',t:'bronze'},{n:'Belo Oriente',t:'bronze'},{n:'Boa Esperança',t:'bronze'},{n:'Bocaiúva',t:'bronze'},{n:'Bom Despacho',t:'bronze'},{n:'Brasília de Minas',t:'bronze'},{n:'Brumadinho',t:'bronze'},{n:'Buritis',t:'bronze'},{n:'Buritizeiro',t:'bronze'},{n:'Caeté',t:'bronze'},{n:'Camanducaia',t:'bronze'},{n:'Cambuí',t:'bronze'},{n:'Campestre',t:'bronze'},{n:'Campos Gerais',t:'bronze'},{n:'Capelinha',t:'bronze'},{n:'Carandaí',t:'bronze'},{n:'Carangola',t:'bronze'},{n:'Caraí',t:'bronze'},{n:'Carlos Chagas',t:'bronze'},{n:'Carmo do Cajuru',t:'bronze'},{n:'Carmo do Paranaíba',t:'bronze'},{n:'Carmo do Rio Claro',t:'bronze'},{n:'Caxambu',t:'bronze'},{n:'Cláudio',t:'bronze'},{n:'Conceição Das Alagoas',t:'bronze'},{n:'Congonhas',t:'bronze'},{n:'Conselheiro Pena',t:'bronze'},{n:'Coração de Jesus',t:'bronze'},{n:'Corinto',t:'bronze'},{n:'Coromandel',t:'bronze'},{n:'Diamantina',t:'bronze'},{n:'Elói Mendes',t:'bronze'},{n:'Espera Feliz',t:'bronze'},{n:'Espinosa',t:'bronze'},{n:'Extrema',t:'bronze'},{n:'Francisco sá',t:'bronze'},{n:'Guanhães',t:'bronze'},{n:'Guaxupé',t:'bronze'},{n:'Ibiá',t:'bronze'},{n:'Igarapé',t:'bronze'},{n:'Inhapim',t:'bronze'},{n:'Itabirito',t:'bronze'},{n:'Itamarandiba',t:'bronze'},{n:'Itambacuri',t:'bronze'},{n:'Itaobim',t:'bronze'},{n:'Itapecerica',t:'bronze'},{n:'Iturama',t:'bronze'},{n:'Jacutinga',t:'bronze'},{n:'Jaíba',t:'bronze'},{n:'Jequitinhonha',t:'bronze'},{n:'João Pinheiro',t:'bronze'},{n:'Juatuba',t:'bronze'},{n:'Lagoa da Prata',t:'bronze'},{n:'Machado',t:'bronze'},{n:'Manhumirim',t:'bronze'},{n:'Mantena',t:'bronze'},{n:'Mateus Leme',t:'bronze'},{n:'Matozinhos',t:'bronze'},{n:'Medina',t:'bronze'},{n:'Minas Novas',t:'bronze'},{n:'Monte Azul',t:'bronze'},{n:'Monte Carmelo',t:'bronze'},{n:'Monte Santo de Minas',t:'bronze'},{n:'Monte Sião',t:'bronze'},{n:'Mutum',t:'bronze'},{n:'Muzambinho',t:'bronze'},{n:'Nanuque',t:'bronze'},{n:'Nepomuceno',t:'bronze'},{n:'Novo Cruzeiro',t:'bronze'},{n:'Oliveira',t:'bronze'},{n:'Ouro Branco',t:'bronze'},{n:'Ouro Fino',t:'bronze'},{n:'Paraguaçu',t:'bronze'},{n:'Paraopeba',t:'bronze'},{n:'Pedra Azul',t:'bronze'},{n:'Perdões',t:'bronze'},{n:'Pitangui',t:'bronze'},{n:'Piumhi',t:'bronze'},{n:'Pompéu',t:'bronze'},{n:'Porteirinha',t:'bronze'},{n:'Prata',t:'bronze'},{n:'Raul Soares',t:'bronze'},{n:'Rio Pardo de Minas',t:'bronze'},{n:'Sacramento',t:'bronze'},{n:'Salinas',t:'bronze'},{n:'Santa Bárbara',t:'bronze'},{n:'Santa Rita do Sapucaí',t:'bronze'},{n:'Santana do Paraíso',t:'bronze'},{n:'Santo Antônio do Monte',t:'bronze'},{n:'Santos Dumont',t:'bronze'},{n:'Sarzedo',t:'bronze'},{n:'Serro',t:'bronze'},{n:'São Gonçalo do Sapucaí',t:'bronze'},{n:'São Gotardo',t:'bronze'},{n:'São Joaquim de Bicas',t:'bronze'},{n:'São João Nepomuceno',t:'bronze'},{n:'São João da Ponte',t:'bronze'},{n:'São João do Paraíso',t:'bronze'},{n:'São Lourenço',t:'bronze'},{n:'Taiobeiras',t:'bronze'},{n:'Três Marias',t:'bronze'},{n:'Tupaciguara',t:'bronze'},{n:'Visconde do Rio Branco',t:'bronze'},{n:'Várzea da Palma',t:'bronze'}],
+  'Paraná':[{n:'Curitiba',t:'gold'},{n:'Almirante Tamandaré',t:'gold'},{n:'Apucarana',t:'gold'},{n:'Arapongas',t:'gold'},{n:'Araucária',t:'gold'},{n:'Campo Largo',t:'gold'},{n:'Cascavel',t:'gold'},{n:'Colombo',t:'gold'},{n:'Foz do Iguaçu',t:'gold'},{n:'Guarapuava',t:'gold'},{n:'Londrina',t:'gold'},{n:'Maringá',t:'gold'},{n:'Paranaguá',t:'gold'},{n:'Pinhais',t:'gold'},{n:'Ponta Grossa',t:'gold'},{n:'São José Dos Pinhais',t:'gold'},{n:'Toledo',t:'gold'},{n:'Umuarama',t:'gold'},{n:'Cambé',t:'silver'},{n:'Campo Mourão',t:'silver'},{n:'Castro',t:'silver'},{n:'Cianorte',t:'silver'},{n:'Fazenda Rio Grande',t:'silver'},{n:'Francisco Beltrão',t:'silver'},{n:'Irati',t:'silver'},{n:'Paranavaí',t:'silver'},{n:'Pato Branco',t:'silver'},{n:'Piraquara',t:'silver'},{n:'Rolândia',t:'silver'},{n:'Sarandi',t:'silver'},{n:'Telêmaco Borba',t:'silver'},{n:'União da Vitória',t:'silver'},{n:'Altônia',t:'bronze'},{n:'Andirá',t:'bronze'},{n:'Arapoti',t:'bronze'},{n:'Assis Chateaubriand',t:'bronze'},{n:'Astorga',t:'bronze'},{n:'Bandeirantes',t:'bronze'},{n:'Cambará',t:'bronze'},{n:'Campina Grande do Sul',t:'bronze'},{n:'Campo Magro',t:'bronze'},{n:'Colorado',t:'bronze'},{n:'Cornélio Procópio',t:'bronze'},{n:'Coronel Vivida',t:'bronze'},{n:'Cruzeiro do Oeste',t:'bronze'},{n:'Dois Vizinhos',t:'bronze'},{n:'Goioerê',t:'bronze'},{n:'Guaratuba',t:'bronze'},{n:'Guaíra',t:'bronze'},{n:'Ibaiti',t:'bronze'},{n:'Ibiporã',t:'bronze'},{n:'Imbituva',t:'bronze'},{n:'Itaperuçu',t:'bronze'},{n:'Ivaiporã',t:'bronze'},{n:'Jacarezinho',t:'bronze'},{n:'Jaguariaíva',t:'bronze'},{n:'Jandaia do Sul',t:'bronze'},{n:'Lapa',t:'bronze'},{n:'Laranjeiras do Sul',t:'bronze'},{n:'Loanda',t:'bronze'},{n:'Mandaguari',t:'bronze'},{n:'Mandirituba',t:'bronze'},{n:'Marechal Cândido Rondon',t:'bronze'},{n:'Marialva',t:'bronze'},{n:'Matinhos',t:'bronze'},{n:'Medianeira',t:'bronze'},{n:'Nova Esperança',t:'bronze'},{n:'Ortigueira',t:'bronze'},{n:'Paiçandu',t:'bronze'},{n:'Palmas',t:'bronze'},{n:'Palmeira',t:'bronze'},{n:'Palotina',t:'bronze'},{n:'Pinhão',t:'bronze'},{n:'Piraí do Sul',t:'bronze'},{n:'Pitanga',t:'bronze'},{n:'Pontal do Paraná',t:'bronze'},{n:'Prudentópolis',t:'bronze'},{n:'Quedas do Iguaçu',t:'bronze'},{n:'Reserva',t:'bronze'},{n:'Rio Branco do Sul',t:'bronze'},{n:'Rio Negro',t:'bronze'},{n:'Santa Helena',t:'bronze'},{n:'Santa Terezinha de Itaipu',t:'bronze'},{n:'Santo Antônio da Platina',t:'bronze'},{n:'São Mateus do Sul',t:'bronze'},{n:'São Miguel do Iguaçu',t:'bronze'},{n:'Ubiratã',t:'bronze'}],
+  'Paraíba':[{n:'João Pessoa',t:'gold'},{n:'Campina Grande',t:'gold'},{n:'Patos',t:'gold'},{n:'Santa Rita',t:'gold'},{n:'Bayeux',t:'silver'},{n:'Cabedelo',t:'silver'},{n:'Cajazeiras',t:'silver'},{n:'Guarabira',t:'silver'},{n:'Sapé',t:'silver'},{n:'Sousa',t:'silver'},{n:'Alagoa Grande',t:'bronze'},{n:'Areia',t:'bronze'},{n:'Bananeiras',t:'bronze'},{n:'Caaporã',t:'bronze'},{n:'Catolé do Rocha',t:'bronze'},{n:'Conde',t:'bronze'},{n:'Esperança',t:'bronze'},{n:'Itabaiana',t:'bronze'},{n:'Itaporanga',t:'bronze'},{n:'Lagoa Seca',t:'bronze'},{n:'Mamanguape',t:'bronze'},{n:'Mari',t:'bronze'},{n:'Monteiro',t:'bronze'},{n:'Pedras de Fogo',t:'bronze'},{n:'Pombal',t:'bronze'},{n:'Princesa Isabel',t:'bronze'},{n:'Queimadas',t:'bronze'},{n:'Rio Tinto',t:'bronze'},{n:'Solânea',t:'bronze'},{n:'São Bento',t:'bronze'}],
+  'Pará':[{n:'Belém',t:'gold'},{n:'Abaetetuba',t:'gold'},{n:'Ananindeua',t:'gold'},{n:'Bragança',t:'gold'},{n:'Cametá',t:'gold'},{n:'Castanhal',t:'gold'},{n:'Marabá',t:'gold'},{n:'Marituba',t:'gold'},{n:'Parauapebas',t:'gold'},{n:'Santarém',t:'gold'},{n:'Acará',t:'silver'},{n:'Alenquer',t:'silver'},{n:'Altamira',t:'silver'},{n:'Barcarena',t:'silver'},{n:'Benevides',t:'silver'},{n:'Breu Branco',t:'silver'},{n:'Breves',t:'silver'},{n:'Capanema',t:'silver'},{n:'Capitão Poço',t:'silver'},{n:'Dom Eliseu',t:'silver'},{n:'Igarapé-miri',t:'silver'},{n:'Ipixuna do Pará',t:'silver'},{n:'Itaituba',t:'silver'},{n:'Itupiranga',t:'silver'},{n:'Jacundá',t:'silver'},{n:'Moju',t:'silver'},{n:'Monte Alegre',t:'silver'},{n:'Novo Repartimento',t:'silver'},{n:'Oriximiná',t:'silver'},{n:'Paragominas',t:'silver'},{n:'Portel',t:'silver'},{n:'Redenção',t:'silver'},{n:'Santa Isabel do Pará',t:'silver'},{n:'Santana do Araguaia',t:'silver'},{n:'São Félix do Xingu',t:'silver'},{n:'São Miguel do Guamá',t:'silver'},{n:'Tailândia',t:'silver'},{n:'Tomé-açu',t:'silver'},{n:'Tucuruí',t:'silver'},{n:'Viseu',t:'silver'},{n:'Afuá',t:'bronze'},{n:'Almeirim',t:'bronze'},{n:'Anajás',t:'bronze'},{n:'Anapu',t:'bronze'},{n:'Augusto Corrêa',t:'bronze'},{n:'Aurora do Pará',t:'bronze'},{n:'Bagre',t:'bronze'},{n:'Baião',t:'bronze'},{n:'Bujaru',t:'bronze'},{n:'Cachoeira do Arari',t:'bronze'},{n:'Cachoeira do Piriá',t:'bronze'},{n:'Canaã Dos Carajás',t:'bronze'},{n:'Chaves',t:'bronze'},{n:'Conceição do Araguaia',t:'bronze'},{n:'Concórdia do Pará',t:'bronze'},{n:'Curralinho',t:'bronze'},{n:'Curuçá',t:'bronze'},{n:'Eldorado Dos Carajás',t:'bronze'},{n:'Garrafão do Norte',t:'bronze'},{n:'Goianésia do Pará',t:'bronze'},{n:'Gurupá',t:'bronze'},{n:'Igarapé-açu',t:'bronze'},{n:'Irituia',t:'bronze'},{n:'Juruti',t:'bronze'},{n:'Limoeiro do Ajuru',t:'bronze'},{n:'Maracanã',t:'bronze'},{n:'Marapanim',t:'bronze'},{n:'Medicilândia',t:'bronze'},{n:'Melgaço',t:'bronze'},{n:'Mocajuba',t:'bronze'},{n:'Muaná',t:'bronze'},{n:'Mãe do Rio',t:'bronze'},{n:'Nova Esperança do Piriá',t:'bronze'},{n:'Novo Progresso',t:'bronze'},{n:'Oeiras do Pará',t:'bronze'},{n:'Ourilândia do Norte',t:'bronze'},{n:'Pacajá',t:'bronze'},{n:'Placas',t:'bronze'},{n:'Ponta de Pedras',t:'bronze'},{n:'Porto de Moz',t:'bronze'},{n:'Prainha',t:'bronze'},{n:'Rondon do Pará',t:'bronze'},{n:'Rurópolis',t:'bronze'},{n:'Salinópolis',t:'bronze'},{n:'Salvaterra',t:'bronze'},{n:'Santa Maria do Pará',t:'bronze'},{n:'Santo Antônio do Tauá',t:'bronze'},{n:'Soure',t:'bronze'},{n:'São Domingos do Araguaia',t:'bronze'},{n:'São Domingos do Capim',t:'bronze'},{n:'São Geraldo do Araguaia',t:'bronze'},{n:'São João de Pirabas',t:'bronze'},{n:'São Sebastião da Boa Vista',t:'bronze'},{n:'Tracuateua',t:'bronze'},{n:'Tucumã',t:'bronze'},{n:'Ulianópolis',t:'bronze'},{n:'Uruará',t:'bronze'},{n:'Vigia',t:'bronze'},{n:'Xinguara',t:'bronze'},{n:'Água Azul do Norte',t:'bronze'},{n:'Óbidos',t:'bronze'}],
+  'Pernambuco':[{n:'Recife',t:'gold'},{n:'Cabo de Santo Agostinho',t:'gold'},{n:'Camaragibe',t:'gold'},{n:'Caruaru',t:'gold'},{n:'Garanhuns',t:'gold'},{n:'Igarassu',t:'gold'},{n:'Jaboatão Dos Guararapes',t:'gold'},{n:'Olinda',t:'gold'},{n:'Paulista',t:'gold'},{n:'Petrolina',t:'gold'},{n:'São Lourenço da Mata',t:'gold'},{n:'Vitória de Santo Antão',t:'gold'},{n:'Abreu e Lima',t:'silver'},{n:'Araripina',t:'silver'},{n:'Arcoverde',t:'silver'},{n:'Belo Jardim',t:'silver'},{n:'Bezerros',t:'silver'},{n:'Buíque',t:'silver'},{n:'Carpina',t:'silver'},{n:'Escada',t:'silver'},{n:'Goiana',t:'silver'},{n:'Gravatá',t:'silver'},{n:'Ipojuca',t:'silver'},{n:'Limoeiro',t:'silver'},{n:'Moreno',t:'silver'},{n:'Ouricuri',t:'silver'},{n:'Palmares',t:'silver'},{n:'Paudalho',t:'silver'},{n:'Pesqueira',t:'silver'},{n:'Salgueiro',t:'silver'},{n:'Santa Cruz do Capibaribe',t:'silver'},{n:'Serra Talhada',t:'silver'},{n:'Surubim',t:'silver'},{n:'São Bento do Una',t:'silver'},{n:'Timbaúba',t:'silver'},{n:'Afogados da Ingazeira',t:'bronze'},{n:'Agrestina',t:'bronze'},{n:'Aliança',t:'bronze'},{n:'Altinho',t:'bronze'},{n:'Amaraji',t:'bronze'},{n:'Barreiros',t:'bronze'},{n:'Belém de São Francisco',t:'bronze'},{n:'Bodocó',t:'bronze'},{n:'Bom Conselho',t:'bronze'},{n:'Bom Jardim',t:'bronze'},{n:'Bonito',t:'bronze'},{n:'Brejo da Madre de Deus',t:'bronze'},{n:'Cabrobó',t:'bronze'},{n:'Caetés',t:'bronze'},{n:'Canhotinho',t:'bronze'},{n:'Catende',t:'bronze'},{n:'Chã Grande',t:'bronze'},{n:'Condado',t:'bronze'},{n:'Cupira',t:'bronze'},{n:'Custódia',t:'bronze'},{n:'Exu',t:'bronze'},{n:'Feira Nova',t:'bronze'},{n:'Flores',t:'bronze'},{n:'Floresta',t:'bronze'},{n:'Gameleira',t:'bronze'},{n:'Glória do Goitá',t:'bronze'},{n:'Ibimirim',t:'bronze'},{n:'Ilha de Itamaracá',t:'bronze'},{n:'Ipubi',t:'bronze'},{n:'Itambé',t:'bronze'},{n:'Itapissuma',t:'bronze'},{n:'Itaíba',t:'bronze'},{n:'João Alfredo',t:'bronze'},{n:'Lagoa Grande',t:'bronze'},{n:'Lagoa do Itaenga',t:'bronze'},{n:'Lajedo',t:'bronze'},{n:'Macaparana',t:'bronze'},{n:'Nazaré da Mata',t:'bronze'},{n:'Orobó',t:'bronze'},{n:'Panelas',t:'bronze'},{n:'Parnamirim',t:'bronze'},{n:'Passira',t:'bronze'},{n:'Pedra',t:'bronze'},{n:'Petrolândia',t:'bronze'},{n:'Pombos',t:'bronze'},{n:'Quipapá',t:'bronze'},{n:'Ribeirão',t:'bronze'},{n:'Rio Formoso',t:'bronze'},{n:'Sanharó',t:'bronze'},{n:'Santa Maria da Boa Vista',t:'bronze'},{n:'Sertânia',t:'bronze'},{n:'Sirinhaém',t:'bronze'},{n:'São Caitano',t:'bronze'},{n:'São Joaquim do Monte',t:'bronze'},{n:'São José do Belmonte',t:'bronze'},{n:'São José do Egito',t:'bronze'},{n:'São João',t:'bronze'},{n:'Tabira',t:'bronze'},{n:'Tacaratu',t:'bronze'},{n:'Tamandaré',t:'bronze'},{n:'Taquaritinga do Norte',t:'bronze'},{n:'Toritama',t:'bronze'},{n:'Trindade',t:'bronze'},{n:'Tupanatinga',t:'bronze'},{n:'Vicência',t:'bronze'},{n:'Água Preta',t:'bronze'},{n:'Águas Belas',t:'bronze'}],
+  'Piauí':[{n:'Teresina',t:'gold'},{n:'Parnaíba',t:'gold'},{n:'Floriano',t:'silver'},{n:'Picos',t:'silver'},{n:'Piripiri',t:'silver'},{n:'Altos',t:'bronze'},{n:'Barras',t:'bronze'},{n:'Batalha',t:'bronze'},{n:'Bom Jesus',t:'bronze'},{n:'Campo Maior',t:'bronze'},{n:'Canto do Buriti',t:'bronze'},{n:'Cocal',t:'bronze'},{n:'Corrente',t:'bronze'},{n:'Esperantina',t:'bronze'},{n:'José de Freitas',t:'bronze'},{n:'Luzilândia',t:'bronze'},{n:'Luís Correia',t:'bronze'},{n:'Miguel Alves',t:'bronze'},{n:'Oeiras',t:'bronze'},{n:'Pedro ii',t:'bronze'},{n:'Piracuruca',t:'bronze'},{n:'São Raimundo Nonato',t:'bronze'},{n:'União',t:'bronze'},{n:'Uruçuí',t:'bronze'},{n:'Valença do Piauí',t:'bronze'}],
+  'Rio Grande do Norte':[{n:'Natal',t:'gold'},{n:'Mossoró',t:'gold'},{n:'Parnamirim',t:'gold'},{n:'Açu',t:'silver'},{n:'Caicó',t:'silver'},{n:'Ceará-mirim',t:'silver'},{n:'Macaíba',t:'silver'},{n:'São Gonçalo do Amarante',t:'silver'},{n:'Apodi',t:'bronze'},{n:'Areia Branca',t:'bronze'},{n:'Baraúna',t:'bronze'},{n:'Canguaretama',t:'bronze'},{n:'Currais Novos',t:'bronze'},{n:'Extremoz',t:'bronze'},{n:'Goianinha',t:'bronze'},{n:'João Câmara',t:'bronze'},{n:'Macau',t:'bronze'},{n:'Monte Alegre',t:'bronze'},{n:'Nova Cruz',t:'bronze'},{n:'Nísia Floresta',t:'bronze'},{n:'Parelhas',t:'bronze'},{n:'Pau Dos Ferros',t:'bronze'},{n:'Santa Cruz',t:'bronze'},{n:'Santo Antônio',t:'bronze'},{n:'São José de Mipibu',t:'bronze'},{n:'São Miguel',t:'bronze'},{n:'Touros',t:'bronze'}],
+  'Rio Grande do Sul':[{n:'Porto Alegre',t:'gold'},{n:'Alvorada',t:'gold'},{n:'Bagé',t:'gold'},{n:'Bento Gonçalves',t:'gold'},{n:'Cachoeirinha',t:'gold'},{n:'Canoas',t:'gold'},{n:'Caxias do Sul',t:'gold'},{n:'Gravataí',t:'gold'},{n:'Novo Hamburgo',t:'gold'},{n:'Passo Fundo',t:'gold'},{n:'Pelotas',t:'gold'},{n:'Rio Grande',t:'gold'},{n:'Santa Cruz do Sul',t:'gold'},{n:'Santa Maria',t:'gold'},{n:'Sapucaia do Sul',t:'gold'},{n:'São Leopoldo',t:'gold'},{n:'Uruguaiana',t:'gold'},{n:'Viamão',t:'gold'},{n:'Alegrete',t:'silver'},{n:'Cachoeira do Sul',t:'silver'},{n:'Camaquã',t:'silver'},{n:'Campo Bom',t:'silver'},{n:'Canguçu',t:'silver'},{n:'Carazinho',t:'silver'},{n:'Cruz Alta',t:'silver'},{n:'Erechim',t:'silver'},{n:'Esteio',t:'silver'},{n:'Farroupilha',t:'silver'},{n:'Guaíba',t:'silver'},{n:'Ijuí',t:'silver'},{n:'Lajeado',t:'silver'},{n:'Montenegro',t:'silver'},{n:'Parobé',t:'silver'},{n:'Santa Rosa',t:'silver'},{n:'Santana do Livramento',t:'silver'},{n:'Santo Ângelo',t:'silver'},{n:'Sapiranga',t:'silver'},{n:'São Borja',t:'silver'},{n:'São Gabriel',t:'silver'},{n:'Taquara',t:'silver'},{n:'Vacaria',t:'silver'},{n:'Venâncio Aires',t:'silver'},{n:'Butiá',t:'bronze'},{n:'Candelária',t:'bronze'},{n:'Canela',t:'bronze'},{n:'Capão da Canoa',t:'bronze'},{n:'Capão do Leão',t:'bronze'},{n:'Carlos Barbosa',t:'bronze'},{n:'Caçapava do Sul',t:'bronze'},{n:'Charqueadas',t:'bronze'},{n:'Dois Irmãos',t:'bronze'},{n:'Dom Pedrito',t:'bronze'},{n:'Eldorado do Sul',t:'bronze'},{n:'Encantado',t:'bronze'},{n:'Encruzilhada do Sul',t:'bronze'},{n:'Estrela',t:'bronze'},{n:'Estância Velha',t:'bronze'},{n:'Flores da Cunha',t:'bronze'},{n:'Frederico Westphalen',t:'bronze'},{n:'Garibaldi',t:'bronze'},{n:'Gramado',t:'bronze'},{n:'Guaporé',t:'bronze'},{n:'Igrejinha',t:'bronze'},{n:'Itaqui',t:'bronze'},{n:'Jaguarão',t:'bronze'},{n:'Lagoa Vermelha',t:'bronze'},{n:'Marau',t:'bronze'},{n:'Nova Prata',t:'bronze'},{n:'Nova Santa Rita',t:'bronze'},{n:'Osório',t:'bronze'},{n:'Palmeira Das Missões',t:'bronze'},{n:'Panambi',t:'bronze'},{n:'Portão',t:'bronze'},{n:'Quaraí',t:'bronze'},{n:'Rio Pardo',t:'bronze'},{n:'Rosário do Sul',t:'bronze'},{n:'Santa Vitória do Palmar',t:'bronze'},{n:'Santiago',t:'bronze'},{n:'Santo Antônio da Patrulha',t:'bronze'},{n:'Sarandi',t:'bronze'},{n:'Soledade',t:'bronze'},{n:'São Francisco de Paula',t:'bronze'},{n:'São Jerônimo',t:'bronze'},{n:'São José do Norte',t:'bronze'},{n:'São Lourenço do Sul',t:'bronze'},{n:'São Luiz Gonzaga',t:'bronze'},{n:'São Marcos',t:'bronze'},{n:'São Sebastião do Caí',t:'bronze'},{n:'São Sepé',t:'bronze'},{n:'Taquari',t:'bronze'},{n:'Teutônia',t:'bronze'},{n:'Torres',t:'bronze'},{n:'Tramandaí',t:'bronze'},{n:'Triunfo',t:'bronze'},{n:'Três Coroas',t:'bronze'},{n:'Três Passos',t:'bronze'},{n:'Três de Maio',t:'bronze'},{n:'Tupanciretã',t:'bronze'},{n:'Vera Cruz',t:'bronze'},{n:'Veranópolis',t:'bronze'}],
+  'Rio de Janeiro':[{n:'Rio de Janeiro',t:'gold'},{n:'Angra Dos Reis',t:'gold'},{n:'Araruama',t:'gold'},{n:'Barra Mansa',t:'gold'},{n:'Belford Roxo',t:'gold'},{n:'Cabo Frio',t:'gold'},{n:'Campos Dos Goytacazes',t:'gold'},{n:'Duque de Caxias',t:'gold'},{n:'Itaboraí',t:'gold'},{n:'Itaguaí',t:'gold'},{n:'Macaé',t:'gold'},{n:'Magé',t:'gold'},{n:'Maricá',t:'gold'},{n:'Mesquita',t:'gold'},{n:'Nilópolis',t:'gold'},{n:'Niterói',t:'gold'},{n:'Nova Friburgo',t:'gold'},{n:'Nova Iguaçu',t:'gold'},{n:'Petrópolis',t:'gold'},{n:'Queimados',t:'gold'},{n:'Resende',t:'gold'},{n:'Rio Das Ostras',t:'gold'},{n:'São Gonçalo',t:'gold'},{n:'São João de Meriti',t:'gold'},{n:'Teresópolis',t:'gold'},{n:'Volta Redonda',t:'gold'},{n:'Barra do Piraí',t:'silver'},{n:'Cachoeiras de Macacu',t:'silver'},{n:'Guapimirim',t:'silver'},{n:'Itaperuna',t:'silver'},{n:'Japeri',t:'silver'},{n:'Rio Bonito',t:'silver'},{n:'Saquarema',t:'silver'},{n:'Seropédica',t:'silver'},{n:'São Pedro da Aldeia',t:'silver'},{n:'Três Rios',t:'silver'},{n:'Valença',t:'silver'},{n:'Armação Dos Búzios',t:'bronze'},{n:'Arraial do Cabo',t:'bronze'},{n:'Bom Jardim',t:'bronze'},{n:'Bom Jesus do Itabapoana',t:'bronze'},{n:'Casimiro de Abreu',t:'bronze'},{n:'Conceição de Macabu',t:'bronze'},{n:'Cordeiro',t:'bronze'},{n:'Iguaba Grande',t:'bronze'},{n:'Itaocara',t:'bronze'},{n:'Itatiaia',t:'bronze'},{n:'Mangaratiba',t:'bronze'},{n:'Miguel Pereira',t:'bronze'},{n:'Miracema',t:'bronze'},{n:'Paracambi',t:'bronze'},{n:'Parati',t:'bronze'},{n:'Paraíba do Sul',t:'bronze'},{n:'Paty do Alferes',t:'bronze'},{n:'Pinheiral',t:'bronze'},{n:'Piraí',t:'bronze'},{n:'Quissamã',t:'bronze'},{n:'Santo Antônio de Pádua',t:'bronze'},{n:'Silva Jardim',t:'bronze'},{n:'São Fidélis',t:'bronze'},{n:'São Francisco de Itabapoana',t:'bronze'},{n:'São José do Vale do Rio Preto',t:'bronze'},{n:'São João da Barra',t:'bronze'},{n:'Tanguá',t:'bronze'},{n:'Vassouras',t:'bronze'}],
+  'Rondônia':[{n:'Porto Velho',t:'gold'},{n:'Ji-paraná',t:'gold'},{n:'Ariquemes',t:'silver'},{n:'Cacoal',t:'silver'},{n:'Jaru',t:'silver'},{n:'Rolim de Moura',t:'silver'},{n:'Vilhena',t:'silver'},{n:'Alta Floresta Doeste',t:'bronze'},{n:'Buritis',t:'bronze'},{n:'Espigão Doeste',t:'bronze'},{n:'Guajará-mirim',t:'bronze'},{n:'Machadinho Doeste',t:'bronze'},{n:'Nova Mamoré',t:'bronze'},{n:'Ouro Preto do Oeste',t:'bronze'},{n:'Pimenta Bueno',t:'bronze'},{n:'Presidente Médici',t:'bronze'},{n:'São Miguel do Guaporé',t:'bronze'}],
+  'Roraima':[{n:'Boa Vista',t:'gold'},{n:'Rorainópolis',t:'bronze'}],
+  'Santa Catarina':[{n:'Florianópolis',t:'gold'},{n:'Balneário Camboriú',t:'gold'},{n:'Blumenau',t:'gold'},{n:'Brusque',t:'gold'},{n:'Chapecó',t:'gold'},{n:'Criciúma',t:'gold'},{n:'Itajaí',t:'gold'},{n:'Jaraguá do Sul',t:'gold'},{n:'Joinville',t:'gold'},{n:'Lages',t:'gold'},{n:'Palhoça',t:'gold'},{n:'São José',t:'gold'},{n:'Araranguá',t:'silver'},{n:'Biguaçu',t:'silver'},{n:'Camboriú',t:'silver'},{n:'Canoinhas',t:'silver'},{n:'Caçador',t:'silver'},{n:'Concórdia',t:'silver'},{n:'Gaspar',t:'silver'},{n:'Indaial',t:'silver'},{n:'Içara',t:'silver'},{n:'Laguna',t:'silver'},{n:'Mafra',t:'silver'},{n:'Navegantes',t:'silver'},{n:'Rio do Sul',t:'silver'},{n:'São Bento do Sul',t:'silver'},{n:'Tubarão',t:'silver'},{n:'Araquari',t:'bronze'},{n:'Barra Velha',t:'bronze'},{n:'Braço do Norte',t:'bronze'},{n:'Campos Novos',t:'bronze'},{n:'Capinzal',t:'bronze'},{n:'Capivari de Baixo',t:'bronze'},{n:'Curitibanos',t:'bronze'},{n:'Forquilhinha',t:'bronze'},{n:'Fraiburgo',t:'bronze'},{n:'Guaramirim',t:'bronze'},{n:'Herval Doeste',t:'bronze'},{n:'Imbituba',t:'bronze'},{n:'Itaiópolis',t:'bronze'},{n:'Itapema',t:'bronze'},{n:'Ituporanga',t:'bronze'},{n:'Joaçaba',t:'bronze'},{n:'Maravilha',t:'bronze'},{n:'Orleans',t:'bronze'},{n:'Penha',t:'bronze'},{n:'Pomerode',t:'bronze'},{n:'Porto União',t:'bronze'},{n:'Rio Negrinho',t:'bronze'},{n:'Sombrio',t:'bronze'},{n:'São Francisco do Sul',t:'bronze'},{n:'São Joaquim',t:'bronze'},{n:'São João Batista',t:'bronze'},{n:'São Lourenço do Oeste',t:'bronze'},{n:'São Miguel do Oeste',t:'bronze'},{n:'Tijucas',t:'bronze'},{n:'Timbó',t:'bronze'},{n:'Urussanga',t:'bronze'},{n:'Videira',t:'bronze'},{n:'Xanxerê',t:'bronze'},{n:'Xaxim',t:'bronze'}],
+  'Sergipe':[{n:'Aracaju',t:'gold'},{n:'Nossa Senhora do Socorro',t:'gold'},{n:'Estância',t:'silver'},{n:'Itabaiana',t:'silver'},{n:'Lagarto',t:'silver'},{n:'São Cristóvão',t:'silver'},{n:'Aquidabã',t:'bronze'},{n:'Barra Dos Coqueiros',t:'bronze'},{n:'Boquim',t:'bronze'},{n:'Canindé de São Francisco',t:'bronze'},{n:'Capela',t:'bronze'},{n:'Carira',t:'bronze'},{n:'Itabaianinha',t:'bronze'},{n:'Itaporanga Dajuda',t:'bronze'},{n:'Laranjeiras',t:'bronze'},{n:'Nossa Senhora Das Dores',t:'bronze'},{n:'Nossa Senhora da Glória',t:'bronze'},{n:'Porto da Folha',t:'bronze'},{n:'Poço Redondo',t:'bronze'},{n:'Poço Verde',t:'bronze'},{n:'Propriá',t:'bronze'},{n:'Simão Dias',t:'bronze'},{n:'Tobias Barreto',t:'bronze'},{n:'Umbaúba',t:'bronze'}],
+  'São Paulo':[{n:'São Paulo',t:'gold'},{n:'Americana',t:'gold'},{n:'Araraquara',t:'gold'},{n:'Araras',t:'gold'},{n:'Araçatuba',t:'gold'},{n:'Atibaia',t:'gold'},{n:'Barretos',t:'gold'},{n:'Barueri',t:'gold'},{n:'Bauru',t:'gold'},{n:'Birigui',t:'gold'},{n:'Botucatu',t:'gold'},{n:'Bragança Paulista',t:'gold'},{n:'Campinas',t:'gold'},{n:'Caraguatatuba',t:'gold'},{n:'Carapicuíba',t:'gold'},{n:'Catanduva',t:'gold'},{n:'Cotia',t:'gold'},{n:'Cubatão',t:'gold'},{n:'Diadema',t:'gold'},{n:'Embu',t:'gold'},{n:'Ferraz de Vasconcelos',t:'gold'},{n:'Franca',t:'gold'},{n:'Francisco Morato',t:'gold'},{n:'Franco da Rocha',t:'gold'},{n:'Guaratinguetá',t:'gold'},{n:'Guarujá',t:'gold'},{n:'Guarulhos',t:'gold'},{n:'Hortolândia',t:'gold'},{n:'Indaiatuba',t:'gold'},{n:'Itapecerica da Serra',t:'gold'},{n:'Itapetininga',t:'gold'},{n:'Itapevi',t:'gold'},{n:'Itaquaquecetuba',t:'gold'},{n:'Itatiba',t:'gold'},{n:'Itu',t:'gold'},{n:'Jacareí',t:'gold'},{n:'Jandira',t:'gold'},{n:'Jaú',t:'gold'},{n:'Jundiaí',t:'gold'},{n:'Limeira',t:'gold'},{n:'Marília',t:'gold'},{n:'Mauá',t:'gold'},{n:'Mogi Guaçu',t:'gold'},{n:'Moji Das Cruzes',t:'gold'},{n:'Osasco',t:'gold'},{n:'Ourinhos',t:'gold'},{n:'Pindamonhangaba',t:'gold'},{n:'Piracicaba',t:'gold'},{n:'Poá',t:'gold'},{n:'Praia Grande',t:'gold'},{n:'Presidente Prudente',t:'gold'},{n:'Ribeirão Pires',t:'gold'},{n:'Ribeirão Preto',t:'gold'},{n:'Rio Claro',t:'gold'},{n:'Salto',t:'gold'},{n:'Santa Bárbara Doeste',t:'gold'},{n:'Santana de Parnaíba',t:'gold'},{n:'Santo André',t:'gold'},{n:'Santos',t:'gold'},{n:'Sertãozinho',t:'gold'},{n:'Sorocaba',t:'gold'},{n:'Sumaré',t:'gold'},{n:'Suzano',t:'gold'},{n:'São Bernardo do Campo',t:'gold'},{n:'São Caetano do Sul',t:'gold'},{n:'São Carlos',t:'gold'},{n:'São José Dos Campos',t:'gold'},{n:'São José do Rio Preto',t:'gold'},{n:'São Vicente',t:'gold'},{n:'Taboão da Serra',t:'gold'},{n:'Tatuí',t:'gold'},{n:'Taubaté',t:'gold'},{n:'Valinhos',t:'gold'},{n:'Votorantim',t:'gold'},{n:'Várzea Paulista',t:'gold'},{n:'Amparo',t:'silver'},{n:'Andradina',t:'silver'},{n:'Arujá',t:'silver'},{n:'Assis',t:'silver'},{n:'Avaré',t:'silver'},{n:'Batatais',t:'silver'},{n:'Bebedouro',t:'silver'},{n:'Caieiras',t:'silver'},{n:'Cajamar',t:'silver'},{n:'Campo Limpo Paulista',t:'silver'},{n:'Caçapava',t:'silver'},{n:'Cosmópolis',t:'silver'},{n:'Cruzeiro',t:'silver'},{n:'Embu-guaçu',t:'silver'},{n:'Fernandópolis',t:'silver'},{n:'Ibitinga',t:'silver'},{n:'Ibiúna',t:'silver'},{n:'Itanhaém',t:'silver'},{n:'Itapeva',t:'silver'},{n:'Itapira',t:'silver'},{n:'Jaboticabal',t:'silver'},{n:'Leme',t:'silver'},{n:'Lençóis Paulista',t:'silver'},{n:'Lins',t:'silver'},{n:'Lorena',t:'silver'},{n:'Mairiporã',t:'silver'},{n:'Matão',t:'silver'},{n:'Mirassol',t:'silver'},{n:'Mococa',t:'silver'},{n:'Moji-mirim',t:'silver'},{n:'Nova Odessa',t:'silver'},{n:'Olímpia',t:'silver'},{n:'Paulínia',t:'silver'},{n:'Penápolis',t:'silver'},{n:'Peruíbe',t:'silver'},{n:'Piedade',t:'silver'},{n:'Pirassununga',t:'silver'},{n:'Porto Ferreira',t:'silver'},{n:'Registro',t:'silver'},{n:'Santa Isabel',t:'silver'},{n:'São José do Rio Pardo',t:'silver'},{n:'São João da Boa Vista',t:'silver'},{n:'São Roque',t:'silver'},{n:'São Sebastião',t:'silver'},{n:'Taquaritinga',t:'silver'},{n:'Tupã',t:'silver'},{n:'Ubatuba',t:'silver'},{n:'Vinhedo',t:'silver'},{n:'Votuporanga',t:'silver'},{n:'Adamantina',t:'bronze'},{n:'Aguaí',t:'bronze'},{n:'Agudos',t:'bronze'},{n:'Américo Brasiliense',t:'bronze'},{n:'Angatuba',t:'bronze'},{n:'Aparecida',t:'bronze'},{n:'Apiaí',t:'bronze'},{n:'Araçoiaba da Serra',t:'bronze'},{n:'Artur Nogueira',t:'bronze'},{n:'Bariri',t:'bronze'},{n:'Barra Bonita',t:'bronze'},{n:'Barrinha',t:'bronze'},{n:'Bastos',t:'bronze'},{n:'Bertioga',t:'bronze'},{n:'Biritiba-mirim',t:'bronze'},{n:'Boituva',t:'bronze'},{n:'Brodowski',t:'bronze'},{n:'Brotas',t:'bronze'},{n:'Cabreúva',t:'bronze'},{n:'Cachoeira Paulista',t:'bronze'},{n:'Cajati',t:'bronze'},{n:'Cajuru',t:'bronze'},{n:'Campos do Jordão',t:'bronze'},{n:'Capivari',t:'bronze'},{n:'Capão Bonito',t:'bronze'},{n:'Casa Branca',t:'bronze'},{n:'Cerquilho',t:'bronze'},{n:'Conchal',t:'bronze'},{n:'Cordeirópolis',t:'bronze'},{n:'Cravinhos',t:'bronze'},{n:'Cunha',t:'bronze'},{n:'Cândido Mota',t:'bronze'},{n:'Descalvado',t:'bronze'},{n:'Dois Córregos',t:'bronze'},{n:'Dracena',t:'bronze'},{n:'Espírito Santo do Pinhal',t:'bronze'},{n:'Garça',t:'bronze'},{n:'Guararapes',t:'bronze'},{n:'Guararema',t:'bronze'},{n:'Guariba',t:'bronze'},{n:'Guaíra',t:'bronze'},{n:'Ibaté',t:'bronze'},{n:'Igarapava',t:'bronze'},{n:'Igaraçu do Tietê',t:'bronze'},{n:'Iguape',t:'bronze'},{n:'Ilha Solteira',t:'bronze'},{n:'Ilhabela',t:'bronze'},{n:'Iperó',t:'bronze'},{n:'Iracemápolis',t:'bronze'},{n:'Itararé',t:'bronze'},{n:'Itaí',t:'bronze'},{n:'Itupeva',t:'bronze'},{n:'Ituverava',t:'bronze'},{n:'Itápolis',t:'bronze'},{n:'Jaguariúna',t:'bronze'},{n:'Jales',t:'bronze'},{n:'Jardinópolis',t:'bronze'},{n:'Jarinu',t:'bronze'},{n:'José Bonifácio',t:'bronze'},{n:'Juquitiba',t:'bronze'},{n:'Laranjal Paulista',t:'bronze'},{n:'Louveira',t:'bronze'},{n:'Mairinque',t:'bronze'},{n:'Martinópolis',t:'bronze'},{n:'Miguelópolis',t:'bronze'},{n:'Miracatu',t:'bronze'},{n:'Mirandópolis',t:'bronze'},{n:'Mongaguá',t:'bronze'},{n:'Monte Alto',t:'bronze'},{n:'Monte Aprazível',t:'bronze'},{n:'Monte Mor',t:'bronze'},{n:'Morro Agudo',t:'bronze'},{n:'Novo Horizonte',t:'bronze'},{n:'Orlândia',t:'bronze'},{n:'Osvaldo Cruz',t:'bronze'},{n:'Palmital',t:'bronze'},{n:'Paraguaçu Paulista',t:'bronze'},{n:'Pederneiras',t:'bronze'},{n:'Pedreira',t:'bronze'},{n:'Pereira Barreto',t:'bronze'},{n:'Pilar do Sul',t:'bronze'},{n:'Piracaia',t:'bronze'},{n:'Piraju',t:'bronze'},{n:'Pirajuí',t:'bronze'},{n:'Pirapozinho',t:'bronze'},{n:'Pitangueiras',t:'bronze'},{n:'Pontal',t:'bronze'},{n:'Porto Feliz',t:'bronze'},{n:'Presidente Epitácio',t:'bronze'},{n:'Presidente Venceslau',t:'bronze'},{n:'Promissão',t:'bronze'},{n:'Rancharia',t:'bronze'},{n:'Rio Das Pedras',t:'bronze'},{n:'Rio Grande da Serra',t:'bronze'},{n:'Salto de Pirapora',t:'bronze'},{n:'Santa Cruz Das Palmeiras',t:'bronze'},{n:'Santa Cruz do Rio Pardo',t:'bronze'},{n:'Santa Gertrudes',t:'bronze'},{n:'Santa Rita do Passa Quatro',t:'bronze'},{n:'Santa Rosa de Viterbo',t:'bronze'},{n:'Santa fé do Sul',t:'bronze'},{n:'Santo Anastácio',t:'bronze'},{n:'Santo Antônio de Posse',t:'bronze'},{n:'Serra Negra',t:'bronze'},{n:'Serrana',t:'bronze'},{n:'Socorro',t:'bronze'},{n:'São Joaquim da Barra',t:'bronze'},{n:'São Manuel',t:'bronze'},{n:'São Miguel Arcanjo',t:'bronze'},{n:'São Pedro',t:'bronze'},{n:'Tambaú',t:'bronze'},{n:'Tanabi',t:'bronze'},{n:'Taquarituba',t:'bronze'},{n:'Teodoro Sampaio',t:'bronze'},{n:'Tietê',t:'bronze'},{n:'Tremembé',t:'bronze'},{n:'Valparaíso',t:'bronze'},{n:'Vargem Grande Paulista',t:'bronze'},{n:'Vargem Grande do Sul',t:'bronze'},{n:'Álvares Machado',t:'bronze'}],
+  'Tocantins':[{n:'Palmas',t:'gold'},{n:'Araguaína',t:'gold'},{n:'Gurupi',t:'silver'},{n:'Araguatins',t:'bronze'},{n:'Colinas do Tocantins',t:'bronze'},{n:'Guaraí',t:'bronze'},{n:'Miracema do Tocantins',t:'bronze'},{n:'Paraíso do Tocantins',t:'bronze'},{n:'Porto Nacional',t:'bronze'},{n:'Tocantinópolis',t:'bronze'}],
 };
 // Legacy flat format for compatibility
 const STATES_BR={};
@@ -3387,49 +3367,87 @@ function autoFillName(){
   const s=$('stateDD').value;
   const cities = (typeof getSelectedCities==='function') ? getSelectedCities() : [];
   const c = cities.length ? (cities.length===1 ? cities[0] : `${cities.length} cidades`) : '';
-  const nbs = getSelectedNeighborhoods ? getSelectedNeighborhoods() : [];
+
+  const chkCidadeInteira = $('chkCidadeInteira');
+  const isCidadeInteira  = chkCidadeInteira && chkCidadeInteira.checked;
+
+  const nbs = (!isCidadeInteira && typeof getSelectedNeighborhoods==='function') ? getSelectedNeighborhoods() : [];
   let nb = nbs.length===1 ? nbs[0] : nbs.length>1 ? `${nbs.length} bairros` : '';
-  if(n&&c&&nb) $('campaignNameInput').value=`${n} — ${nb}, ${cities[0]||c}`;
-  else if(n&&c) $('campaignNameInput').value=`${n} — ${c}${s?', '+s:''}`;
-  else if(n&&s) $('campaignNameInput').value=`${n} — ${s}`;
+
+  const campMode = typeof _getCampMode==='function' ? _getCampMode() : 'single';
+  const suffix = cities.length>1 && campMode==='per_city' ? ' (por cidade)' : '';
+
+  if(n&&c&&nb)       $('campaignNameInput').value=`${n} — ${nb}, ${cities[0]||c}${suffix}`;
+  else if(n&&c)      $('campaignNameInput').value=`${n} — ${c}${s?', '+s:''}${suffix}`;
+  else if(n&&s)      $('campaignNameInput').value=`${n} — ${s}`;
 }
 
 function createCampaign(){
   const nicho=$('nichoDD').value, state=$('stateDD').value;
-  // Multi-city support
   const cities = (typeof getSelectedCities==='function') ? getSelectedCities() : [];
-  const city = cities[0] || '';   // primary city
+  const city = cities[0] || '';
   if(!nicho||!state||!city){ alert('Preencha nicho, estado e pelo menos uma cidade!'); return; }
-  // Bairros
-  const selectedNbs = getSelectedNeighborhoods();
+
+  // Bairros selecionados
+  const chkCidadeInteira = $('chkCidadeInteira');
+  const isCidadeInteira  = chkCidadeInteira && chkCidadeInteira.checked;
+  const selectedNbs = isCidadeInteira ? [] : getSelectedNeighborhoods();
+
+  // Calcular neighborhood label
   let neighborhood='', isAltoPadrao=false;
-  const data = currentMarket==='internacional' ? NEIGHBORHOODS_US[city] : NEIGHBORHOODS[city];
-  const premiumList = data ? [...(data.gold||[]),...(data.silver||[])] : [];
   if(selectedNbs.length > 1){
     isAltoPadrao=true; window._altoPadraoList=selectedNbs;
-    neighborhood = selectedNbs.length===premiumList.length ? 'Alto Padrão' : `${selectedNbs.length} bairros`;
-  } else if(selectedNbs.length===1){ window._altoPadraoList=[]; neighborhood=selectedNbs[0]; }
-  else { neighborhood=''; window._altoPadraoList=[]; }
+    neighborhood = `${selectedNbs.length} bairros`;
+  } else if(selectedNbs.length===1){
+    window._altoPadraoList=[]; neighborhood=selectedNbs[0];
+  } else {
+    window._altoPadraoList=[]; neighborhood='';
+  }
+
   const name=$('campaignNameInput').value.trim(), radius=$('radiusDD').value;
   if(!name){ alert('Preencha o nome da campanha!'); return; }
   const country=currentMarket==='internacional'?$('countryDD').value:'BR';
   const nichoData=(currentMarket==='nacional'?NICHOS_BR:NICHOS_INT).find(n=>n.v===nicho);
 
-  // If multiple cities selected, create one campaign per city (or one combined)
-  if(cities.length > 1){
-    const doMulti = confirm(`Criar ${cities.length} campanhas separadas (uma por cidade)?\n\nCidades: ${cities.join(', ')}\n\nOK = ${cities.length} campanhas · Cancelar = só a primeira (${cities[0]})`);
-    if(doMulti){
-      cities.forEach((ct,i)=>{
-        const cName = `${nicho} — ${ct}, ${state}`;
-        const camp={id:'c'+Date.now()+'_'+i,name:cName,nicho,nichoEn:nichoData?.en||nicho,state,city:ct,neighborhood,country,market:currentMarket,radius,leads:[],isAltoPadrao,altoPadraoList:window._altoPadraoList||[],createdAt:new Date().toISOString(),cityList:cities};
-        campaigns.push(camp);
-      });
-      saveCampaigns(); closeCampaignModal(); renderCampaignsList();
-      toast(`✅ ${cities.length} campanhas criadas!`,'success',3000);
-      return;
-    }
+  // Modo de criação (apenas relevante quando múltiplas cidades)
+  const campMode = cities.length > 1 ? _getCampMode() : 'single';
+
+  if(campMode === 'per_city'){
+    // Uma campanha por cidade
+    cities.forEach((ct,i)=>{
+      const nbLabel = neighborhood || (isCidadeInteira ? 'cidade inteira' : '');
+      const cName = nbLabel ? `${nicho} — ${nbLabel}, ${ct}` : `${nicho} — ${ct}, ${state}`;
+      const camp={
+        id:'c'+Date.now()+'_'+i, name:cName, nicho, nichoEn:nichoData?.en||nicho,
+        state, city:ct, neighborhood, country, market:currentMarket, radius,
+        leads:[], isAltoPadrao, altoPadraoList:window._altoPadraoList||[],
+        createdAt:new Date().toISOString(), cityList:[ct], cidadeInteira:isCidadeInteira
+      };
+      campaigns.push(camp);
+    });
+    saveCampaigns(); closeCampaignModal(); renderCampaignsList();
+    toast(`✅ ${cities.length} campanhas criadas!`,'success',3000);
+    return;
   }
-  const c={id:'c'+Date.now(),name,nicho,nichoEn:nichoData?.en||nicho,state,city,cityList:cities,neighborhood,country,market:currentMarket,radius,leads:[],isAltoPadrao,altoPadraoList:window._altoPadraoList||[],createdAt:new Date().toISOString()};
+
+  // Modo 'single' — uma campanha com todas as cidades
+  // altoPadraoByCity: mapeia cada cidade aos seus bairros selecionados
+  const altoPadraoByCity = {};
+  if(isAltoPadrao && cities.length > 1){
+    const chips = window._nbChipsData || [];
+    cities.forEach(ct=>{
+      const cityChips = chips.filter(c=>c.city===ct && selectedNbs.includes(c.name));
+      if(cityChips.length) altoPadraoByCity[ct] = cityChips.map(c=>c.name);
+    });
+  }
+
+  const c={
+    id:'c'+Date.now(), name, nicho, nichoEn:nichoData?.en||nicho,
+    state, city, cityList:cities, neighborhood, country, market:currentMarket, radius,
+    leads:[], isAltoPadrao, altoPadraoList:window._altoPadraoList||[],
+    altoPadraoByCity: Object.keys(altoPadraoByCity).length ? altoPadraoByCity : null,
+    createdAt:new Date().toISOString(), cidadeInteira:isCidadeInteira
+  };
   campaigns.push(c); saveCampaigns(); closeCampaignModal(); renderCampaignsList(); openCampaign(c.id);
 }
 
@@ -3884,37 +3902,53 @@ async function startMapsSearch(){
   const btn=$('btnS1');btn.disabled=true;btn.textContent='Buscando...';showCancelBtn(true);
   leads=[];setProg(5);setStat('<span class="spinner"></span>Localizando cidade...');
 
-  // Build list of neighborhoods to search — if multiple selected, iterate all
-  const nbList = (c.altoPadraoList&&c.altoPadraoList.length>0)
-    ? c.altoPadraoList
-    : c.neighborhood ? [c.neighborhood] : [''];
+  // Build search list: [{nb, city}] — suporta single-city e multi-city
+  let searchList = [];
+  const allCities = (c.cityList && c.cityList.length > 1) ? c.cityList : [c.city];
+
+  if(c.altoPadraoByCity && Object.keys(c.altoPadraoByCity).length > 0){
+    // Multi-cidade com bairros específicos por cidade
+    allCities.forEach(ct=>{
+      const nbs = c.altoPadraoByCity[ct];
+      if(nbs && nbs.length) nbs.forEach(nb=>searchList.push({nb, city:ct}));
+      else searchList.push({nb:'', city:ct}); // cidade sem bairros = cidade inteira
+    });
+  } else if(c.altoPadraoList && c.altoPadraoList.length > 0){
+    // Single-cidade com múltiplos bairros (comportamento original)
+    c.altoPadraoList.forEach(nb=>searchList.push({nb, city:c.city}));
+  } else if(c.cidadeInteira || !c.neighborhood){
+    // Cidade inteira — uma entrada por cidade
+    allCities.forEach(ct=>searchList.push({nb:'', city:ct}));
+  } else {
+    searchList.push({nb:c.neighborhood, city:c.city});
+  }
 
   try{
     const query=c.market==='nacional'?c.nicho:c.nichoEn;
     const seenPlaceIds=new Set();
 
-    for(let nbIdx=0; nbIdx<nbList.length; nbIdx++){
+    for(let nbIdx=0; nbIdx<searchList.length; nbIdx++){
       if(!isSearching&&nbIdx>0)break; // respect cancel
-      const nb=nbList[nbIdx];
-      const searchAddr=(nb?nb+', ':'')+c.city+', '+c.state;
-      setStat(`<span class="spinner"></span>📍 Localizando${nb?' bairro '+nb:''}... (${nbIdx+1}/${nbList.length})`);
+      const {nb, city:searchCity} = searchList[nbIdx];
+      const searchAddr=(nb?nb+', ':'')+searchCity+', '+c.state;
+      setStat(`<span class="spinner"></span>📍 Localizando${nb?' bairro '+nb:' '+searchCity}... (${nbIdx+1}/${searchList.length})`);
       let lat,lng;
       try{
         const geo=await gmGeocode(searchAddr);
-        if(!geo.results?.length){setStat(`⚠️ Bairro "${nb}" não encontrado, pulando...`);await new Promise(r=>setTimeout(r,400));continue;}
+        if(!geo.results?.length){setStat(`⚠️ "${nb||searchCity}" não encontrado, pulando...`);await new Promise(r=>setTimeout(r,400));continue;}
         lat=geo.results[0].geometry.location.lat;
         lng=geo.results[0].geometry.location.lng;
-      }catch(e){setStat(`⚠️ Erro localizando ${nb}: ${e.message}`);continue;}
+      }catch(e){setStat(`⚠️ Erro localizando ${nb||searchCity}: ${e.message}`);continue;}
 
-      setProg(5+Math.round(((nbIdx+.5)/nbList.length)*25));
-      setStat(`<span class="spinner"></span>🔍 ${nb||c.city} — buscando ${c.nicho}s... (${nbIdx+1}/${nbList.length})`);
+      setProg(5+Math.round(((nbIdx+.5)/searchList.length)*25));
+      setStat(`<span class="spinner"></span>🔍 ${nb||searchCity} — buscando ${c.nicho}s... (${nbIdx+1}/${searchList.length})`);
 
       const pl=await gmNearbySearch(`${lat},${lng}`, c.radius, query);
       if(pl.status==='REQUEST_DENIED')throw new Error('Places API negada — ative no Google Cloud.');
       const places=pl.results||[];
-      if(!places.length){setStat(`Nenhum resultado em ${nb||c.city}.`);continue;}
+      if(!places.length){setStat(`Nenhum resultado em ${nb||searchCity}.`);continue;}
 
-      setStat(`${places.length} encontrados em ${nb||c.city}. Verificando detalhes...`);
+      setStat(`${places.length} encontrados em ${nb||searchCity}. Verificando detalhes...`);
       for(let i=0;i<places.length;i++){
         if(!isSearching&&i>0)break;
         if(seenPlaceIds.has(places[i].place_id))continue; // deduplicate across neighborhoods
@@ -3923,20 +3957,20 @@ async function startMapsSearch(){
         try{const dd=await gmPlaceDetails(places[i].place_id);det=dd.result||{};}
         catch(e){det={name:places[i].name,formatted_address:places[i].vicinity};}
         const t=classifyBasic(det);
-        const lead={...det,id:'m'+Date.now()+nbIdx+'_'+i,name:det.name||places[i].name,formatted_address:(det.formatted_address||places[i].vicinity||'').replace(', USA',''),t,score:calcScore(det,t),status:'new',notes:'',siteScore:null,siteIssues:[],sitePitch:'',email:'',emailVerified:false,emailConfidence:0,source:'maps',mapsUrl:det.url||'',neighborhood:nb||''};
+        const lead={...det,id:'m'+Date.now()+nbIdx+'_'+i,name:det.name||places[i].name,formatted_address:(det.formatted_address||places[i].vicinity||'').replace(', USA',''),t,score:calcScore(det,t),status:'new',notes:'',siteScore:null,siteIssues:[],sitePitch:'',email:'',emailVerified:false,emailConfidence:0,source:'maps',mapsUrl:det.url||'',neighborhood:nb||'',city:searchCity};
         // ── Consome 1 Lead; para se sem saldo ───────────────────
         const ok = await consumirSinal('maps_search', {lead_name:lead.name, campaign_id:activeCampaignId});
         if(!ok){ setStat('⚡ Leads esgotados! Recarregue para continuar.'); if(!_leadsEsgotadosAlertado){_leadsEsgotadosAlertado=true; toast('⚡ Leads esgotados! Recarregue seus Leads para continuar.','warn',5000); setTimeout(()=>abrirModalRecarga('Seus Leads acabaram durante a busca. Escolha um pack para continuar.'),600);} break; }
         leads.push(lead);
-        setProg(5+Math.round(((nbIdx+(i+1)/places.length)/nbList.length)*25));
-        setStat(`<span class="spinner"></span>[${nb||c.city}] ${i+1}/${places.length}: ${lead.name}`);
+        setProg(5+Math.round(((nbIdx+(i+1)/places.length)/searchList.length)*25));
+        setStat(`<span class="spinner"></span>[${nb||searchCity}] ${i+1}/${places.length}: ${lead.name}`);
         renderAll();
         await new Promise(r=>setTimeout(r,60));
       }
-      await new Promise(r=>setTimeout(r,300)); // small pause between neighborhoods
+      await new Promise(r=>setTimeout(r,300)); // small pause between neighborhoods/cities
     }
 
-    setProg(35);setStat(`<span class="spinner"></span>✓ ${leads.length} leads encontrados em ${nbList.length} bairro(s). Processando...`);
+    setProg(35);setStat(`<span class="spinner"></span>✓ ${leads.length} leads encontrados em ${searchList.length} área(s). Processando...`);
 
     // AI phase
     if(useAI){
@@ -4096,12 +4130,27 @@ async function startMapsSearchInternal(gKey){
   const useAI=$('enableAI').checked&&('via-edge-function');
   const useHunter=$('enableHunter').checked&&('via-edge-function');
   const query=c.market==='nacional'?c.nicho:c.nichoEn;
-  const nbList=(c.altoPadraoList&&c.altoPadraoList.length>0)?c.altoPadraoList:c.neighborhood?[c.neighborhood]:[''];
+  // Mesma lógica multi-cidade/bairro da busca principal
+  const allCitiesI = (c.cityList && c.cityList.length > 1) ? c.cityList : [c.city];
+  let searchListI = [];
+  if(c.altoPadraoByCity && Object.keys(c.altoPadraoByCity).length > 0){
+    allCitiesI.forEach(ct=>{
+      const nbs=c.altoPadraoByCity[ct];
+      if(nbs&&nbs.length) nbs.forEach(nb=>searchListI.push({nb,city:ct}));
+      else searchListI.push({nb:'',city:ct});
+    });
+  } else if(c.altoPadraoList&&c.altoPadraoList.length>0){
+    c.altoPadraoList.forEach(nb=>searchListI.push({nb,city:c.city}));
+  } else if(c.cidadeInteira||!c.neighborhood){
+    allCitiesI.forEach(ct=>searchListI.push({nb:'',city:ct}));
+  } else {
+    searchListI.push({nb:c.neighborhood,city:c.city});
+  }
   const seenPlaceIds=new Set();
   try{
-    for(let nbIdx=0;nbIdx<nbList.length;nbIdx++){
-      const nb=nbList[nbIdx];
-      const searchAddr=(nb?nb+', ':'')+c.city+', '+c.state;
+    for(let nbIdx=0;nbIdx<searchListI.length;nbIdx++){
+      const {nb,city:searchCity}=searchListI[nbIdx];
+      const searchAddr=(nb?nb+', ':'')+searchCity+', '+c.state;
       let lat,lng;
       try{
         const geo=await gmGeocode(searchAddr);
@@ -4118,12 +4167,12 @@ async function startMapsSearchInternal(gKey){
       try{const dd=await gmPlaceDetails(places[i].place_id);det=dd.result||{};}
       catch(e){det={name:places[i].name,formatted_address:places[i].vicinity};}
       const t=classifyBasic(det);
-      const lead={...det,id:'m'+Date.now()+nbIdx+'_'+i,name:det.name||places[i].name,formatted_address:(det.formatted_address||places[i].vicinity||'').replace(', USA',''),t,score:calcScore(det,t),status:'new',notes:'',siteScore:null,siteIssues:[],sitePitch:'',email:'',emailVerified:false,emailConfidence:0,source:'maps',mapsUrl:det.url||'',neighborhood:nb||''};
-      leads.push(lead);setProg(10+Math.round(((nbIdx*places.length+i+1)/(nbList.length*places.length))*30));renderAll();
+      const lead={...det,id:'m'+Date.now()+nbIdx+'_'+i,name:det.name||places[i].name,formatted_address:(det.formatted_address||places[i].vicinity||'').replace(', USA',''),t,score:calcScore(det,t),status:'new',notes:'',siteScore:null,siteIssues:[],sitePitch:'',email:'',emailVerified:false,emailConfidence:0,source:'maps',mapsUrl:det.url||'',neighborhood:nb||'',city:searchCity};
+      leads.push(lead);setProg(10+Math.round(((nbIdx*places.length+i+1)/(searchListI.length*places.length))*30));renderAll();
       await new Promise(r=>setTimeout(r,60));
     }
     await new Promise(r=>setTimeout(r,300));
-    } // end nbList loop
+    } // end searchList loop
     if(useAI){
       const withSite=leads.filter(l=>l.source==='maps'&&l.website&&!isBioLink(l.website)&&!/facebook|instagram|wa\.me/i.test(l.website));
       for(let i=0;i<withSite.length;i++){
@@ -4246,17 +4295,20 @@ let kanbanView = localStorage.getItem('capturo-view')||'kanban';
 function setKanbanView(v){
   kanbanView=v;
   localStorage.setItem('capturo-view',v);
-  const kb=$('btnViewKanban'),ls=$('btnViewList');
-  if(kb){
-    kb.style.borderColor=v==='kanban'?'var(--accent)':'var(--border)';
-    kb.style.background=v==='kanban'?'var(--accent-bg)':'var(--s2)';
-    kb.style.color=v==='kanban'?'var(--accent)':'var(--muted2)';
-  }
-  if(ls){
-    ls.style.borderColor=v==='list'?'var(--accent)':'var(--border)';
-    ls.style.background=v==='list'?'var(--accent-bg)':'var(--s2)';
-    ls.style.color=v==='list'?'var(--accent)':'var(--muted2)';
-  }
+  // Atualiza visuais dos 3 botões
+  [['btnViewKanban','kanban'],['btnViewPipeline','pipeline'],['btnViewList','list']].forEach(([id,val])=>{
+    const btn=$(id);
+    if(!btn)return;
+    const active=v===val;
+    btn.style.borderColor=active?'var(--accent)':'var(--border)';
+    btn.style.background=active?'var(--accent-bg)':'var(--s2)';
+    btn.style.color=active?'var(--accent)':'var(--muted2)';
+  });
+  // Mostra/oculta boards
+  const kb=document.querySelector('.kanban');
+  const pb=$('pipelineBoard');
+  if(kb) kb.style.display=v==='kanban'?'':'none';
+  if(pb) pb.style.display=v==='pipeline'?'block':'none';
   renderAll();
 }
 
@@ -4286,6 +4338,115 @@ function renderAll(){
   $('colWarm').innerHTML=warm.length?warm.map(cardHTML).join(''):ec('Só redes sociais');
   $('colCold').innerHTML=cold.length?cold.map(cardHTML).join(''):ec('Site ruim<br>IA detectou problemas');
   $('colFrozen').innerHTML=frozen.length?frozen.map(cardHTML).join(''):ec('Site presente e bom');
+  if(kanbanView==='pipeline') renderPipelineKanban();
+}
+
+// ══════════════════════════════════════════
+// PIPELINE DE VENDAS (CRM STATUS KANBAN)
+// ══════════════════════════════════════════
+const PIPELINE_STAGES=[
+  {v:'new',       label:'🆕 Novo',       color:'var(--muted2)',  note:'Leads recém-captados'},
+  {v:'contacted', label:'📞 Contatado',  color:'var(--accent2)', note:'Primeiro contato feito'},
+  {v:'replied',   label:'💬 Respondeu',  color:'var(--teal)',    note:'Lead respondeu'},
+  {v:'proposal',  label:'📋 Proposta',   color:'var(--warm)',    note:'Proposta enviada'},
+  {v:'negotiating',label:'🤝 Negociando',color:'var(--purple)',  note:'Em negociação'},
+  {v:'closed',    label:'✅ Fechado',    color:'var(--green)',   note:'Convertido em cliente'},
+  {v:'lost',      label:'❌ Perdido',    color:'var(--hot)',     note:'Não convertido'},
+];
+
+let _pipelineDragging=null;
+
+function renderPipelineKanban(){
+  const board=$('pipelineBoard');
+  if(!board)return;
+  const tempIcon={volcano:'🌋',hot:'🔥',warm:'🌡',cold:'❄',frozen:'🧊'};
+  const total=leads.length;
+  board.innerHTML=`
+    <div style="font-size:11px;color:var(--muted2);margin-bottom:10px;font-family:monospace">
+      Pipeline — ${total} lead${total!==1?'s':''} na campanha · Arraste para mover entre estágios · Clique no card para ver histórico
+    </div>
+    <div class="pipeline-grid">
+      ${PIPELINE_STAGES.map(st=>{
+        const stLeads=leads.filter(l=>(l.status||'new')===st.v);
+        const totalVal=stLeads.reduce((acc,l)=>{
+          const c=campaigns.find(x=>x.id===activeCampaignId);
+          return acc;
+        },0);
+        return `
+        <div class="pipe-col">
+          <div class="pipe-col-head">
+            <div style="font-size:12px;font-weight:700;color:${st.color}">${st.label}</div>
+            <div style="font-size:10px;color:var(--muted2);margin-top:2px">${stLeads.length} lead${stLeads.length!==1?'s':''} · ${st.note}</div>
+          </div>
+          <div class="pipe-col-body" id="pipe-col-${st.v}"
+            ondragover="event.preventDefault();this.classList.add('drag-over')"
+            ondragleave="this.classList.remove('drag-over')"
+            ondrop="onPipelineDrop(event,'${st.v}',this)">
+            ${stLeads.length===0
+              ? `<div style="font-size:10px;color:var(--muted2);text-align:center;padding:16px 0;opacity:.5">Nenhum lead</div>`
+              : stLeads.map(l=>`
+              <div class="pipe-card" draggable="true"
+                ondragstart="onPipelineDragStart(event,'${l.id}')"
+                onclick="openActivityModal('${l.id}')"
+                title="Clique para ver histórico de atividades">
+                <div style="font-size:11px;font-weight:700;line-height:1.3;margin-bottom:3px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${escHtml(l.name||'Lead')}</div>
+                <div style="font-size:10px;color:var(--muted2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:5px">${escHtml(l.formatted_address||l.neighborhood||'')}</div>
+                <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+                  <span style="font-size:9px;padding:2px 7px;border-radius:20px;background:var(--${l.t}-bg,var(--s2));color:var(--${l.t},var(--muted2));border:1px solid var(--${l.t}-b,var(--border))">${tempIcon[l.t]||'●'} ${l.t}</span>
+                  ${l.email?`<span style="font-size:9px;color:var(--green)">✉</span>`:''}
+                  ${l.activities&&l.activities.length>0?`<span style="font-size:9px;color:var(--muted2);font-family:monospace">📋${l.activities.length}</span>`:''}
+                </div>
+              </div>`).join('')}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function onPipelineDragStart(event,leadId){
+  _pipelineDragging=leadId;
+  event.dataTransfer.setData('text/plain',leadId);
+  setTimeout(()=>{
+    const card=event.target;
+    if(card)card.classList.add('dragging');
+  },0);
+}
+
+function onPipelineDrop(event,status,colBody){
+  event.preventDefault();
+  if(colBody)colBody.classList.remove('drag-over');
+  const id=_pipelineDragging||event.dataTransfer.getData('text/plain');
+  if(!id)return;
+  _pipelineDragging=null;
+  setCRMStatus(id,status);
+}
+
+// ══════════════════════════════════════════
+// RECORRÊNCIA — MRR WIDGET (Página Clientes)
+// ══════════════════════════════════════════
+function renderMRRWidget(){
+  if(!$('mrrTotal'))return;
+  const today=new Date();
+  const day=today.getDate();
+  let mrr=0, overdue=0, dueSoon=0;
+  (clients||[]).forEach(cl=>{
+    const val=parseFloat((cl.value||'0').replace(/[^\d,\.]/g,'').replace(',','.'))||0;
+    mrr+=val;
+    if(cl.dueDay){
+      const due=parseInt(cl.dueDay);
+      if(!isNaN(due)){
+        if(due<day) overdue++;
+        else if(due<=day+1) dueSoon++;
+      }
+    }
+  });
+  const fmt=n=>n>=1000?`R$ ${(n/1000).toFixed(1)}k`:`R$ ${n.toFixed(0)}`;
+  $('mrrTotal').textContent=fmt(mrr);
+  $('mrrCount').textContent=(clients||[]).length;
+  $('mrrDueToday').textContent=dueSoon;
+  $('mrrOverdue').textContent=overdue;
+  if(overdue>0)$('mrrOverdue').style.color='var(--volcano)';
+  else $('mrrOverdue').style.color='var(--muted2)';
 }
 
 function cardHTML(l){
@@ -4519,11 +4680,55 @@ function setCRMStatus(id, status){
   l.statusUpdatedAt=new Date().toISOString();
   if(typeof addLeadActivity==='function') addLeadActivity(id,'status','Status CRM → '+getCRMLabel(status));
   saveCampaigns();renderAll();
-  toast(`Status: ${getCRMLabel(status)}`,'ok');
+  if(status==='closed'){
+    showConvertToClientBanner(id, l.name);
+  } else {
+    toast(`Status: ${getCRMLabel(status)}`,'ok');
+  }
   setTimeout(()=>syncToSheets(),500);
 }
+
+function showConvertToClientBanner(leadId, leadName){
+  document.getElementById('convertToClientBanner')?.remove();
+  const el=document.createElement('div');
+  el.id='convertToClientBanner';
+  el.style.cssText='position:fixed;bottom:80px;right:20px;z-index:9999;background:var(--s1);border:2px solid var(--green);border-radius:18px;padding:18px 20px;box-shadow:0 10px 40px rgba(52,199,89,.25);max-width:290px;animation:slideUp .35s ease';
+  el.innerHTML=`
+    <div style="font-size:14px;font-weight:800;color:var(--green);margin-bottom:6px">🎉 Lead Fechado!</div>
+    <div style="font-size:12px;color:var(--muted2);line-height:1.5;margin-bottom:12px">Mover <strong style="color:var(--text)">${escHtml(leadName||'este lead')}</strong> para a carteira de clientes?</div>
+    <div style="display:flex;gap:8px">
+      <button onclick="openClientFromLead('${leadId}');document.getElementById('convertToClientBanner')?.remove()" style="flex:1;padding:8px 12px;border-radius:10px;background:var(--green);color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer">👥 Criar Cliente</button>
+      <button onclick="document.getElementById('convertToClientBanner')?.remove()" style="padding:8px 10px;border-radius:10px;background:var(--s2);color:var(--muted2);border:1px solid var(--border);font-size:12px;cursor:pointer">Não agora</button>
+    </div>`;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),12000);
+}
+
+function openClientFromLead(leadId){
+  const lead = findLeadAnywhere(leadId);
+  const camp = campaigns.find(c=>(c.leads||[]).some(l=>l.id===leadId));
+  if(!lead) return;
+  $('clientId').value='';
+  $('clientModalTitle').textContent='Novo Cliente — do Lead';
+  $('clientModalSub').textContent=lead.name||'';
+  $('cName').value=lead.name||'';
+  $('cNichoField').value=(camp&&camp.nicho)||'';
+  $('cOwner').value='';
+  $('cPhone').value=lead.formatted_phone_number||lead.phone||'';
+  $('cEmailField').value=lead.email||'';
+  $('cWebsite').value=lead.website||'';
+  $('cCityField').value=lead.city||(camp&&camp.city)||'';
+  $('cNeighborhood').value=lead.neighborhood||'';
+  $('cAddress').value=lead.formatted_address||'';
+  ['cZip','cValue','cDueDay','cBank','cWorkNotes','cBranches'].forEach(id=>{const el=$(id);if(el)el.value='';});
+  $('cStartDate').value=new Date().toISOString().split('T')[0];
+  document.querySelectorAll('.service-chip').forEach(c=>c.classList.remove('on'));
+  $('clientModal').classList.add('open');
+  showPage('pageClients'); setSbActive('sb-clients');
+  toast('✅ Dados do lead pré-preenchidos! Complete o valor mensal e salve.','success',4000);
+}
 function getCRMLabel(s){
-  return {new:'🆕 Novo',contacted:'📞 Contatado',proposal:'📋 Proposta enviada',negotiating:'🤝 Negociando',closed:'✅ Fechado',lost:'❌ Perdido',seen:'👁 Visto'}[s]||s;
+  return {new:'🆕 Novo',contacted:'📞 Contatado',replied:'💬 Respondeu',proposal:'📋 Proposta',negotiating:'🤝 Negociando',closed:'✅ Fechado',lost:'❌ Perdido',seen:'👁 Visto'}[s]||s;
 }
 
 // ══════════════════════════════════════════
@@ -4570,7 +4775,8 @@ function openCRMDropdown(id,event){
 
   const statuses=[
     {v:'new',label:'🆕 Novo',color:'var(--muted2)'},
-    {v:'contacted',label:'📞 Contactado',color:'var(--accent2)'},
+    {v:'contacted',label:'📞 Contatado',color:'var(--accent2)'},
+    {v:'replied',label:'💬 Respondeu',color:'var(--teal)'},
     {v:'proposal',label:'📋 Proposta',color:'var(--warm)'},
     {v:'negotiating',label:'🤝 Negociando',color:'var(--purple)'},
     {v:'closed',label:'✅ Fechado',color:'var(--green)'},
@@ -6114,32 +6320,90 @@ window._nbChipsData = []; // [{name, tier}]
 window._nbSelected  = []; // [name, ...]
 
 function loadNeighborhoods(){
-  // Use first selected city from new chip system, fallback to free text or legacy select
   const selCities = (typeof getSelectedCities==='function') ? getSelectedCities() : [];
-  const city = selCities[0] || ($('cityFreeText')&&$('cityFreeText').value.trim()) || $('cityDD').value;
-  const nbRow = $('neighborhoodRow');
+  const freeCity  = ($('cityFreeText')&&$('cityFreeText').value.trim()) || $('cityDD').value;
+  const allCities = selCities.length ? selCities : (freeCity ? [freeCity] : []);
+  const nbRow  = $('neighborhoodRow');
   const nbFree = $('neighborhoodFreeText');
   if(!nbRow) return;
 
-  const data = currentMarket === 'internacional'
-    ? NEIGHBORHOODS_US[city]
-    : NEIGHBORHOODS[city];
+  // Agregar bairros de TODAS as cidades selecionadas
+  const chips = [];
+  allCities.forEach(city => {
+    const data = currentMarket === 'internacional'
+      ? NEIGHBORHOODS_US[city]
+      : NEIGHBORHOODS[city];
+    if(!data) return;
+    const label = allCities.length > 1 ? city : null; // label de cidade só quando multi-cidade
+    (data.gold||[]).forEach(n   => chips.push({name:n, tier:'gold',   city: label}));
+    (data.silver||[]).forEach(n => chips.push({name:n, tier:'silver', city: label}));
+    (data.bronze||[]).forEach(n => chips.push({name:n, tier:'bronze', city: label}));
+  });
 
-  if(!data){ nbRow.style.display='none'; window._nbChipsData=[]; window._nbSelected=[]; return; }
+  if(!chips.length){
+    nbRow.style.display='none';
+    window._nbChipsData=[];
+    window._nbSelected=[];
+    _showCampModeRow(false);
+    return;
+  }
 
   nbRow.style.display='block';
   if(nbFree) nbFree.style.display='block';
 
-  // Montar array de chips com tier
-  const chips = [];
-  (data.gold||[]).forEach(n   => chips.push({name:n, tier:'gold'}));
-  (data.silver||[]).forEach(n => chips.push({name:n, tier:'silver'}));
-  (data.bronze||[]).forEach(n => chips.push({name:n, tier:'bronze'}));
   window._nbChipsData = chips;
   window._nbSelected  = [];
 
+  // Reset "cidade inteira" se trocar de cidade
+  const chk = $('chkCidadeInteira');
+  if(chk) chk.checked = false;
+  _applyNbVisibility(false);
+
   renderNbChips();
   autoFillName();
+
+  // Exibe seletor de modo apenas quando 2+ cidades
+  _showCampModeRow(allCities.length > 1);
+}
+
+function _showCampModeRow(show){
+  const row = $('campModeRow');
+  if(row) row.style.display = show ? 'block' : 'none';
+  if(!show){
+    // Reset para single quando só uma cidade
+    const radio = document.querySelector('input[name="campMode"][value="single"]');
+    if(radio) radio.checked = true;
+  }
+}
+
+function _applyNbVisibility(cidadeInteira){
+  const qa = $('nbQuickActions');
+  const chips = $('neighborhoodChips');
+  const nbFree = $('neighborhoodFreeText');
+  if(qa)     qa.style.display     = cidadeInteira ? 'none' : 'flex';
+  if(chips)  chips.style.display  = cidadeInteira ? 'none' : 'flex';
+  if(nbFree) nbFree.style.display = cidadeInteira ? 'none' : 'block';
+  if(cidadeInteira){ window._nbSelected = []; renderNbChips(); }
+}
+
+function toggleCidadeInteira(){
+  const chk = $('chkCidadeInteira');
+  _applyNbVisibility(chk && chk.checked);
+  autoFillName();
+}
+
+function updateCampModeUI(){
+  const mode = _getCampMode();
+  const optSingle  = $('campOptSingle');
+  const optPerCity = $('campOptPerCity');
+  if(optSingle)  optSingle.style.borderColor  = mode==='single'  ? 'var(--accent)' : 'var(--border)';
+  if(optPerCity) optPerCity.style.borderColor = mode==='per_city'? 'var(--accent)' : 'var(--border)';
+  autoFillName();
+}
+
+function _getCampMode(){
+  const r = document.querySelector('input[name="campMode"]:checked');
+  return r ? r.value : 'single';
 }
 
 function renderNbChips(){
@@ -6156,22 +6420,44 @@ function renderNbChips(){
     else counter.textContent=`✓ ${selected.length} bairro(s) selecionado(s)`;
   }
 
-  // Separadores por tier
-  let html = '';
+  // Verifica se há bairros de múltiplas cidades
+  const hasCities = chips.some(c=>c.city);
   const tiers = [
     {key:'gold',   label:'🥇 Tier A — Alto Padrão',  cls:'tier-gold'},
-    {key:'silver', label:'◈ Tier B — Médio-Alto',   cls:'tier-silver'},
-    {key:'bronze', label:'Tier C — Outros',     cls:'tier-bronze'},
+    {key:'silver', label:'◈ Tier B — Médio-Alto',    cls:'tier-silver'},
+    {key:'bronze', label:'Tier C — Outros',           cls:'tier-bronze'},
   ];
-  tiers.forEach(t=>{
-    const items = chips.filter(c=>c.tier===t.key);
-    if(!items.length) return;
-    html += `<span style="font-size:9px;color:var(--muted2);font-family:monospace;width:100%;margin-top:6px;display:block">${t.label}</span>`;
-    items.forEach(c=>{
-      const isSel = selected.includes(c.name);
-      html += `<div class="nb-chip ${t.cls} ${isSel?'selected':''}" onclick="toggleNbChip('${c.name.replace(/'/g,"\\'")}',this)">${isSel?'✓ ':''} ${c.name}</div>`;
+
+  let html = '';
+
+  if(hasCities){
+    // Agrupar por cidade, depois por tier
+    const cities = [...new Set(chips.map(c=>c.city).filter(Boolean))];
+    cities.forEach(city=>{
+      html += `<div style="font-size:11px;color:var(--accent2);font-weight:700;width:100%;margin-top:12px;margin-bottom:4px;display:block;padding:4px 6px;background:var(--accent-bg);border-radius:6px">📍 ${city}</div>`;
+      tiers.forEach(t=>{
+        const items = chips.filter(c=>c.city===city && c.tier===t.key);
+        if(!items.length) return;
+        html += `<span style="font-size:9px;color:var(--muted2);font-family:monospace;width:100%;margin-top:4px;display:block">${t.label}</span>`;
+        items.forEach(c=>{
+          const isSel = selected.includes(c.name);
+          html += `<div class="nb-chip ${t.cls} ${isSel?'selected':''}" onclick="toggleNbChip('${c.name.replace(/'/g,"\\'")}',this)">${isSel?'✓ ':''} ${c.name}</div>`;
+        });
+      });
     });
-  });
+  } else {
+    // Cidade única — comportamento original, separado por tier
+    tiers.forEach(t=>{
+      const items = chips.filter(c=>c.tier===t.key);
+      if(!items.length) return;
+      html += `<span style="font-size:9px;color:var(--muted2);font-family:monospace;width:100%;margin-top:6px;display:block">${t.label}</span>`;
+      items.forEach(c=>{
+        const isSel = selected.includes(c.name);
+        html += `<div class="nb-chip ${t.cls} ${isSel?'selected':''}" onclick="toggleNbChip('${c.name.replace(/'/g,"\\'")}',this)">${isSel?'✓ ':''} ${c.name}</div>`;
+      });
+    });
+  }
+
   container.innerHTML = html || '<span style="font-size:10px;color:var(--muted2)">Nenhum bairro cadastrado para esta cidade.</span>';
   updateNbHidden();
 }
@@ -6574,6 +6860,7 @@ function deleteClient(id){
 }
 
 function renderClients(){
+  renderMRRWidget();
   const grid=$('clientsGrid');if(!grid)return;
   if(!clients.length){
     grid.innerHTML=`<div style="text-align:center;padding:60px 20px;color:var(--muted2);grid-column:1/-1">
@@ -8204,7 +8491,7 @@ function generateQueries(){
 
   container.innerHTML = `
     <div style="font-size:10px;color:var(--muted2);font-family:monospace;margin-bottom:10px">
-      ${queries.length} queries geradas · clique para abrir no Google · 100% grátis
+      ${queries.length} queries geradas · clique para abrir no Google
     </div>
     <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
       <button onclick="openAllQueries()" style="padding:5px 12px;border-radius:20px;background:var(--volcano-bg);color:var(--volcano);border:1px solid var(--volcano-b);font-size:10px;font-weight:700;cursor:pointer">🌋 Abrir todas (${queries.length} abas)</button>
@@ -8672,7 +8959,7 @@ function selectAllBulkLeads(){
     <div class="biolinks-header">
       <div>
         <div class="biolinks-title">🌋 Gerador de Queries Bio Links</div>
-        <div class="biolinks-sub">Busca manual grátis — sem gastar cota da API</div>
+        <div class="biolinks-sub">Busca manual de perfis bio</div>
       </div>
       <button onclick="closeQueryGenerator()" style="background:var(--s2);border:1px solid var(--border);color:var(--text);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px">✕</button>
     </div>
@@ -8947,7 +9234,7 @@ function toggleAuthMode(){
   document.getElementById('authSubtitle').textContent  = isSignup ? 'Crie sua conta gratuita' : 'Entre na sua conta para continuar';
   document.getElementById('authBtn').textContent        = isSignup ? 'Criar conta' : 'Entrar';
   document.getElementById('authToggleText').textContent = isSignup ? 'Já tem conta? ' : 'Não tem conta? ';
-  document.getElementById('authToggleBtn').textContent  = isSignup ? 'Fazer login' : 'Criar conta grátis';
+  document.getElementById('authToggleBtn').textContent  = isSignup ? 'Fazer login' : 'Criar conta';
   setAuthMsg('');
 }
 
@@ -9818,6 +10105,21 @@ function injectCsvButton(){
 
 /* ─────────── INIT EXTRAS ─────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', ()=>{
+  // Ajustar sidebar top dinamicamente quando o header cresce
+  function adjustSidebarTop(){
+    const topnav = document.querySelector('.topnav');
+    const sidebar = document.querySelector('.sidebar');
+    if(topnav && sidebar){
+      const h = topnav.offsetHeight;
+      sidebar.style.top = h + 'px';
+    }
+  }
+  // Observar mudanças no topnav
+  const topnavEl = document.querySelector('.topnav');
+  if(topnavEl){
+    new ResizeObserver(adjustSidebarTop).observe(topnavEl);
+    adjustSidebarTop();
+  }
   injectCsvButton();
   // Patch renderDashboard to use visual funnel
   const _origRD = typeof renderDashboard==='function'?renderDashboard:null;
