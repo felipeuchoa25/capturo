@@ -32,41 +32,57 @@
 <style>
 :root{
   --email-ok:#34c759;--email-conf:#ff9500;
-  /* Apple iOS Light System */
+
+  /* ── Apple iOS 18 Light System ── */
   --bg:#f2f2f7;
+  --bg2:#e8e8ed;
   --s1:#ffffff;
   --s2:#f2f2f7;
   --s3:#e5e5ea;
   --border:#d1d1d6;
   --border2:#c7c7cc;
   --text:#1c1c1e;
+  --text2:#3a3a3c;
   --muted:#6d6d72;
   --muted2:#8e8e93;
   --system-bg:#f2f2f7;
-  /* iOS Semantic Colors */
+
+  /* ── iOS Semantic Colors ── */
   --accent:#007aff;
   --accent2:#0a84ff;
   --accent-bg:rgba(0,122,255,.08);
+  --accent-mid:rgba(0,122,255,.15);
   --green:#34c759;
-  --green-bg:rgba(52,199,89,.1);
+  --green-bg:rgba(52,199,89,.09);
   --green-b:rgba(52,199,89,.2);
   --red:#ff3b30;
   --orange:#ff9500;
   --purple:#af52de;
   --purple-bg:rgba(175,82,222,.08);
   --teal:#5ac8fa;
-  /* Lead temperatures - iOS style */
-  --volcano:#ff3b30;--volcano-bg:rgba(255,59,48,.08);--volcano-b:rgba(255,59,48,.2);
-  --hot:#ff6b00;--hot-bg:rgba(255,107,0,.08);--hot-b:rgba(255,107,0,.2);
-  --warm:#ff9500;--warm-bg:rgba(255,149,0,.08);--warm-b:rgba(255,149,0,.2);
-  --cold:#007aff;--cold-bg:rgba(0,122,255,.08);--cold-b:rgba(0,122,255,.2);
-  --frozen:#5ac8fa;--frozen-bg:rgba(90,200,250,.08);--frozen-b:rgba(90,200,250,.2);
-  /* Shadows */
-  --shadow-sm:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
-  --shadow:0 4px 16px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);
-  --shadow-lg:0 12px 40px rgba(0,0,0,.12),0 4px 12px rgba(0,0,0,.06);
-  /* Radii */
-  --r-sm:8px;--r:12px;--r-lg:16px;--r-xl:20px;
+  --indigo:#5856d6;
+
+  /* ── Lead temperatures ── */
+  --volcano:#ff3b30;--volcano-bg:rgba(255,59,48,.07);--volcano-b:rgba(255,59,48,.18);
+  --hot:#ff6b00;--hot-bg:rgba(255,107,0,.07);--hot-b:rgba(255,107,0,.18);
+  --warm:#ff9500;--warm-bg:rgba(255,149,0,.07);--warm-b:rgba(255,149,0,.18);
+  --cold:#007aff;--cold-bg:rgba(0,122,255,.07);--cold-b:rgba(0,122,255,.18);
+  --frozen:#5ac8fa;--frozen-bg:rgba(90,200,250,.07);--frozen-b:rgba(90,200,250,.18);
+
+  /* ── Refined Shadows ── */
+  --shadow-xs:0 1px 2px rgba(0,0,0,.05);
+  --shadow-sm:0 1px 4px rgba(0,0,0,.06),0 0 1px rgba(0,0,0,.04);
+  --shadow:0 4px 16px rgba(0,0,0,.07),0 1px 4px rgba(0,0,0,.04);
+  --shadow-md:0 8px 24px rgba(0,0,0,.09),0 2px 8px rgba(0,0,0,.05);
+  --shadow-lg:0 16px 48px rgba(0,0,0,.10),0 4px 16px rgba(0,0,0,.06);
+  --shadow-accent:0 4px 16px rgba(0,122,255,.25);
+
+  /* ── Radii - Apple-style ── */
+  --r-xs:6px;--r-sm:10px;--r:14px;--r-lg:18px;--r-xl:22px;--r-pill:100px;
+
+  /* ── Animation ── */
+  --ease-spring:cubic-bezier(.4,0,.2,1);
+  --ease-bounce:cubic-bezier(.34,1.56,.64,1);
 }
 /* CAPTURO © Felipe Uchoa 2024-2025 — CAP-7B3E92A1F0C84D56 — Uso não autorizado é proibido */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
@@ -99,13 +115,34 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg)
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ── TOAST ── */
-.toast-container{position:fixed;top:70px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px}
-.toast-msg{padding:12px 18px;border-radius:12px;font-size:13px;font-weight:500;color:#fff;max-width:320px;box-shadow:0 4px 16px rgba(0,0,0,.15);animation:toastIn .25s ease;backdrop-filter:blur(12px)}
-@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
-.toast-ok{background:rgba(52,199,89,.9)}
-.toast-error{background:rgba(255,59,48,.9)}
-.toast-warn{background:rgba(255,149,0,.9)}
-.toast-info{background:rgba(0,122,255,.9)}
+.toast-container{position:fixed;top:68px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast-msg{
+  padding:13px 18px;border-radius:var(--r-lg);font-size:13px;font-weight:600;
+  color:var(--text);max-width:340px;min-width:200px;
+  box-shadow:var(--shadow-lg);
+  animation:toastIn .28s var(--ease-spring);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  pointer-events:all;
+  display:flex;align-items:center;gap:8px;
+  border:1px solid transparent;
+}
+@keyframes toastIn{from{opacity:0;transform:translateX(24px) scale(.94)}to{opacity:1;transform:translateX(0) scale(1)}}
+.toast-ok,.toast-success{
+  background:rgba(240,253,244,.96);color:#166534;
+  border-color:rgba(52,199,89,.25);
+}
+.toast-error{
+  background:rgba(255,248,248,.96);color:#991b1b;
+  border-color:rgba(255,59,48,.2);
+}
+.toast-warn{
+  background:rgba(255,251,235,.96);color:#92400e;
+  border-color:rgba(255,149,0,.2);
+}
+.toast-info{
+  background:rgba(239,246,255,.96);color:#1e40af;
+  border-color:rgba(0,122,255,.2);
+}
 
 /* ── CARD ACTIONS v2 ── */
 .card-actions-v2{display:flex;flex-direction:column;gap:7px;margin-top:10px}
@@ -166,42 +203,116 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg)
 .profile-panel.open{display:flex}
 
 /* NAV */
-.topnav{background:var(--s1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;box-shadow:0 1px 0 var(--border)}
-.topnav-row1{display:flex;align-items:center;gap:10px;padding:0 20px;min-height:52px;flex-wrap:wrap;}
+.topnav{
+  background:rgba(255,255,255,.85);
+  backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:1px solid rgba(0,0,0,.08);
+  position:sticky;top:0;z-index:200;
+}
+.topnav-row1{display:flex;align-items:center;gap:10px;padding:0 22px;min-height:56px;flex-wrap:wrap;}
 .nav-tabs::-webkit-scrollbar{display:none}
-.logo{font-size:17px;font-weight:700;letter-spacing:-.03em;color:var(--text);white-space:nowrap}
+.logo{font-size:18px;font-weight:800;letter-spacing:-.04em;color:var(--text);white-space:nowrap}
 .logo span{color:var(--accent)}
 .nav-tabs{display:flex;gap:2px;flex-wrap:wrap;align-items:center;width:100%;}
-.nav-tab{padding:5px 12px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;color:var(--muted);border:none;background:transparent;transition:all .15s;display:flex;align-items:center;gap:5px;font-family:'Inter',sans-serif}
+.nav-tab{
+  padding:5px 14px;border-radius:var(--r-sm);font-size:12px;font-weight:600;
+  cursor:pointer;white-space:nowrap;color:var(--muted2);border:none;
+  background:transparent;transition:all .15s;display:flex;align-items:center;gap:5px;
+  font-family:'Inter',sans-serif;
+}
 .nav-tab:hover{background:var(--s2);color:var(--text)}
-.nav-tab.active{background:var(--accent-bg);color:var(--accent);font-weight:600}
-.tab-badge{background:var(--accent);color:#fff;font-size:9px;padding:1px 6px;border-radius:20px;font-weight:600}
-.btn-new{background:linear-gradient(135deg,var(--accent),#0056cc);color:#fff;border:none;padding:8px 18px;border-radius:20px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;margin-left:auto;transition:all .2s;letter-spacing:-.01em;box-shadow:0 2px 8px rgba(0,122,255,.3);}
-.btn-new:hover{opacity:1;transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,122,255,.4);}
+.nav-tab.active{background:var(--accent-bg);color:var(--accent)}
+.tab-badge{background:var(--accent);color:#fff;font-size:9px;padding:1px 6px;border-radius:20px;font-weight:700}
+.btn-new{
+  background:var(--accent);
+  color:#fff;border:none;
+  padding:9px 20px;
+  border-radius:var(--r-pill);
+  font-family:'Inter',sans-serif;
+  font-size:13px;font-weight:700;
+  cursor:pointer;white-space:nowrap;
+  margin-left:auto;
+  transition:all .18s var(--ease-spring);
+  letter-spacing:-.01em;
+  box-shadow:0 2px 10px rgba(0,122,255,.3),0 1px 2px rgba(0,0,0,.08);
+}
+.btn-new:hover{
+  background:#0066dd;
+  transform:translateY(-1px);
+  box-shadow:0 4px 18px rgba(0,122,255,.4),0 1px 4px rgba(0,0,0,.1);
+}
+.btn-new:active{transform:scale(.96);}
 /* LAYOUT */
 .main{padding:24px 28px;width:100%;max-width:100%}
 .main-wrap{margin-left:64px;min-height:100vh;width:calc(100% - 64px);box-sizing:border-box;transition:margin-left .2s ease,width .2s ease}
 .page{display:none}
 .page.active{display:block}
 /* HOME */
-.campaigns-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:28px}
-.campaign-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:20px;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);box-shadow:0 1px 4px rgba(0,0,0,.06);position:relative;overflow:hidden;}
-.campaign-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),#5c94ff);opacity:0;transition:opacity .2s;}
-.camp-disabled{opacity:.45;cursor:default}
-.camp-disabled:hover{transform:none;border-color:var(--border)}
-.campaign-card:hover{border-color:var(--accent);box-shadow:0 8px 24px rgba(0,122,255,.14);transform:translateY(-4px);}
-.campaign-card:hover::before{opacity:1;}
-.campaign-card.active-campaign{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,122,255,.12);}
-.campaign-card.active-campaign::before{opacity:1;}
-.cc-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
-.cc-name{font-size:14px;font-weight:700;line-height:1.3}
-.cc-market{font-size:10px;color:var(--muted2);margin-top:3px;font-family:'SF Mono',ui-monospace,monospace}
-.cc-status{font-size:10px;padding:3px 9px;border-radius:20px;background:#031a0e;color:var(--green);border:1px solid #062a1a}
-.cc-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
-.cc-stat .n{font-size:16px;font-weight:700;text-align:center}
-.cc-stat .l{font-size:9px;color:var(--muted);margin-top:2px;font-family:'SF Mono',ui-monospace,monospace;text-transform:uppercase;text-align:center}
-.empty-campaigns{text-align:center;padding:60px 20px;color:var(--muted2);grid-column:1/-1}
-.empty-campaigns h3{font-size:18px;font-weight:700;margin-bottom:8px;color:var(--text)}
+.campaigns-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-bottom:32px}
+.campaign-card{
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:var(--r-xl);
+  padding:22px;
+  cursor:pointer;
+  transition:all .22s var(--ease-spring);
+  box-shadow:var(--shadow-sm);
+  position:relative;
+  overflow:hidden;
+}
+.campaign-card::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9);
+  pointer-events:none;
+}
+.camp-disabled{opacity:.5;cursor:default}
+.camp-disabled:hover{transform:none;border-color:var(--border);box-shadow:var(--shadow-sm)}
+.campaign-card:hover{
+  border-color:rgba(0,122,255,.3);
+  box-shadow:var(--shadow-md),0 0 0 1px rgba(0,122,255,.08);
+  transform:translateY(-3px);
+}
+.campaign-card.active-campaign{
+  border-color:var(--accent);
+  box-shadow:var(--shadow-accent),0 0 0 1px rgba(0,122,255,.12);
+}
+.cc-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:10px}
+.cc-name{font-size:15px;font-weight:700;line-height:1.3;color:var(--text);letter-spacing:-.02em}
+.cc-market{font-size:11px;color:var(--muted2);margin-top:3px;display:flex;align-items:center;gap:4px;font-weight:500}
+.cc-status-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:10px;font-weight:600;
+  padding:3px 9px;
+  border-radius:var(--r-pill);
+  background:var(--green-bg);
+  color:var(--green);
+  border:1px solid var(--green-b);
+  white-space:nowrap;flex-shrink:0;
+}
+.cc-status-badge.paused{background:var(--s3);color:var(--muted2);border-color:var(--border)}
+.cc-status-dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulseDot 2s infinite}
+@keyframes pulseDot{0%,100%{opacity:1}50%{opacity:.4}}
+.cc-stats{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:0;
+  margin:14px -22px;
+  padding:14px 22px;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  background:var(--bg);
+}
+.cc-stat{text-align:center}
+.cc-stat .n{font-size:20px;font-weight:800;letter-spacing:-.04em;line-height:1}
+.cc-stat .l{font-size:9px;color:var(--muted2);margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.cc-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px}
+.cc-date{font-size:10px;color:var(--muted2);font-weight:500;display:flex;align-items:center;gap:4px}
+.empty-campaigns{text-align:center;padding:80px 20px;color:var(--muted2);grid-column:1/-1}
+.empty-campaigns h3{font-size:20px;font-weight:700;margin-bottom:8px;color:var(--text)}
+.empty-campaigns p{font-size:14px;line-height:1.6}
 /* SEARCH AREA */
 .search-area{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
 .area-title{font-size:10px;font-family:'SF Mono',ui-monospace,monospace;color:var(--muted2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px}
@@ -211,20 +322,54 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg)
 input[type=text],input[type=password],textarea,select{background:var(--bg);border:1.5px solid var(--border2);border-radius:10px;padding:10px 14px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;outline:none;width:100%;transition:all .15s;}
 input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,122,255,.1);}
 select option{background:#8a9099}
-.btn{padding:9px 16px;border-radius:8px;border:none;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap}
-.btn:hover{opacity:.85}
-.btn:active{transform:scale(.97)}
-.btn:disabled{opacity:.35;cursor:not-allowed}
-.btn-primary{background:linear-gradient(135deg,var(--accent),#0056cc);color:#fff;box-shadow:0 2px 8px rgba(0,122,255,.25);}
-.btn-primary:hover{opacity:1;box-shadow:0 4px 14px rgba(0,122,255,.35);transform:translateY(-1px);}
+.btn{
+  padding:10px 18px;border-radius:var(--r-sm);border:none;
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
+  cursor:pointer;transition:all .15s var(--ease-spring);white-space:nowrap;
+  letter-spacing:-.01em;
+}
+.btn:hover{opacity:.88}
+.btn:active{transform:scale(.96);opacity:.8}
+.btn:disabled{opacity:.32;cursor:not-allowed;transform:none!important}
+.btn-primary{
+  background:var(--accent);color:#fff;
+  box-shadow:0 2px 8px rgba(0,122,255,.2);
+}
+.btn-primary:hover{background:#0066dd;opacity:1;box-shadow:0 4px 14px rgba(0,122,255,.3);transform:translateY(-1px);}
 .btn-ghost{background:var(--s2);color:var(--muted2);border:1px solid var(--border2)}
-.status-pill{font-size:10px;padding:5px 12px;border-radius:20px;white-space:nowrap;font-family:'SF Mono',ui-monospace,monospace}
-.pill-ok{background:var(--green-bg);color:var(--green);border:1px solid #062a1a}
+.btn-ghost:hover{color:var(--text);background:var(--s3);opacity:1}
+.status-pill{font-size:10px;padding:5px 12px;border-radius:var(--r-pill);white-space:nowrap;font-weight:600}
+.pill-ok{background:var(--green-bg);color:var(--green);border:1px solid var(--green-b)}
 .pill-err{background:var(--hot-bg);color:var(--hot);border:1px solid var(--hot-b)}
 .pill-idle{background:var(--s2);color:var(--muted2);border:1px solid var(--border2)}
-.campaign-info{font-size:11px;color:var(--muted2);font-family:'SF Mono',ui-monospace,monospace;margin-bottom:12px}
+
+/* SEARCH AREA */
+.search-area{
+  background:var(--s1);border:1px solid var(--border);border-radius:var(--r-xl);
+  padding:24px;margin-bottom:20px;box-shadow:var(--shadow-sm);
+}
+.area-title{
+  font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted2);margin-bottom:16px;display:flex;align-items:center;gap:6px;
+}
+.keys-grid{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end;margin-bottom:16px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+input[type=text],input[type=password],textarea,select{
+  background:var(--bg);border:1.5px solid var(--border2);
+  border-radius:var(--r-sm);padding:11px 14px;
+  color:var(--text);font-family:'Inter',sans-serif;font-size:14px;
+  outline:none;width:100%;transition:all .15s;
+  -webkit-appearance:none;
+}
+input:focus,textarea:focus,select:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 4px rgba(0,122,255,.08);
+  background:var(--s1);
+}
+select option{background:var(--s1);color:var(--text)}
+.campaign-info{font-size:12px;color:var(--muted2);margin-bottom:14px;font-weight:500}
 .campaign-info strong{color:var(--text)}
-/* ENGINE TABS */
 .engine-tabs{display:flex;gap:0;margin-bottom:20px;background:var(--s2);border-radius:12px;padding:3px;border:1px solid var(--border)}
 .engine-tab{padding:8px 16px;border-radius:10px;border:none;background:transparent;color:var(--muted2);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:6px;flex:1;justify-content:center}
 .engine-tab:hover{border-color:var(--accent);color:var(--text)}
@@ -490,14 +635,21 @@ select option{background:#8a9099}
 .move-option{padding:5px 10px;border-radius:5px;font-size:10px;font-family:monospace;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:background .15s}
 .move-option:hover{background:var(--s2)}
 
-/* V2.2 NEW STYLES */
+/* ── V2.2 NEW STYLES ── */
 /* KPI Cards */
-.kpi-card{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:20px 22px;position:relative;overflow:hidden;transition:transform .15s,border-color .15s}
-.kpi-card:hover{transform:translateY(-2px);border-color:var(--border2)}
-.kpi-card .kpi-icon{font-size:28px;margin-bottom:10px}
-.kpi-card .kpi-value{font-size:32px;font-weight:800;line-height:1;margin-bottom:4px}
-.kpi-card .kpi-label{font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;font-family:'IBM Plex Mono',monospace}
-.kpi-card .kpi-sub{font-size:11px;margin-top:8px;display:flex;align-items:center;gap:5px}
+.kpi-card{
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:22px 24px;
+  position:relative;overflow:hidden;
+  transition:transform .15s var(--ease-spring),border-color .15s,box-shadow .15s;
+  box-shadow:var(--shadow-xs);
+}
+.kpi-card:hover{transform:translateY(-2px);border-color:rgba(0,0,0,.12);box-shadow:var(--shadow)}
+.kpi-card .kpi-icon{font-size:26px;margin-bottom:12px;display:block}
+.kpi-card .kpi-value{font-size:34px;font-weight:800;line-height:1;margin-bottom:4px;letter-spacing:-.04em}
+.kpi-card .kpi-label{font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.kpi-card .kpi-sub{font-size:11px;margin-top:10px;display:flex;align-items:center;gap:5px;color:var(--muted2)}
+.kpi-card .kpi-accent{position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r-lg) var(--r-lg) 0 0;background:linear-gradient(90deg,var(--accent),var(--teal));opacity:.6}
 .kpi-card::before{content:'';position:absolute;top:0;right:0;width:80px;height:80px;border-radius:50%;opacity:.06;transform:translate(20px,-20px)}
 .kpi-blue::before{background:var(--accent)}
 .kpi-volcano::before{background:var(--volcano)}
@@ -736,7 +888,15 @@ select option{background:#8a9099}
 .qwa-msg:hover .qwa-send-btn{display:block}
 
 /* ── BULK ACTIONS ── */
-.bulk-bar{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1c1c1e;color:#fff;border-radius:16px;padding:12px 20px;display:none;align-items:center;gap:12px;z-index:300;box-shadow:0 8px 32px rgba(0,0,0,.3);white-space:nowrap;}
+.bulk-bar{
+  position:fixed;bottom:28px;left:50%;transform:translateX(-50%);
+  background:var(--text);color:#fff;
+  border-radius:var(--r-xl);padding:12px 20px;
+  display:none;align-items:center;gap:14px;z-index:300;
+  box-shadow:0 8px 32px rgba(0,0,0,.25),0 2px 8px rgba(0,0,0,.15);
+  white-space:nowrap;
+  animation:toastIn .2s var(--ease-spring);
+}
 .bulk-bar.show{display:flex}
 .bulk-cb{width:16px;height:16px;cursor:pointer;accent-color:var(--accent)}
 .lead-card.bulk-selected{outline:2px solid var(--accent);background:var(--accent-bg)}
@@ -1619,20 +1779,20 @@ function toast(msg, type='info', duration=3500){
     </div>
 
     <!-- Campaigns section -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-      <div style="font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace">🗂 CAMPANHAS</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+      <div style="font-size:13px;font-weight:700;color:var(--text);letter-spacing:-.01em">Campanhas</div>
       <div style="display:flex;gap:8px">
-        <button id="btnCampSelect" onclick="toggleCampSelectMode()" class="btn btn-ghost" style="font-size:11px;padding:5px 12px">☑ Selecionar</button>
-        <button class="btn btn-primary" onclick="openCampaignModal()" style="font-size:11px;padding:5px 12px">+ Nova Campanha</button>
+        <button id="btnCampSelect" onclick="toggleCampSelectMode()" class="btn btn-ghost" style="font-size:12px;padding:7px 16px;border-radius:var(--r-pill)">☑ Selecionar</button>
+        <button class="btn btn-primary" onclick="openCampaignModal()" style="font-size:12px;padding:7px 18px;border-radius:var(--r-pill)">+ Nova Campanha</button>
       </div>
     </div>
     <!-- Barra de ações em lote -->
-    <div id="campBulkBar" style="display:none;align-items:center;gap:10px;background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:10px 16px;margin-bottom:14px;flex-wrap:wrap">
-      <span id="campBulkCount" style="font-size:13px;font-weight:700;color:var(--accent);min-width:110px">0 selecionadas</span>
-      <button onclick="deletarCampanhasSelecionadas()" style="padding:6px 14px;border-radius:8px;border:none;background:rgba(255,59,48,.18);color:var(--red,#ff453a);font-size:12px;font-weight:700;cursor:pointer">🗑 Deletar</button>
-      <button onclick="pausarCampanhasSelecionadas()" style="padding:6px 14px;border-radius:8px;border:none;background:rgba(255,149,0,.15);color:#f5a623;font-size:12px;font-weight:700;cursor:pointer">⏸ Pausar</button>
-      <button onclick="ativarCampanhasSelecionadas()" style="padding:6px 14px;border-radius:8px;border:none;background:rgba(52,199,89,.15);color:var(--green,#34c759);font-size:12px;font-weight:700;cursor:pointer">▶ Ativar</button>
-      <button onclick="cancelarSelecaoCampanhas()" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted2);font-size:12px;cursor:pointer;margin-left:auto">✕ Cancelar</button>
+    <div id="campBulkBar" style="display:none;align-items:center;gap:10px;background:var(--s1);border:1px solid var(--border);border-radius:var(--r-lg);padding:12px 18px;margin-bottom:16px;flex-wrap:wrap;box-shadow:var(--shadow-sm)">
+      <span id="campBulkCount" style="font-size:13px;font-weight:700;color:var(--accent);min-width:120px">0 selecionadas</span>
+      <button onclick="deletarCampanhasSelecionadas()" style="padding:8px 16px;border-radius:var(--r-sm);border:none;background:var(--volcano-bg);color:var(--volcano);font-size:12px;font-weight:700;cursor:pointer;border:1px solid var(--volcano-b)">🗑 Deletar</button>
+      <button onclick="pausarCampanhasSelecionadas()" style="padding:8px 16px;border-radius:var(--r-sm);border:none;background:var(--warm-bg);color:var(--orange);font-size:12px;font-weight:700;cursor:pointer;border:1px solid var(--warm-b)">⏸ Pausar</button>
+      <button onclick="ativarCampanhasSelecionadas()" style="padding:8px 16px;border-radius:var(--r-sm);border:none;background:var(--green-bg);color:var(--green);font-size:12px;font-weight:700;cursor:pointer;border:1px solid var(--green-b)">▶ Ativar</button>
+      <button onclick="cancelarSelecaoCampanhas()" style="padding:8px 16px;border-radius:var(--r-sm);border:1px solid var(--border);background:transparent;color:var(--muted2);font-size:12px;cursor:pointer;margin-left:auto">✕ Cancelar</button>
     </div>
     <div class="campaigns-grid" id="campaignsGrid">
       <div class="empty-campaigns">
@@ -4038,14 +4198,28 @@ function toggleCampSelection(id){
   renderCampaignsList();
 }
 
-function deletarCampanhasSelecionadas(){
+async function deletarCampanhasSelecionadas(){
   if(!_campSelected.size){ toast('Selecione pelo menos uma campanha.','warn'); return; }
   if(!confirm(`Deletar ${_campSelected.size} campanha(s) e todos os seus leads? Não pode ser desfeito.`)) return;
+  const ids = [..._campSelected];
   campaigns = campaigns.filter(c => !_campSelected.has(c.id));
-  if(_campSelected.has(activeCampaignId)) activeCampaignId = null;
+  if(_campSelected.has(activeCampaignId)){ activeCampaignId=null; leads=[]; }
   saveCampaigns();
-  toast(`🗑 ${_campSelected.size} campanha(s) deletada(s).`,'ok',3000);
+  toast(`🗑 ${ids.length} campanha(s) deletada(s).`,'ok',3000);
   cancelarSelecaoCampanhas();
+  // ── Sync para Supabase ──
+  const sb = typeof getSupabase==='function' ? getSupabase() : null;
+  if(sb && typeof currentUser!=='undefined' && currentUser){
+    try{
+      for(const id of ids){
+        await sb.from('leads').delete().eq('campaign_id', id);
+        await sb.from('campaigns').delete().eq('id', id);
+      }
+    }catch(e){
+      console.error('[CAPTURO] deletarCampanhasSelecionadas Supabase:',e);
+      toast('⚠️ Algumas campanhas não foram deletadas da nuvem.','warn',4000);
+    }
+  }
 }
 
 function pausarCampanhasSelecionadas(){
@@ -4079,41 +4253,39 @@ function renderCampaignsList(){
     const closed=(c.leads||[]).filter(l=>l.status==='closed').length;
     const flag=c.market==='internacional'?'🌐':'🇧🇷';
     const isDisabled=c.disabled||false;
-    const toggleBg=isDisabled?'var(--border2)':'#25D366';
-    const togglePos=isDisabled?'left:2px':'right:2px';
-    const statusColor=isDisabled?'var(--muted2)':'var(--green)';
-    const statusText=isDisabled?'Pausada':'● Ativa';
-    const disabledClass=isDisabled?'camp-disabled':'';
     const isSel = selSet.has(c.id);
     const clickAction = selMode ? `toggleCampSelection('${c.id}')` : (isDisabled?'':(`openCampaign('${c.id}')`));
-    const selBorder = isSel ? 'border-color:var(--accent)!important;box-shadow:0 0 0 2px rgba(0,122,255,.2)!important;' : '';
-    return `<div class="campaign-card ${activeCampaignId===c.id?'active-campaign':''} ${disabledClass}" style="${selBorder}position:relative" onclick="${clickAction}">
-      ${selMode?`<input type="checkbox" ${isSel?'checked':''} onclick="event.stopPropagation();toggleCampSelection('${c.id}')" style="position:absolute;top:12px;left:12px;width:18px;height:18px;cursor:pointer;accent-color:var(--accent);z-index:10">`:''}
-      <div class="cc-header" style="${selMode?'padding-left:30px':''}">
-        <div><div class="cc-name">${escHtml(c.name)}</div><div class="cc-market">${flag} ${escHtml(c.city||'')}${c.state?', '+escHtml(c.state):''}</div></div>
-        ${!selMode?`<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-          <div style="display:flex;align-items:center;gap:6px">
-            <span style="font-size:9px;color:${statusColor};font-family:monospace">${statusText}</span>
+    const selBorder = isSel ? 'border-color:var(--accent)!important;box-shadow:0 0 0 3px rgba(0,122,255,.12)!important;' : '';
+    const activeBadge = isDisabled
+      ? `<span class="cc-status-badge paused">Pausada</span>`
+      : `<span class="cc-status-badge"><span class="cc-status-dot"></span>Ativa</span>`;
+    return `<div class="campaign-card ${activeCampaignId===c.id?'active-campaign':''} ${isDisabled?'camp-disabled':''}" style="${selBorder}position:relative" onclick="${clickAction}">
+      ${selMode?`<input type="checkbox" ${isSel?'checked':''} onclick="event.stopPropagation();toggleCampSelection('${c.id}')" style="position:absolute;top:14px;left:14px;width:18px;height:18px;cursor:pointer;accent-color:var(--accent);z-index:10">`:''}
+      <div class="cc-header" style="${selMode?'padding-left:32px':''}">
+        <div style="flex:1;min-width:0">
+          <div class="cc-name">${escHtml(c.name)}</div>
+          <div class="cc-market">${flag} ${escHtml(c.city||'')}${c.state?', '+escHtml(c.state):''}</div>
+        </div>
+        ${!selMode?`<div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+          <div style="display:flex;align-items:center;gap:8px">
+            ${activeBadge}
             <div onclick="event.stopPropagation();toggleCampaignActive('${c.id}')"
-              style="width:32px;height:18px;border-radius:9px;background:${toggleBg};cursor:pointer;position:relative;transition:background .2s">
-              <div style="position:absolute;top:2px;${togglePos};width:14px;height:14px;border-radius:50%;background:#fff;transition:all .2s"></div>
+              style="width:36px;height:22px;border-radius:11px;background:${isDisabled?'var(--border2)':'var(--green)'};cursor:pointer;position:relative;transition:background .2s;box-shadow:inset 0 1px 2px rgba(0,0,0,.1)">
+              <div style="position:absolute;top:3px;${isDisabled?'left:3px':'right:3px'};width:16px;height:16px;border-radius:50%;background:#fff;transition:all .22s var(--ease-spring);box-shadow:0 1px 4px rgba(0,0,0,.15)"></div>
             </div>
           </div>
-          <button onclick="event.stopPropagation();deleteCampaign(this.dataset.id)" data-id="${c.id}" class="cc-del" title="Deletar campanha">🗑️</button>
+          <button onclick="event.stopPropagation();deleteCampaign(this.dataset.id)" data-id="${c.id}" class="cc-del" title="Deletar campanha" style="background:none;border:none;cursor:pointer;color:var(--muted2);padding:4px;border-radius:6px;transition:color .15s;font-size:14px" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--muted2)'">🗑️</button>
         </div>`:''}
       </div>
       <div class="cc-stats">
-        <div class="cc-stat"><div class="n">${(c.leads||[]).length}</div><div class="l">Total</div></div>
+        <div class="cc-stat"><div class="n" style="color:var(--text)">${(c.leads||[]).length}</div><div class="l">Total</div></div>
         <div class="cc-stat"><div class="n" style="color:var(--volcano)">${vol}</div><div class="l">🌋 Vulcão</div></div>
         <div class="cc-stat"><div class="n" style="color:var(--hot)">${hot}</div><div class="l">🔥 Quente</div></div>
         <div class="cc-stat"><div class="n" style="color:var(--green)">${closed}</div><div class="l">✅ Fechado</div></div>
       </div>
-      ${!selMode?`<div style="display:flex;gap:6px;margin-top:10px">
-        <div style="font-size:9px;color:var(--muted2);font-family:monospace;margin-bottom:6px">
-          📅 Criada: ${c.createdAt?new Date(c.createdAt).toLocaleDateString('pt-BR'):'—'}
-          ${c.lastSearchAt?' · Buscada: '+new Date(c.lastSearchAt).toLocaleDateString('pt-BR'):''}
-        </div>
-        <button onclick="event.stopPropagation();openCampaign('${c.id}')" class="btn btn-primary" style="flex:1;font-size:11px;padding:7px">🔍 Prospectar</button>
+      ${!selMode?`<div class="cc-footer">
+        <div class="cc-date">📅 ${c.createdAt?new Date(c.createdAt).toLocaleDateString('pt-BR'):'—'}</div>
+        <button onclick="event.stopPropagation();openCampaign('${c.id}')" class="btn btn-primary" style="font-size:12px;padding:8px 18px;border-radius:var(--r-pill)">🔍 Prospectar</button>
       </div>`:''}
     </div>`;
   }).join('');
@@ -7311,8 +7483,8 @@ function toggleCampaignActive(id){
   setStat(c.disabled?'Campanha pausada.':'Campanha ativada.');
 }
 
-function deleteCampaign(id){
-  if(!confirm('Deletar esta campanha e todos os leads?'))return;
+async function deleteCampaign(id){
+  if(!confirm('Deletar esta campanha e todos os leads? Esta ação não pode ser desfeita.'))return;
   campaigns=campaigns.filter(c=>c.id!==id);
   if(activeCampaignId===id){
     activeCampaignId=null;leads=[];
@@ -7321,6 +7493,18 @@ function deleteCampaign(id){
   }
   localStorage.setItem('pr6',JSON.stringify(campaigns));
   renderCampaignsList();
+  // ── Sync deletion to Supabase ──
+  const sb = typeof getSupabase==='function' ? getSupabase() : null;
+  if(sb && typeof currentUser!=='undefined' && currentUser){
+    try{
+      await sb.from('leads').delete().eq('campaign_id', id);
+      await sb.from('campaigns').delete().eq('id', id);
+      toast('🗑️ Campanha deletada da nuvem.','success',2500);
+    }catch(e){
+      console.error('[CAPTURO] deleteCampaign Supabase error:',e);
+      toast('⚠️ Deletado localmente, mas falhou na nuvem. Tente novamente.','warn',4000);
+    }
+  }
 }
 
 // ══════════════════════════════════════════
@@ -10735,6 +10919,7 @@ async function saveToSupabase(){
     }
   }catch(e){
     console.error('[CAPTURO] saveToSupabase error:',e);
+    toast('❌ Falha ao salvar na nuvem: '+(e.message||'erro desconhecido'),'error',5000);
   }
 }
 
