@@ -10084,9 +10084,40 @@ function guiaScroll(sectionId){
       syncAllToSheets(null,true);
   },5*60*1000);
 
+  // ── Auto-save Supabase a cada 2 minutos em loop real ──
+  // Independente do Sheets — garante que leads não se percam ao atualizar
+  setInterval(async ()=>{
+    if(typeof currentUser==='undefined'||!currentUser) return;
+    const totalLeads = campaigns.reduce((s,c)=>s+(c.leads||[]).length,0);
+    if(totalLeads===0) return;
+    // Sincroniza campanha ativa na memória antes de salvar
+    if(activeCampaignId){
+      const c=campaigns.find(x=>x.id===activeCampaignId);
+      if(c) c.leads=[...leads];
+    }
+    saveCampaigns(); // localStorage
+    try{
+      await saveToSupabase();
+      console.log('[CAPTURO] Auto-save Supabase OK —',totalLeads,'leads');
+    }catch(e){
+      console.warn('[CAPTURO] Auto-save Supabase erro:',e);
+    }
+  }, 2*60*1000);
+
   // ── Backup ao fechar a aba ──
-  window.addEventListener('beforeunload',()=>{
-    try{localStorage.setItem('pr6',JSON.stringify(campaigns));}catch(e){}
+  window.addEventListener('beforeunload', (e)=>{
+    // Aviso se busca em andamento
+    if(typeof isSearching!=='undefined' && isSearching){
+      e.preventDefault();
+      e.returnValue = 'Há uma busca em andamento. Se sair agora os leads não salvos serão perdidos. Tem certeza?';
+      return e.returnValue;
+    }
+    // Sincroniza memória antes de salvar
+    if(activeCampaignId){
+      const c=campaigns.find(x=>x.id===activeCampaignId);
+      if(c) c.leads=[...leads];
+    }
+    try{localStorage.setItem('pr6',JSON.stringify(campaigns));}catch(e2){}
     if(campaigns.reduce((s,c)=>s+(c.leads||[]).length,0)>0)
       syncAllToSheets(null,true);
   });
