@@ -1000,9 +1000,6 @@ select option{background:#8a9099}
  * @build     CAP-7B3E92A1F0C84D56
  * @signed    7b3e92a1f0c84d563f291ae8b047209901f3da849d1bf54d1ebdcb10f72a4c1e
  */
-// ── Utilitário global — atalho para document.getElementById ──
-function $(id){ return document.getElementById(id); }
-
 const CAPTURO_SIGNATURE = {
   author:    'Felipe Uchoa',
   email:     'felipelabat@hotmail.com',
@@ -3176,6 +3173,7 @@ window.onload=()=>{
   initBiolinkChips();
   renderCampaignsList();
   renderDashboard();
+  initAuth();
   // v4.5 init
   followups=JSON.parse(localStorage.getItem('capturo-followups')||'[]');
   renderFollowups();
@@ -9991,8 +9989,7 @@ async function loadFromSupabase(){
   }
 }
 
-// ── Iniciar auth assim que este bloco carrega ─────────────────
-initAuth();
+// ── initAuth é chamado pelo window.onload (ver bloco DATA) ───
 </script>
 <!-- ══ /SUPABASE AUTH + SYNC ═══════════════════════════════════ -->
 
