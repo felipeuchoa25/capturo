@@ -887,6 +887,21 @@ select option{background:var(--s1);color:var(--text)}
 .qwa-send-btn{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:var(--accent);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:10px;font-weight:700;cursor:pointer;font-family:'IBM Plex Mono',monospace;white-space:nowrap;display:none}
 .qwa-msg:hover .qwa-send-btn{display:block}
 
+/* ── CAMPAIGN CARD CHECKBOX HOVER ── */
+.campaign-card .cc-checkbox{
+  position:absolute;top:14px;left:14px;
+  width:20px;height:20px;
+  cursor:pointer;accent-color:var(--accent);z-index:10;
+  opacity:0;transition:opacity .15s;
+}
+.campaign-card:hover .cc-checkbox,
+.campaign-card.cc-checked .cc-checkbox{ opacity:1; }
+.campaign-card.cc-checked{
+  border-color:var(--accent)!important;
+  box-shadow:0 0 0 3px rgba(0,122,255,.12)!important;
+  background:rgba(0,122,255,.03);
+}
+
 /* ── BULK ACTIONS ── */
 .bulk-bar{
   position:fixed;bottom:28px;left:50%;transform:translateX(-50%);
@@ -1780,19 +1795,21 @@ function toast(msg, type='info', duration=3500){
 
     <!-- Campaigns section -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
-      <div style="font-size:13px;font-weight:700;color:var(--text);letter-spacing:-.01em">Campanhas</div>
+      <div style="font-size:13px;font-weight:700;color:var(--text);letter-spacing:-.01em">Campanhas
+        <span id="campSelectHint" style="font-size:11px;font-weight:400;color:var(--muted2);margin-left:8px">— passe o mouse num card para selecionar</span>
+      </div>
       <div style="display:flex;gap:8px">
-        <button id="btnCampSelect" onclick="toggleCampSelectMode()" class="btn btn-ghost" style="font-size:12px;padding:7px 16px;border-radius:var(--r-pill)">☑ Selecionar</button>
+        <button id="btnCampSelect" onclick="toggleCampSelectMode()" class="btn btn-ghost" style="font-size:12px;padding:7px 16px;border-radius:var(--r-pill);display:none">☑ Selecionar tudo</button>
         <button class="btn btn-primary" onclick="openCampaignModal()" style="font-size:12px;padding:7px 18px;border-radius:var(--r-pill)">+ Nova Campanha</button>
       </div>
     </div>
-    <!-- Barra de ações em lote -->
+    <!-- Barra de ações em lote — oculta, aparece quando há seleção -->
     <div id="campBulkBar" style="display:none;align-items:center;gap:10px;background:var(--s1);border:1px solid var(--border);border-radius:var(--r-lg);padding:12px 18px;margin-bottom:16px;flex-wrap:wrap;box-shadow:var(--shadow-sm)">
       <span id="campBulkCount" style="font-size:13px;font-weight:700;color:var(--accent);min-width:120px">0 selecionadas</span>
-      <button onclick="deletarCampanhasSelecionadas()" style="padding:8px 16px;border-radius:var(--r-sm);border:none;background:var(--volcano-bg);color:var(--volcano);font-size:12px;font-weight:700;cursor:pointer;border:1px solid var(--volcano-b)">🗑 Deletar</button>
-      <button onclick="pausarCampanhasSelecionadas()" style="padding:8px 16px;border-radius:var(--r-sm);border:none;background:var(--warm-bg);color:var(--orange);font-size:12px;font-weight:700;cursor:pointer;border:1px solid var(--warm-b)">⏸ Pausar</button>
-      <button onclick="ativarCampanhasSelecionadas()" style="padding:8px 16px;border-radius:var(--r-sm);border:none;background:var(--green-bg);color:var(--green);font-size:12px;font-weight:700;cursor:pointer;border:1px solid var(--green-b)">▶ Ativar</button>
-      <button onclick="cancelarSelecaoCampanhas()" style="padding:8px 16px;border-radius:var(--r-sm);border:1px solid var(--border);background:transparent;color:var(--muted2);font-size:12px;cursor:pointer;margin-left:auto">✕ Cancelar</button>
+      <button onclick="deletarCampanhasSelecionadas()" style="padding:8px 16px;border-radius:var(--r-sm);border:1px solid var(--volcano-b);background:var(--volcano-bg);color:var(--volcano);font-size:12px;font-weight:700;cursor:pointer">🗑 Deletar selecionadas</button>
+      <button onclick="pausarCampanhasSelecionadas()" style="padding:8px 16px;border-radius:var(--r-sm);border:1px solid var(--warm-b);background:var(--warm-bg);color:var(--orange);font-size:12px;font-weight:700;cursor:pointer">⏸ Pausar</button>
+      <button onclick="ativarCampanhasSelecionadas()" style="padding:8px 16px;border-radius:var(--r-sm);border:1px solid var(--green-b);background:var(--green-bg);color:var(--green);font-size:12px;font-weight:700;cursor:pointer">▶ Ativar</button>
+      <button onclick="cancelarSelecaoCampanhas()" style="padding:8px 16px;border-radius:var(--r-sm);border:1px solid var(--border);background:transparent;color:var(--muted2);font-size:12px;cursor:pointer;margin-left:auto">✕ Limpar seleção</button>
     </div>
     <div class="campaigns-grid" id="campaignsGrid">
       <div class="empty-campaigns">
@@ -4183,19 +4200,34 @@ function toggleCampSelectMode(){
 function cancelarSelecaoCampanhas(){
   _campSelectMode = false;
   _campSelected.clear();
-  const btn = document.getElementById('btnCampSelect');
-  const bar = document.getElementById('campBulkBar');
-  if(btn){ btn.textContent = '☑ Selecionar'; btn.style.color = ''; }
-  if(bar){ bar.style.display = 'none'; }
+  _updateCampBulkBar();
   renderCampaignsList();
+}
+
+// Clique no card: se tem seleção ativa, faz toggle; senão abre campanha
+function onCampCardClick(e, id, isDisabled){
+  if(_campSelected.size > 0){
+    // Modo seleção ativo — clicar no card seleciona/desseleciona
+    toggleCampSelection(id);
+  } else {
+    if(!isDisabled) openCampaign(id);
+  }
 }
 
 function toggleCampSelection(id){
   if(_campSelected.has(id)) _campSelected.delete(id);
   else _campSelected.add(id);
-  const el = document.getElementById('campBulkCount');
-  if(el) el.textContent = `${_campSelected.size} selecionada${_campSelected.size!==1?'s':''}`;
+  _updateCampBulkBar();
   renderCampaignsList();
+}
+
+function _updateCampBulkBar(){
+  const bar = document.getElementById('campBulkBar');
+  const count = document.getElementById('campBulkCount');
+  const hint = document.getElementById('campSelectHint');
+  if(bar) bar.style.display = _campSelected.size > 0 ? 'flex' : 'none';
+  if(count) count.textContent = `${_campSelected.size} selecionada${_campSelected.size!==1?'s':''}`;
+  if(hint) hint.style.display = _campSelected.size > 0 ? 'none' : '';
 }
 
 async function deletarCampanhasSelecionadas(){
@@ -4245,9 +4277,47 @@ function renderCampaignsList(){
     $('navTabs').innerHTML='';
     renderDashboard();return;
   }
-  const selMode = _campSelectMode;
-  const selSet  = _campSelected;
   grid.innerHTML=campaigns.map(c=>{
+    const vol=(c.leads||[]).filter(l=>l.t==='volcano').length;
+    const hot=(c.leads||[]).filter(l=>l.t==='hot').length;
+    const closed=(c.leads||[]).filter(l=>l.status==='closed').length;
+    const flag=c.market==='internacional'?'🌐':'🇧🇷';
+    const isDisabled=c.disabled||false;
+    const isSel = _campSelected.has(c.id);
+    const checkedClass = isSel ? 'cc-checked' : '';
+    const activeBadge = isDisabled
+      ? `<span class="cc-status-badge paused">Pausada</span>`
+      : `<span class="cc-status-badge"><span class="cc-status-dot"></span>Ativa</span>`;
+    return `<div class="campaign-card ${activeCampaignId===c.id?'active-campaign':''} ${isDisabled?'camp-disabled':''} ${checkedClass}" style="position:relative" onclick="onCampCardClick(event,'${c.id}',${isDisabled})">
+      <input type="checkbox" class="cc-checkbox" ${isSel?'checked':''} onclick="event.stopPropagation();toggleCampSelection('${c.id}')" title="Selecionar campanha">
+      <div class="cc-header" style="padding-left:30px">
+        <div style="flex:1;min-width:0">
+          <div class="cc-name">${escHtml(c.name)}</div>
+          <div class="cc-market">${flag} ${escHtml(c.city||'')}${c.state?', '+escHtml(c.state):''}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+          <div style="display:flex;align-items:center;gap:8px">
+            ${activeBadge}
+            <div onclick="event.stopPropagation();toggleCampaignActive('${c.id}')"
+              style="width:36px;height:22px;border-radius:11px;background:${isDisabled?'var(--border2)':'var(--green)'};cursor:pointer;position:relative;transition:background .2s;box-shadow:inset 0 1px 2px rgba(0,0,0,.1)">
+              <div style="position:absolute;top:3px;${isDisabled?'left:3px':'right:3px'};width:16px;height:16px;border-radius:50%;background:#fff;transition:all .22s;box-shadow:0 1px 4px rgba(0,0,0,.15)"></div>
+            </div>
+          </div>
+          <button onclick="event.stopPropagation();deleteCampaign(this.dataset.id)" data-id="${c.id}" title="Deletar campanha" style="background:none;border:none;cursor:pointer;color:var(--muted2);padding:4px;border-radius:6px;transition:color .15s;font-size:14px" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--muted2)'">🗑️</button>
+        </div>
+      </div>
+      <div class="cc-stats">
+        <div class="cc-stat"><div class="n" style="color:var(--text)">${(c.leads||[]).length}</div><div class="l">Total</div></div>
+        <div class="cc-stat"><div class="n" style="color:var(--volcano)">${vol}</div><div class="l">🌋 Vulcão</div></div>
+        <div class="cc-stat"><div class="n" style="color:var(--hot)">${hot}</div><div class="l">🔥 Quente</div></div>
+        <div class="cc-stat"><div class="n" style="color:var(--green)">${closed}</div><div class="l">✅ Fechado</div></div>
+      </div>
+      <div class="cc-footer">
+        <div class="cc-date">📅 ${c.createdAt?new Date(c.createdAt).toLocaleDateString('pt-BR'):'—'}</div>
+        <button onclick="event.stopPropagation();openCampaign('${c.id}')" class="btn btn-primary" style="font-size:12px;padding:8px 18px;border-radius:var(--r-pill)">🔍 Prospectar</button>
+      </div>
+    </div>`;
+  }).join('');
     const vol=(c.leads||[]).filter(l=>l.t==='volcano').length;
     const hot=(c.leads||[]).filter(l=>l.t==='hot').length;
     const closed=(c.leads||[]).filter(l=>l.status==='closed').length;
