@@ -3407,9 +3407,19 @@ function toast(msg, type='info', duration=3500){
       </select>
       <div class="country-note">Leads internacionais — fature em $</div>
     </div>
-    <div class="cfield">
-      <label>Nicho <span style="color:var(--muted2);font-weight:400;font-size:10px">— ordenado por conversão</span></label>
-      <select id="nichoDD" onchange="autoFillName()"></select>
+    <div class="cfield" style="position:relative">
+      <label>Nicho / Atividade <span style="color:var(--muted2);font-weight:400;font-size:10px" id="nichoConvLabel"></span></label>
+      <div style="position:relative">
+        <input type="text" id="nichoSearch" placeholder="Buscar nicho..." autocomplete="off"
+          oninput="filterNichos(this.value)" onfocus="showNichoDropdown()"
+          style="padding-right:32px;font-size:13px" readonly
+          onclick="this.removeAttribute('readonly');showNichoDropdown()">
+        <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted2);pointer-events:none;font-size:13px">&#9660;</span>
+      </div>
+      <div id="nichoDropdown" style="display:none;position:absolute;left:0;right:0;z-index:999;max-height:260px;overflow-y:auto;border:1px solid var(--border2);border-radius:10px;background:var(--s1);box-shadow:0 8px 28px rgba(0,0,0,.4);margin-top:2px">
+        <div id="nichoList"></div>
+      </div>
+      <input type="hidden" id="nichoDD" value="">
     </div>
     <div class="state-city-row">
       <!-- ESTADO -->
@@ -3503,27 +3513,204 @@ function toast(msg, type='info', duration=3500){
 // ══════════════════════════════════════════
 // DATA
 // ══════════════════════════════════════════
-const NICHOS_BR=[
-  {v:'Clínica de Estética',conv:18.5,en:'Aesthetic Clinic'},{v:'Clínica Odontológica',conv:17.2,en:'Dental Clinic'},
-  {v:'Dentista',conv:16.8,en:'Dentist'},{v:'Salão de Beleza',conv:15.4,en:'Beauty Salon'},
-  {v:'Psicólogo',conv:15.2,en:'Psychologist'},{v:'Terapeuta',conv:15,en:'Therapist'},
-  {v:'Nutricionista',conv:14.8,en:'Nutritionist'},{v:'Barbearia',conv:14.7,en:'Barbershop'},
-  {v:'Fotógrafo',conv:14.2,en:'Photographer'},{v:'Personal Trainer',conv:13.5,en:'Personal Trainer'},
-  {v:'Clínica de Fisioterapia',conv:13.2,en:'Physiotherapy'},{v:'Arquiteto',conv:13,en:'Architect'},
-  {v:'Designer de Interiores',conv:12.9,en:'Interior Designer'},{v:'Academia',conv:12.8,en:'Gym'},
-  {v:'Clínica Veterinária',conv:12.3,en:'Veterinary'},{v:'Pet Shop',conv:9.5,en:'Pet Shop'},
-  {v:'Restaurante',conv:5.8,en:'Restaurant'},{v:'Oficina Mecânica',conv:5,en:'Auto Repair'},
-  {v:'Escritório de Advocacia',conv:4.7,en:'Law Office'},{v:'Escritório de Contabilidade',conv:3.5,en:'Accounting'},
+const NICHOS_BR_CAT = [
+  { cat:'Top Conversao', items:[
+    {v:'Clinica de Estetica',conv:18.5,en:'Aesthetic Clinic'},
+    {v:'Clinica Odontologica',conv:17.2,en:'Dental Clinic'},
+    {v:'Dentista',conv:16.8,en:'Dentist'},
+    {v:'Implantodontista',conv:16.5,en:'Implant Dentist'},
+    {v:'Ortodontista',conv:16.2,en:'Orthodontist'},
+    {v:'Clinica de Harmonizacao Facial',conv:16,en:'Facial Harmonization Clinic'},
+    {v:'Salao de Beleza',conv:15.4,en:'Beauty Salon'},
+    {v:'Psicologo',conv:15.2,en:'Psychologist'},
+    {v:'Psiquiatra',conv:15,en:'Psychiatrist'},
+    {v:'Terapeuta',conv:15,en:'Therapist'},
+  ]},
+  { cat:'Saude & Bem-estar', items:[
+    {v:'Nutricionista',conv:14.8,en:'Nutritionist'},
+    {v:'Clinica de Fisioterapia',conv:13.2,en:'Physiotherapy'},
+    {v:'Clinica de Pilates',conv:13,en:'Pilates Studio'},
+    {v:'Clinica de Quiropraxia',conv:12.5,en:'Chiropractic'},
+    {v:'Clinica de Acupuntura',conv:12.2,en:'Acupuncture'},
+    {v:'Clinica de Fonoaudiologia',conv:11.8,en:'Speech Therapy'},
+    {v:'Clinica de Dermatologia',conv:14.5,en:'Dermatology'},
+    {v:'Clinica de Oftalmologia',conv:13.8,en:'Ophthalmology'},
+    {v:'Clinica de Cardiologia',conv:12.5,en:'Cardiology'},
+    {v:'Clinica de Ortopedia',conv:12,en:'Orthopedic Clinic'},
+    {v:'Clinica de Ginecologia',conv:13,en:'Gynecology'},
+    {v:'Clinica de Urologia',conv:12,en:'Urology'},
+    {v:'Clinica de Neurologia',conv:11.5,en:'Neurology'},
+    {v:'Clinica de Endocrinologia',conv:11.5,en:'Endocrinology'},
+    {v:'Clinica de Pediatria',conv:12.8,en:'Pediatrics'},
+    {v:'Medico Clinico Geral',conv:11,en:'General Practitioner'},
+    {v:'Plano de Saude',conv:10.5,en:'Health Insurance'},
+    {v:'Laboratorio de Analises Clinicas',conv:10,en:'Clinical Laboratory'},
+    {v:'Farmacia',conv:8,en:'Pharmacy'},
+    {v:'Psicopedagogo',conv:11.5,en:'Psychopedagogue'},
+    {v:'Terapeuta Ocupacional',conv:11,en:'Occupational Therapist'},
+    {v:'Massoterapeuta',conv:11,en:'Massage Therapist'},
+  ]},
+  { cat:'Beleza & Estetica', items:[
+    {v:'Barbearia',conv:14.7,en:'Barbershop'},
+    {v:'Clinica de Depilacao a Laser',conv:15,en:'Laser Hair Removal'},
+    {v:'Studio de Micropigmentacao',conv:14,en:'Micropigmentation Studio'},
+    {v:'Studio de Sobrancelhas',conv:13.5,en:'Eyebrow Studio'},
+    {v:'Nail Designer / Esmalteria',conv:13,en:'Nail Art Studio'},
+    {v:'Maquiagem Profissional',conv:12.5,en:'Professional Makeup'},
+    {v:'Clinica de Limpeza de Pele',conv:13,en:'Skin Care Clinic'},
+    {v:'Clinica de Botox e Preenchimento',conv:16,en:'Botox & Filler Clinic'},
+    {v:'Clinica de Tratamento Capilar',conv:12,en:'Hair Treatment Clinic'},
+    {v:'Clinica de Massagem',conv:11.5,en:'Massage Clinic'},
+    {v:'Spa',conv:11,en:'Spa'},
+    {v:'Perfumaria',conv:9,en:'Perfumery'},
+  ]},
+  { cat:'Fitness & Esportes', items:[
+    {v:'Personal Trainer',conv:13.5,en:'Personal Trainer'},
+    {v:'Academia',conv:12.8,en:'Gym'},
+    {v:'Studio de Yoga',conv:12,en:'Yoga Studio'},
+    {v:'Studio de Crossfit',conv:13,en:'CrossFit Box'},
+    {v:'Studio de Natacao',conv:12,en:'Swimming School'},
+    {v:'Escola de Artes Marciais',conv:12,en:'Martial Arts School'},
+    {v:'Studio de Danca',conv:11.5,en:'Dance Studio'},
+    {v:'Studio de Spinning',conv:11,en:'Spinning Studio'},
+    {v:'Campo de Futebol Society',conv:9,en:'Soccer Field'},
+    {v:'Escola de Futebol',conv:11,en:'Soccer School'},
+  ]},
+  { cat:'Animal', items:[
+    {v:'Clinica Veterinaria',conv:12.3,en:'Veterinary'},
+    {v:'Pet Shop',conv:9.5,en:'Pet Shop'},
+    {v:'Hotel para Pets',conv:10,en:'Pet Hotel'},
+    {v:'Banho e Tosa',conv:9,en:'Pet Grooming'},
+    {v:'Adestrador de Caes',conv:10.5,en:'Dog Trainer'},
+  ]},
+  { cat:'Casa & Construcao', items:[
+    {v:'Arquiteto',conv:13,en:'Architect'},
+    {v:'Designer de Interiores',conv:12.9,en:'Interior Designer'},
+    {v:'Construtora',conv:11.5,en:'Construction Company'},
+    {v:'Imobiliaria',conv:11,en:'Real Estate Agency'},
+    {v:'Corretor de Imoveis',conv:11,en:'Real Estate Agent'},
+    {v:'Empresa de Reformas',conv:11,en:'Renovation Company'},
+    {v:'Marmoraria',conv:10,en:'Marble Shop'},
+    {v:'Instalador de Ar-condicionado',conv:10.5,en:'AC Installer'},
+    {v:'Eletricista',conv:10,en:'Electrician'},
+    {v:'Encanador',conv:9.5,en:'Plumber'},
+    {v:'Serralheria',conv:9,en:'Metal Work Shop'},
+    {v:'Vidracaria',conv:9,en:'Glass Shop'},
+    {v:'Instalador de Cameras CFTV',conv:10.5,en:'CCTV Installer'},
+    {v:'Empresa de Alarmes',conv:10,en:'Alarm Company'},
+    {v:'Empresa de Mudancas',conv:8.5,en:'Moving Company'},
+    {v:'Dedetizadora',conv:9,en:'Pest Control'},
+    {v:'Limpeza Residencial',conv:9,en:'Home Cleaning'},
+  ]},
+  { cat:'Alimentacao', items:[
+    {v:'Restaurante',conv:5.8,en:'Restaurant'},
+    {v:'Lanchonete',conv:5.5,en:'Snack Bar'},
+    {v:'Pizzaria',conv:5.5,en:'Pizzeria'},
+    {v:'Churrascaria',conv:5.5,en:'BBQ Restaurant'},
+    {v:'Padaria',conv:6,en:'Bakery'},
+    {v:'Cafeteria',conv:6.5,en:'Coffee Shop'},
+    {v:'Hamburgueria',conv:6,en:'Burger Restaurant'},
+    {v:'Sushi',conv:6.5,en:'Sushi Restaurant'},
+    {v:'Sorveteria',conv:6,en:'Ice Cream Shop'},
+    {v:'Buffet de Festas',conv:9,en:'Party Buffet'},
+    {v:'Marmitaria Delivery',conv:7,en:'Meal Delivery'},
+    {v:'Bar',conv:5,en:'Bar'},
+  ]},
+  { cat:'Automotivo', items:[
+    {v:'Oficina Mecanica',conv:5,en:'Auto Repair'},
+    {v:'Funilaria e Pintura',conv:7,en:'Body Shop'},
+    {v:'Loja de Pneus',conv:7.5,en:'Tire Shop'},
+    {v:'Lava-jato',conv:7,en:'Car Wash'},
+    {v:'Despachante Veicular',conv:8,en:'Vehicle Dispatcher'},
+    {v:'Auto Escola',conv:9,en:'Driving School'},
+    {v:'Instalador de Som Automotivo',conv:7.5,en:'Car Audio Installer'},
+    {v:'Concessionaria de Veiculos',conv:8,en:'Car Dealership'},
+    {v:'Moto Pecas',conv:6,en:'Motorcycle Parts Shop'},
+  ]},
+  { cat:'Educacao', items:[
+    {v:'Escola de Idiomas',conv:12,en:'Language School'},
+    {v:'Escola de Informatica',conv:11,en:'Computer School'},
+    {v:'Escola de Musica',conv:11,en:'Music School'},
+    {v:'Escola de Artes',conv:10.5,en:'Art School'},
+    {v:'Escola de Teatro',conv:10,en:'Theater School'},
+    {v:'Curso Pre-vestibular',conv:11,en:'University Prep Course'},
+    {v:'Curso Tecnico',conv:10.5,en:'Technical Course'},
+    {v:'Escola de Culinaria',conv:10,en:'Culinary School'},
+    {v:'Escola de Fotografia',conv:11,en:'Photography School'},
+    {v:'Professor Particular',conv:12,en:'Private Tutor'},
+    {v:'Escola Infantil Creche',conv:12,en:'Daycare Kindergarten'},
+    {v:'Escola de Xadrez',conv:9.5,en:'Chess School'},
+    {v:'Escola de Natacao Infantil',conv:11.5,en:'Kids Swimming School'},
+  ]},
+  { cat:'Juridico & Financeiro', items:[
+    {v:'Escritorio de Advocacia',conv:4.7,en:'Law Office'},
+    {v:'Advogado Trabalhista',conv:5.5,en:'Labor Lawyer'},
+    {v:'Advogado de Familia',conv:5.5,en:'Family Lawyer'},
+    {v:'Advogado Imobiliario',conv:5,en:'Real Estate Lawyer'},
+    {v:'Escritorio de Contabilidade',conv:3.5,en:'Accounting'},
+    {v:'Consultoria Financeira',conv:7,en:'Financial Consulting'},
+    {v:'Despachante Documentos',conv:7.5,en:'Documents Dispatcher'},
+    {v:'Seguradora',conv:6,en:'Insurance Agency'},
+    {v:'Corretor de Seguros',conv:6.5,en:'Insurance Broker'},
+    {v:'Assessoria de Investimentos',conv:7,en:'Investment Advisory'},
+  ]},
+  { cat:'Criativo & Digital', items:[
+    {v:'Fotografo',conv:14.2,en:'Photographer'},
+    {v:'Fotografo de Casamentos',conv:14,en:'Wedding Photographer'},
+    {v:'Videomaker',conv:13,en:'Videomaker'},
+    {v:'Studio de Gravacao',conv:11,en:'Recording Studio'},
+    {v:'Agencia de Marketing Digital',conv:12,en:'Digital Marketing Agency'},
+    {v:'Designer Grafico',conv:11,en:'Graphic Designer'},
+    {v:'Desenvolvedor de Sites',conv:12.5,en:'Web Developer'},
+    {v:'Gestor de Trafego Pago',conv:12,en:'Paid Traffic Manager'},
+    {v:'Social Media',conv:11,en:'Social Media Manager'},
+    {v:'Produtora de Conteudo',conv:11.5,en:'Content Producer'},
+    {v:'Grafica',conv:8,en:'Print Shop'},
+    {v:'Empresa de Sinalizacao',conv:8.5,en:'Signage Company'},
+  ]},
+  { cat:'Eventos & Lazer', items:[
+    {v:'Casa de Festas',conv:9.5,en:'Event Hall'},
+    {v:'Buffet Infantil',conv:10,en:'Kids Party Buffet'},
+    {v:'DJ',conv:10,en:'DJ'},
+    {v:'Decorador de Festas',conv:10.5,en:'Party Decorator'},
+    {v:'Agencia de Turismo',conv:9,en:'Travel Agency'},
+    {v:'Empresa de Cerimonial',conv:9.5,en:'Event Planning'},
+    {v:'Floricultura',conv:9,en:'Flower Shop'},
+    {v:'Empresa de Brinquedos Inflaveis',conv:9,en:'Bounce House Rental'},
+  ]},
+  { cat:'Industria & B2B', items:[
+    {v:'Transportadora',conv:6,en:'Transport Company'},
+    {v:'Empresa de Logistica',conv:5.5,en:'Logistics Company'},
+    {v:'Empresa de TI Suporte',conv:8,en:'IT Support Company'},
+    {v:'Empresa de Limpeza Comercial',conv:8,en:'Commercial Cleaning'},
+    {v:'Distribuidora',conv:5,en:'Distributor'},
+    {v:'Empresa de Uniformes',conv:7,en:'Uniform Supplier'},
+    {v:'Consultoria Empresarial',conv:8.5,en:'Business Consulting'},
+  ]},
 ];
+const NICHOS_BR = NICHOS_BR_CAT.flatMap(c=>c.items).sort((a,b)=>b.conv-a.conv);
+
 const NICHOS_INT=[
   {v:'Med Spa',conv:18,en:'Med Spa'},{v:'Dentist',conv:17.5,en:'Dentist'},
-  {v:'Plumber',conv:16.2,en:'Plumber'},{v:'Electrician',conv:15.5,en:'Electrician'},
-  {v:'HVAC',conv:15.8,en:'HVAC'},{v:'Lawyer',conv:15,en:'Lawyer'},
-  {v:'Roofing',conv:14.8,en:'Roofing'},{v:'Auto Repair',conv:14.2,en:'Auto Repair'},
-  {v:'Cleaning Service',conv:14,en:'Cleaning Service'},{v:'Chiropractor',conv:14,en:'Chiropractor'},
-  {v:'Real Estate Agent',conv:14.5,en:'Real Estate Agent'},{v:'Veterinarian',conv:13.8,en:'Veterinarian'},
-  {v:'Personal Trainer',conv:13.5,en:'Personal Trainer'},{v:'Salon',conv:12.5,en:'Salon'},
-  {v:'Barbershop',conv:11.8,en:'Barbershop'},{v:'Restaurant',conv:10.5,en:'Restaurant'},
+  {v:'Orthodontist',conv:16.5,en:'Orthodontist'},{v:'Dermatologist',conv:16,en:'Dermatologist'},
+  {v:'Plastic Surgeon',conv:15.5,en:'Plastic Surgeon'},{v:'Chiropractor',conv:15,en:'Chiropractor'},
+  {v:'HVAC',conv:15.8,en:'HVAC'},{v:'Plumber',conv:15,en:'Plumber'},
+  {v:'Electrician',conv:14.8,en:'Electrician'},{v:'Roofing',conv:14.8,en:'Roofing'},
+  {v:'Lawyer',conv:14.5,en:'Lawyer'},{v:'Real Estate Agent',conv:14.5,en:'Real Estate Agent'},
+  {v:'Auto Repair',conv:14.2,en:'Auto Repair'},{v:'Cleaning Service',conv:14,en:'Cleaning Service'},
+  {v:'Veterinarian',conv:13.8,en:'Veterinarian'},{v:'Physical Therapist',conv:13.5,en:'Physical Therapist'},
+  {v:'Personal Trainer',conv:13.5,en:'Personal Trainer'},{v:'Nutritionist',conv:13,en:'Nutritionist'},
+  {v:'Psychologist',conv:13,en:'Psychologist'},{v:'Architect',conv:12.8,en:'Architect'},
+  {v:'Interior Designer',conv:12.5,en:'Interior Designer'},{v:'Salon',conv:12.5,en:'Salon'},
+  {v:'Barbershop',conv:11.8,en:'Barbershop'},{v:'Photographer',conv:11.5,en:'Photographer'},
+  {v:'Wedding Photographer',conv:12,en:'Wedding Photographer'},{v:'Gym',conv:11.5,en:'Gym'},
+  {v:'Yoga Studio',conv:11,en:'Yoga Studio'},{v:'Accountant',conv:10.5,en:'Accountant'},
+  {v:'Insurance Agent',conv:10,en:'Insurance Agent'},{v:'Restaurant',conv:10.5,en:'Restaurant'},
+  {v:'Bakery',conv:10,en:'Bakery'},{v:'Coffee Shop',conv:10,en:'Coffee Shop'},
+  {v:'Landscaping',conv:11,en:'Landscaping'},{v:'Pest Control',conv:10.5,en:'Pest Control'},
+  {v:'Moving Company',conv:9.5,en:'Moving Company'},{v:'Tutoring',conv:11,en:'Tutoring'},
+  {v:'Language School',conv:11.5,en:'Language School'},{v:'Driving School',conv:10,en:'Driving School'},
+  {v:'Florist',conv:9.5,en:'Florist'},{v:'Pet Grooming',conv:9,en:'Pet Grooming'},
 ];
 // IBGE — 1.651 municípios · 27 estados · Gerado automaticamente
 // Tiers: gold=Metrópole/Grande | silver=Médio | bronze=Pequeno II
@@ -3951,7 +4138,7 @@ function setEngine(n){
 // ══════════════════════════════════════════
 // CAMPAIGN MODAL
 // ══════════════════════════════════════════
-function openCampaignModal(){$('cModal').classList.add('open');setMarket('nacional');populateNichos();populateStates();}
+function openCampaignModal(){$('cModal').classList.add('open');setMarket('nacional');populateNichos();populateStates();setTimeout(()=>{document.addEventListener('click',function _closeNicho(e){const dd=$('nichoDropdown');const inp=$('nichoSearch');if(dd&&inp&&!dd.contains(e.target)&&e.target!==inp){dd.style.display='none';}if(e.target.closest&&!e.target.closest('#cModal')){document.removeEventListener('click',_closeNicho);}});},100);}
 function closeCampaignModal(){
   $('cModal').classList.remove('open');
   window._nbSelected=[];
@@ -3966,10 +4153,79 @@ function setMarket(m){
 }
 function updateCountryUI(){populateNichos();populateStates();autoFillName();}
 function populateNichos(){
-  const list=currentMarket==='nacional'?NICHOS_BR:NICHOS_INT;
-  const dd=$('nichoDD');
-  dd.innerHTML='<option value="">Selecione o nicho</option>';
-  list.forEach((n,i)=>{const o=document.createElement('option');o.value=n.v;o.textContent=`${n.v} — ${n.conv}% conv.`;if(i<3)o.style.color='#ff5a38';else if(i<8)o.style.color='#f5a623';dd.appendChild(o);});
+  const isNacional = currentMarket==='nacional';
+  const searchEl = $('nichoSearch');
+  const ddHidden = $('nichoDD');
+  if(searchEl){ searchEl.value=''; searchEl.setAttribute('readonly',''); }
+  if(ddHidden){ ddHidden.value=''; }
+  const lbl=$('nichoConvLabel');
+  if(lbl) lbl.textContent='— selecione o nicho';
+  renderNichoList('');
+}
+
+function renderNichoList(query){
+  const list=$('nichoList');
+  if(!list) return;
+  const isNacional = currentMarket==='nacional';
+  const q = query.toLowerCase().trim();
+
+  if(isNacional){
+    const cats = q
+      ? [{ cat:'Resultados', items: NICHOS_BR_CAT.flatMap(c=>c.items).filter(n=>n.v.toLowerCase().includes(q)) }]
+      : NICHOS_BR_CAT;
+    list.innerHTML = cats.map(cat=>{
+      if(!cat.items.length) return '';
+      const catEmojis = {
+        'Top Conversao':'🔥','Saude & Bem-estar':'💆','Beleza & Estetica':'💇',
+        'Fitness & Esportes':'🏋️','Animal':'🐾','Casa & Construcao':'🏠',
+        'Alimentacao':'🍽️','Automotivo':'🚗','Educacao':'📚',
+        'Juridico & Financeiro':'💼','Criativo & Digital':'📷',
+        'Eventos & Lazer':'🎉','Industria & B2B':'🏭','Resultados':'🔍'
+      };
+      const emoji = catEmojis[cat.cat]||'';
+      const rows = cat.items.map(n=>{
+        const heat = n.conv>=16?'color:#ff5a38;font-weight:700':n.conv>=13?'color:#f5a623;font-weight:600':'color:var(--muted2)';
+        return `<div onclick="selectNicho('${n.v.replace(/'/g,"\\'")}',${n.conv})"
+          style="padding:8px 14px;cursor:pointer;font-size:12px;display:flex;justify-content:space-between;align-items:center;transition:background .1s;border-bottom:1px solid var(--border)"
+          onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''">
+          <span>${n.v}</span>
+          <span style="font-size:10px;${heat}">${n.conv}% conv.</span>
+        </div>`;
+      }).join('');
+      return `<div style="padding:5px 14px 3px;font-size:10px;font-weight:700;color:var(--accent2);letter-spacing:.5px;background:var(--s2);border-bottom:1px solid var(--border);position:sticky;top:0">${emoji} ${cat.cat.toUpperCase()}</div>${rows}`;
+    }).join('');
+  } else {
+    const items = q ? NICHOS_INT.filter(n=>n.v.toLowerCase().includes(q)) : NICHOS_INT;
+    list.innerHTML = items.map(n=>{
+      const heat = n.conv>=16?'color:#ff5a38;font-weight:700':n.conv>=13?'color:#f5a623;font-weight:600':'color:var(--muted2)';
+      return `<div onclick="selectNicho('${n.v.replace(/'/g,"\\'")}',${n.conv})"
+        style="padding:8px 14px;cursor:pointer;font-size:12px;display:flex;justify-content:space-between;align-items:center;transition:background .1s;border-bottom:1px solid var(--border)"
+        onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''">
+        <span>${n.v}</span>
+        <span style="font-size:10px;${heat}">${n.conv}% conv.</span>
+      </div>`;
+    }).join('');
+  }
+}
+
+function filterNichos(q){
+  renderNichoList(q);
+  $('nichoDropdown').style.display='block';
+}
+
+function showNichoDropdown(){
+  renderNichoList($('nichoSearch').value||'');
+  $('nichoDropdown').style.display='block';
+}
+
+function selectNicho(val, conv){
+  $('nichoDD').value = val;
+  $('nichoSearch').value = val;
+  $('nichoSearch').setAttribute('readonly','');
+  $('nichoDropdown').style.display='none';
+  const lbl=$('nichoConvLabel');
+  if(lbl) lbl.textContent = '— ' + conv + '% conv.';
+  autoFillName();
 }
 // IBGE-based economic tiers for Brazilian states
 const STATE_TIERS_BR = {
@@ -11048,14 +11304,13 @@ async function saveToSupabase(){
   if(!sb || !currentUser) return;
   try{
     const snap = JSON.parse(JSON.stringify(campaigns));
-    // Merge active leads into the active campaign snapshot
     if(typeof activeCampaignId!=='undefined' && activeCampaignId){
       const c = snap.find(x=>x.id===activeCampaignId);
       if(c) c.leads = typeof leads!=='undefined' ? [...leads] : c.leads||[];
     }
+    let totalLeadsSaved = 0;
     for(const camp of snap){
-      // Save campaign — use all real fields
-      await sb.from('campaigns').upsert({
+      const { error: campErr } = await sb.from('campaigns').upsert({
         id:          camp.id,
         user_id:     currentUser.id,
         name:        camp.name    || 'Campanha',
@@ -11074,8 +11329,15 @@ async function saveToSupabase(){
         },
         updated_at:  new Date().toISOString()
       }, { onConflict: 'id' });
-
-      // Save leads — map ALL real lead fields
+      if(campErr){
+        console.error('[CAPTURO] Erro campanha "'+camp.name+'":', campErr);
+        if(campErr.code==='42501'||campErr.message?.includes('policy')){
+          toast('Supabase bloqueou o salvamento (RLS). Verifique as politicas da tabela campaigns.','error',8000);
+        } else {
+          toast('Erro ao salvar campanha: '+campErr.message,'error',6000);
+        }
+        continue;
+      }
       const campLeads = (camp.leads||[]).map(l=>({
         id:                  l.id,
         campaign_id:         camp.id,
@@ -11112,30 +11374,37 @@ async function saveToSupabase(){
         updated_at:          new Date().toISOString()
       }));
       if(campLeads.length > 0){
-        await sb.from('leads').upsert(campLeads, { onConflict: 'id' });
+        const { error: leadsErr } = await sb.from('leads').upsert(campLeads, { onConflict: 'id' });
+        if(leadsErr){
+          console.error('[CAPTURO] Erro leads "'+camp.name+'":', leadsErr);
+          if(leadsErr.code==='42501'||leadsErr.message?.includes('policy')){
+            toast('Supabase bloqueou os leads (RLS). Verifique as politicas da tabela leads.','error',8000);
+          } else {
+            toast('Erro ao salvar leads: '+leadsErr.message,'error',6000);
+          }
+        } else { totalLeadsSaved += campLeads.length; }
       }
     }
-    // ── Salva templates customizados ──────────────────────────
     if(typeof customTemplates!=='undefined' && customTemplates.length>0){
-      await sb.from('profiles').update({
-        custom_templates: customTemplates,
-        updated_at: new Date().toISOString()
+      const { error: tplErr } = await sb.from('profiles').update({
+        custom_templates: customTemplates, updated_at: new Date().toISOString()
       }).eq('id', currentUser.id);
+      if(tplErr) console.warn('[CAPTURO] Erro templates:', tplErr);
     }
-    // ── Salva histórico do chat IA ─────────────────────────────
     if(typeof aiChatHistory!=='undefined' && aiChatHistory.length>0){
-      await sb.from('profiles').update({
-        ai_chat_history: aiChatHistory.slice(-40),
-        updated_at: new Date().toISOString()
+      const { error: chatErr } = await sb.from('profiles').update({
+        ai_chat_history: aiChatHistory.slice(-40), updated_at: new Date().toISOString()
       }).eq('id', currentUser.id);
+      if(chatErr) console.warn('[CAPTURO] Erro chat IA:', chatErr);
     }
+    if(totalLeadsSaved > 0)
+      console.log('[CAPTURO] Salvo no Supabase: '+snap.length+' campanha(s), '+totalLeadsSaved+' lead(s)');
   }catch(e){
     console.error('[CAPTURO] saveToSupabase error:',e);
-    toast('❌ Falha ao salvar na nuvem: '+(e.message||'erro desconhecido'),'error',5000);
+    toast('Falha ao salvar na nuvem: '+(e.message||'erro desconhecido'),'error',5000);
   }
 }
 
-// ── Carregar do Supabase ──────────────────────────────────────
 async function loadFromSupabase(){
   const sb = getSupabase();
   if(!sb || !currentUser){
