@@ -2746,16 +2746,27 @@ function toast(msg, type='info', duration=3500){
       <div style="font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;margin-bottom:16px">🔍 CONFIGURAR BUSCA</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:16px">
         <div>
+          <label style="font-size:11px;color:var(--muted2);display:block;margin-bottom:6px;font-weight:600">Estado</label>
+          <select id="alertaUF" onchange="popularCidadesAlerta()" style="width:100%;font-size:12px;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--s2);color:var(--text)">
+            <option value="">Selecione o estado</option>
+          </select>
+        </div>
+        <div>
           <label style="font-size:11px;color:var(--muted2);display:block;margin-bottom:6px;font-weight:600">Cidade</label>
-          <input type="text" id="alertaCidade" placeholder="Ex: Uberlândia" style="width:100%;font-size:12px;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--s2);color:var(--text)">
+          <select id="alertaCidade" style="width:100%;font-size:12px;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--s2);color:var(--text)">
+            <option value="">Selecione o estado primeiro</option>
+          </select>
         </div>
-        <div>
-          <label style="font-size:11px;color:var(--muted2);display:block;margin-bottom:6px;font-weight:600">Estado (UF)</label>
-          <input type="text" id="alertaUF" placeholder="Ex: MG" maxlength="2" style="width:100%;font-size:12px;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--s2);color:var(--text);text-transform:uppercase">
-        </div>
-        <div>
+        <div style="position:relative">
           <label style="font-size:11px;color:var(--muted2);display:block;margin-bottom:6px;font-weight:600">Nicho / Atividade</label>
-          <input type="text" id="alertaNicho" placeholder="Ex: restaurante, dentista, academia" style="width:100%;font-size:12px;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--s2);color:var(--text)">
+          <input type="text" id="alertaNichoSearch" placeholder="Buscar nicho..." autocomplete="off"
+            oninput="filterAlertaNichos(this.value)" onfocus="showAlertaNichoDropdown()"
+            style="width:100%;font-size:12px;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--s2);color:var(--text)" readonly
+            onclick="this.removeAttribute('readonly');showAlertaNichoDropdown()">
+          <div id="alertaNichoDropdown" style="display:none;position:absolute;left:0;right:0;z-index:9999;max-height:220px;overflow-y:auto;border:1px solid var(--border2);border-radius:10px;background:var(--s1);box-shadow:0 8px 28px rgba(0,0,0,.5);margin-top:2px">
+            <div id="alertaNichoList"></div>
+          </div>
+          <input type="hidden" id="alertaNicho" value="">
         </div>
         <div>
           <label style="font-size:11px;color:var(--muted2);display:block;margin-bottom:6px;font-weight:600">Abertos nos últimos</label>
@@ -6656,132 +6667,231 @@ function deleteFollowup(id){
 // v4.5 — RELATÓRIOS + WA BLAST
 // ══════════════════════════════════════════
 // ══════════════════════════════════════════
-// NOVOS NEGÓCIOS — busca via ReceitaWS + BrasilAPI
+// NOVOS NEGÓCIOS — busca via Google Maps (Places API)
 // ══════════════════════════════════════════
-let _alertasData = []; // resultados da última busca
+let _alertasData = [];
 let _alertasBuscando = false;
 
-async function buscarNovosNegocios(){
-  const cidade = ($('alertaCidade')?.value||'').trim();
-  const uf     = ($('alertaUF')?.value||'').trim().toUpperCase();
-  const nicho  = ($('alertaNicho')?.value||'').trim();
-  const dias   = parseInt($('alertaDias')?.value||'60');
+// Popular estados no select de alertas
+function initAlertaSelects(){
+  const ufSel = document.getElementById('alertaUF');
+  if(!ufSel || ufSel.options.length > 1) return;
+  const abrevs = {
+    'Acre':'AC','Alagoas':'AL','Amapá':'AP','Amazonas':'AM','Bahia':'BA',
+    'Ceará':'CE','Distrito Federal':'DF','Espírito Santo':'ES','Goiás':'GO',
+    'Maranhão':'MA','Mato Grosso':'MT','Mato Grosso do Sul':'MS','Minas Gerais':'MG',
+    'Paraná':'PR','Paraíba':'PB','Pará':'PA','Pernambuco':'PE','Piauí':'PI',
+    'Rio Grande do Norte':'RN','Rio Grande do Sul':'RS','Rio de Janeiro':'RJ',
+    'Rondônia':'RO','Roraima':'RR','Santa Catarina':'SC','Sergipe':'SE',
+    'São Paulo':'SP','Tocantins':'TO'
+  };
+  const states = Object.keys(STATES_BR_TIERS||{}).sort();
+  states.forEach(s=>{
+    const o=document.createElement('option');
+    o.value=abrevs[s]||s;
+    o.textContent=s;
+    o.dataset.name=s;
+    ufSel.appendChild(o);
+  });
+}
 
-  if(!cidade){ toast('Preencha a cidade.','warn'); return; }
-  if(!uf){ toast('Preencha o estado (UF).','warn'); return; }
-  if(!nicho){ toast('Preencha o nicho ou atividade.','warn'); return; }
+function popularCidadesAlerta(){
+  const ufSel = document.getElementById('alertaUF');
+  const cidSel = document.getElementById('alertaCidade');
+  if(!ufSel||!cidSel) return;
+  const stateName = ufSel.options[ufSel.selectedIndex]?.dataset?.name||'';
+  const cities = (STATES_BR_TIERS[stateName]||[]);
+  cidSel.innerHTML = '<option value="">Selecione a cidade</option>';
+  cities.forEach(c=>{
+    const o=document.createElement('option');
+    o.value=c.n; o.textContent=c.n;
+    cidSel.appendChild(o);
+  });
+}
+
+function filterAlertaNichos(q){
+  renderAlertaNichoList(q);
+  document.getElementById('alertaNichoDropdown').style.display='block';
+}
+function showAlertaNichoDropdown(){
+  renderAlertaNichoList(document.getElementById('alertaNichoSearch').value||'');
+  document.getElementById('alertaNichoDropdown').style.display='block';
+}
+function selectAlertaNicho(val){
+  document.getElementById('alertaNicho').value=val;
+  document.getElementById('alertaNichoSearch').value=val;
+  document.getElementById('alertaNichoSearch').setAttribute('readonly','');
+  document.getElementById('alertaNichoDropdown').style.display='none';
+}
+function renderAlertaNichoList(q){
+  const list=document.getElementById('alertaNichoList');
+  if(!list) return;
+  const qq=q.toLowerCase().trim();
+  const cats = qq
+    ? [{cat:'Resultados',items:NICHOS_BR_CAT.flatMap(c=>c.items).filter(n=>n.v.toLowerCase().includes(qq))}]
+    : NICHOS_BR_CAT;
+  list.innerHTML=cats.map(cat=>{
+    if(!cat.items.length) return '';
+    return `<div style="padding:4px 12px 2px;font-size:10px;font-weight:700;color:var(--accent2);background:var(--s2);border-bottom:1px solid var(--border);position:sticky;top:0">${cat.cat.toUpperCase()}</div>`
+      +cat.items.map(n=>`<div onclick="selectAlertaNicho('${n.v.replace(/'/g,"\\'")}')"
+        style="padding:7px 12px;cursor:pointer;font-size:12px;display:flex;justify-content:space-between;border-bottom:1px solid var(--border);transition:background .1s"
+        onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''">
+        <span>${n.v}</span>
+        <span style="font-size:10px;color:${n.conv>=16?'#ff5a38':n.conv>=13?'#f5a623':'var(--muted2)'}">${n.conv}%</span>
+      </div>`).join('');
+  }).join('');
+}
+
+async function buscarNovosNegocios(){
+  initAlertaSelects();
+  const cidade = (document.getElementById('alertaCidade')?.value||'').trim();
+  const uf     = (document.getElementById('alertaUF')?.value||'').trim().toUpperCase();
+  const nicho  = (document.getElementById('alertaNicho')?.value||'').trim();
+  const dias   = parseInt(document.getElementById('alertaDias')?.value||'60');
+
+  if(!uf)    { toast('Selecione o estado.','warn'); return; }
+  if(!cidade){ toast('Selecione a cidade.','warn'); return; }
+  if(!nicho) { toast('Selecione o nicho.','warn'); return; }
   if(_alertasBuscando){ toast('Busca em andamento.','warn'); return; }
 
-  _alertasBuscando = true;
-  _alertasData = [];
+  _alertasBuscando=true;
+  _alertasData=[];
 
-  const btnBuscar  = $('btnBuscarAlertas');
-  const btnCancel  = $('btnCancelarAlertas');
-  const status     = $('alertasStatus');
-  const vazio      = $('alertasVazio');
-  const resultados = $('alertasResultados');
+  const btnBuscar  = document.getElementById('btnBuscarAlertas');
+  const btnCancel  = document.getElementById('btnCancelarAlertas');
+  const status     = document.getElementById('alertasStatus');
+  const vazio      = document.getElementById('alertasVazio');
+  const resultados = document.getElementById('alertasResultados');
 
-  if(btnBuscar){ btnBuscar.disabled=true; btnBuscar.textContent='⏳ Buscando...'; }
+  if(btnBuscar){ btnBuscar.disabled=true; btnBuscar.textContent='Buscando...'; }
   if(btnCancel){ btnCancel.style.display='inline-flex'; }
   if(vazio)    { vazio.style.display='none'; }
   if(resultados){ resultados.style.display='none'; }
 
   const dataLimite = new Date();
-  dataLimite.setDate(dataLimite.getDate() - dias);
-  const dataLimiteStr = dataLimite.toISOString().split('T')[0]; // YYYY-MM-DD
+  dataLimite.setDate(dataLimite.getDate()-dias);
 
   try{
-    if(status) status.textContent = '🔍 Consultando Receita Federal...';
-
-    // Busca via ReceitaWS token (o usuário já tem o token capturo-api)
-    const receitaToken = localStorage.getItem('capturo-receitaws-token') ||
-                         await getDecryptedKey('capturo-receitaws-token') || '';
-
-    // Estratégia 1: ReceitaWS com token (mais dados)
-    let empresas = [];
-    if(receitaToken){
-      try{
-        const url = `https://www.receitaws.com.br/v1/cnpj/search?company=${encodeURIComponent(nicho)}&city=${encodeURIComponent(cidade)}&uf=${uf}&opened_after=${dataLimiteStr}`;
-        const r = await fetch(url, {
-          headers:{ Authorization: `Bearer ${receitaToken}`, Accept:'application/json' }
-        }).catch(()=>null);
-        if(r&&r.ok){
-          const d = await r.json().catch(()=>null);
-          empresas = d?.results || d || [];
-        }
-      }catch(e){ console.warn('[Alertas] ReceitaWS erro:',e); }
+    // ── Passo 1: Geocodificar cidade ──────────────────────────
+    if(status) status.textContent='Localizando cidade...';
+    let lat, lng;
+    try{
+      const geo = await gmGeocode(`${cidade}, ${uf}, Brasil`);
+      if(!geo?.results?.length) throw new Error('Cidade não encontrada.');
+      lat = geo.results[0].geometry.location.lat;
+      lng = geo.results[0].geometry.location.lng;
+    }catch(e){
+      toast('Cidade não encontrada. Verifique e tente novamente.','error');
+      return;
     }
 
-    // Estratégia 2: BrasilAPI busca por município + texto (gratuita, sem token)
-    if(!empresas.length){
-      if(status) status.textContent = '🔍 Buscando via BrasilAPI...';
-      try{
-        const r2 = await fetch(
-          `https://brasilapi.com.br/api/cnpj/v1/search?text=${encodeURIComponent(nicho)}&municipio=${encodeURIComponent(cidade)}&uf=${uf}`,
-          { headers:{ Accept:'application/json','User-Agent':'Mozilla/5.0' } }
-        ).catch(()=>null);
-        if(r2&&r2.ok){
-          const list = await r2.json().catch(()=>[]);
-          if(Array.isArray(list)) empresas = list;
-        }
-      }catch(e){ console.warn('[Alertas] BrasilAPI erro:',e); }
-    }
-
-    // Filtra apenas as abertas dentro do período
-    if(status) status.textContent = `🔎 Filtrando por data de abertura (últimos ${dias} dias)...`;
-
-    let novas = [];
-    for(let i=0; i<empresas.length; i++){
+    // ── Passo 2: Busca via Google Places ─────────────────────
+    if(status) status.textContent='Buscando...';
+    const radios = [5000, 10000, 20000];
+    let allPlaces=[], seen=new Set();
+    for(const rad of radios){
       if(!_alertasBuscando) break;
-      const emp = empresas[i];
+      try{
+        const r = await gmNearbySearch(`${lat},${lng}`, rad, nicho);
+        (r?.results||[]).forEach(p=>{ if(!seen.has(p.place_id)){seen.add(p.place_id);allPlaces.push(p);} });
+      }catch(e){}
+    }
 
-      // Verifica data de abertura
-      const dataAb = emp.data_inicio_atividade || emp.abertura || emp.opened || '';
-      if(dataAb){
-        const dtEmp = new Date(dataAb.replace(/(\d{2})\/(\d{2})\/(\d{4})/,'$3-$2-$1'));
-        if(dtEmp >= dataLimite) novas.push(emp);
-      } else {
-        // Se não temos data ainda, busca detalhes completos via BrasilAPI
-        if(emp.cnpj){
-          if(status) status.textContent = `🔎 Verificando ${i+1}/${empresas.length}: ${emp.razao_social||emp.nome||''}`;
-          try{
-            const cnpjClean = emp.cnpj.replace(/\D/g,'');
-            const r3 = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjClean}`,
-              { headers:{ Accept:'application/json','User-Agent':'Mozilla/5.0' } }
-            ).catch(()=>null);
-            if(r3&&r3.ok){
-              const det = await r3.json().catch(()=>null);
-              if(det?.data_inicio_atividade){
-                const dtDet = new Date(det.data_inicio_atividade);
-                if(dtDet >= dataLimite) novas.push({...emp,...det});
+    if(!allPlaces.length){
+      toast(`Nenhum resultado encontrado para "${nicho}" em ${cidade}.`,'warn',5000);
+      if(status) status.textContent='';
+      return;
+    }
+
+    // ── Passo 3: Filtrar por data de abertura via CNPJ ───────
+    if(status) status.textContent=`Verificando ${allPlaces.length} empresas...`;
+    const novas=[];
+    for(let i=0; i<allPlaces.length; i++){
+      if(!_alertasBuscando) break;
+      if(status) status.textContent=`Verificando ${i+1}/${allPlaces.length}...`;
+      const p=allPlaces[i];
+      let det={};
+      try{
+        const dd = await gmPlaceDetails(p.place_id);
+        det = dd?.result||{};
+      }catch(e){ det={name:p.name,formatted_address:p.vicinity||''}; }
+
+      // Tenta verificar data via CNPJ apenas se tiver nome e cidade
+      let isNova=false;
+      let cnpjData=null;
+      if(det.name){
+        try{
+          const nm=encodeURIComponent(det.name);
+          const ct=encodeURIComponent(cidade);
+          const r1=await fetch(`https://receitaws.com.br/v1/cnpj/search?company=${nm}&city=${ct}`,
+            {headers:{Accept:'application/json'}}).catch(()=>null);
+          if(r1&&r1.ok){
+            const d1=await r1.json().catch(()=>null);
+            const cnpjNum=d1?.results?.[0]?.cnpj||d1?.cnpj||null;
+            if(cnpjNum){
+              const clean=cnpjNum.replace(/\D/g,'');
+              const r2=await fetch(`https://brasilapi.com.br/api/cnpj/v1/${clean}`,
+                {headers:{Accept:'application/json','User-Agent':'Mozilla/5.0'}}).catch(()=>null);
+              if(r2&&r2.ok){
+                const dd2=await r2.json().catch(()=>null);
+                if(dd2?.data_inicio_atividade){
+                  cnpjData=dd2;
+                  const dtAb=new Date(dd2.data_inicio_atividade);
+                  isNova = dtAb>=dataLimite;
+                }
               }
             }
-            await new Promise(r=>setTimeout(r,600)); // rate limit
-          }catch(e){}
-        }
+          }
+        }catch(e){}
       }
+
+      // Se não conseguiu verificar CNPJ, inclui mesmo assim (melhor ter mais do que menos)
+      if(isNova||cnpjData===null){
+        const lead={
+          id:'nn'+Date.now()+'_'+i,
+          name: det.name||p.name||'',
+          formatted_address: det.formatted_address||p.vicinity||'',
+          formatted_phone_number: det.formatted_phone_number||'',
+          website: det.website||'',
+          rating: det.rating||null,
+          user_ratings_total: det.user_ratings_total||null,
+          place_id: p.place_id,
+          geometry: det.geometry||null,
+          city: cidade,
+          state: uf,
+          nicho: nicho,
+          t: 'cold',
+          score: isNova?8:3,
+          status:'new',
+          source:'novos_negocios',
+          cnpjData: cnpjData,
+          isNova: isNova,
+          notes: isNova?`Empresa aberta em ${cnpjData?.data_inicio_atividade||'data desconhecida'} — menos de ${dias} dias.`:''
+        };
+        novas.push(lead);
+      }
+      await new Promise(r=>setTimeout(r,120));
     }
 
-    _alertasData = novas;
-    _renderAlertasResultados(novas, cidade, nicho, dias);
+    _alertasData=novas;
+    _renderAlertasResultados(novas,cidade,nicho,dias);
 
-    // Atualiza badge na sidebar
-    const badge = $('alertasBadge');
+    const badge=document.getElementById('alertasBadge');
     if(badge){
       if(novas.length>0){badge.style.display='flex';badge.textContent=novas.length>99?'99+':novas.length;}
       else badge.style.display='none';
     }
 
-    if(status) status.textContent = `✅ ${novas.length} negócio(s) aberto(s) nos últimos ${dias} dias.`;
-    if(!novas.length) toast(`Nenhum negócio novo encontrado para "${nicho}" em ${cidade} nos últimos ${dias} dias.`,'warn',5000);
+    if(status) status.textContent=`${novas.length} negócio(s) encontrado(s).`;
+    if(!novas.length) toast(`Nenhum negócio encontrado para "${nicho}" em ${cidade}.`,'warn',5000);
 
   }catch(e){
-    console.error('[Alertas]',e);
-    if(status) status.textContent = '❌ Erro na busca. Tente novamente.';
-    toast('Erro ao buscar novos negócios: '+e.message,'error');
+    console.error('[NovosNegocios]',e);
+    if(status) status.textContent='Erro na busca.';
+    toast('Erro ao buscar: '+e.message,'error');
   }finally{
-    _alertasBuscando = false;
-    if(btnBuscar){ btnBuscar.disabled=false; btnBuscar.textContent='⚡ Buscar Novos Negócios'; }
+    _alertasBuscando=false;
+    if(btnBuscar){ btnBuscar.disabled=false; btnBuscar.textContent='Buscar Novos Negócios'; }
     if(btnCancel){ btnCancel.style.display='none'; }
   }
 }
@@ -10147,6 +10257,7 @@ $('settingsModal') && $('settingsModal').addEventListener('click',e=>{if(e.targe
 // close modal on backdrop click
 $('msgModal').addEventListener('click',e=>{if(e.target===$('msgModal'))closeMsgModal();});
 $('cModal').addEventListener('click',e=>{if(e.target===$('cModal'))closeCampaignModal();});
+document.addEventListener('click',e=>{const dd=document.getElementById('alertaNichoDropdown');const inp=document.getElementById('alertaNichoSearch');if(dd&&inp&&!dd.contains(e.target)&&e.target!==inp)dd.style.display='none';});
 // regenerate msg when demo link changes
 $('demoLink').addEventListener('input',()=>{clearTimeout(window._demoT);window._demoT=setTimeout(generateMsg,600);});
 // Added "Alto Padrão" option to neighborhood selector
