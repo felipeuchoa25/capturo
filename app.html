@@ -5297,27 +5297,34 @@ async function startBioSearchInternal(gKey,cseId){
 }
 
 function finishSearch(){
+  // Escrita direta: garante que leads da campanha ativa sao persistidos
   const c=campaigns.find(x=>x.id===activeCampaignId);
-  if(c) c.lastSearchAt=new Date().toISOString();
-  saveCampaigns();
+  if(c){
+    c.leads=[...leads];
+    c.lastSearchAt=new Date().toISOString();
+  }
+  // Save local sincrono imediato
+  try{ localStorage.setItem('pr6',JSON.stringify(campaigns)); }catch(e){}
   leads=deduplicateLeads(leads);
+  if(c) c.leads=[...leads]; // atualiza apos dedup
+  try{ localStorage.setItem('pr6',JSON.stringify(campaigns)); }catch(e){}
   const dupCount=leads.filter(l=>l.isDuplicate).length;
   setProg(100);
   const vol=leads.filter(l=>l.t==='volcano').length;
   const hot=leads.filter(l=>l.t==='hot').length;
   const emails=leads.filter(l=>l.email).length;
-  const dupNote=dupCount>0?` · ⚠️ ${dupCount} já prospectados`:'';
-  setStat(`✓ Concluído! ${leads.length} leads — 🌋 ${vol} vulcão · 🔥 ${hot} quentes · ✉ ${emails} emails${dupNote}`);
-  // ── Save imediato no Supabase (sem debounce) ──
+  const dupNote=dupCount>0?` · ⚠️ ${dupCount} ja prospectados`:'';
+  setStat(`✓ Concluido! ${leads.length} leads — 🌋 ${vol} vulcao · 🔥 ${hot} quentes · ✉ ${emails} emails${dupNote}`);
+  // Save na nuvem imediato (sem debounce)
   if(typeof currentUser!=='undefined'&&currentUser){
     clearTimeout(window._supabaseSyncTimeout);
     saveToSupabase().then(()=>{
       toast(`☁️ ${leads.length} leads salvos na nuvem!`,'success',3000);
-    });
+    }).catch(e=>{ console.error('saveToSupabase finishSearch:',e); });
   }
-  saveCampaigns();renderCampaignsList();
+  renderAll(); renderCampaignsList();
   setTimeout(()=>setProg(0),1000);
-  setTimeout(()=>syncToSheets(),1500);
+  setTimeout(()=>{ try{ syncToSheets(); }catch(e){} },1500);
 }
 
 // ══════════════════════════════════════════
@@ -10852,30 +10859,41 @@ function getSupabase(){
 // ── Inicializar Auth ──────────────────────────────────────────
 async function initAuth(){
   const sb = getSupabase();
-  if(!sb){ console.warn('[CAPTURO] Supabase não carregado'); showLoginScreen(); return; }
+  if(!sb){ console.warn('[CAPTURO] Supabase nao carregado'); showLoginScreen(); return; }
 
-  const { data:{ session } } = await sb.auth.getSession();
-  if(session){
-    currentUser = session.user;
-    hideLoginScreen();
-    await loadFromSupabase();
-    if(typeof window._postAuthInit==='function') window._postAuthInit();
-  } else {
+  try{
+    const { data:{ session } } = await sb.auth.getSession();
+    if(session){
+      currentUser = session.user;
+      hideLoginScreen();
+      try{ await loadFromSupabase(); }catch(e){ console.error('loadFromSupabase:',e); renderCampaignsList(); renderDashboard(); }
+      try{ if(typeof window._postAuthInit==='function') window._postAuthInit(); }catch(e){}
+    } else {
+      showLoginScreen();
+    }
+  }catch(e){
+    console.error('[CAPTURO] initAuth getSession error:',e);
     showLoginScreen();
   }
 
   sb.auth.onAuthStateChange(async (event, session) => {
-    if(event === 'SIGNED_IN'){
-      currentUser = session.user;
-      hideLoginScreen();
-      await loadFromSupabase();
-      if(typeof window._postAuthInit==='function') window._postAuthInit();
-    } else if(event === 'SIGNED_OUT'){
-      currentUser = null;
-      campaigns = [];
-      leads = [];
-      if(typeof renderNavTabs === 'function') renderNavTabs();
-      showLoginScreen();
+    try{
+      if(event === 'SIGNED_IN'){
+        currentUser = session.user;
+        hideLoginScreen();
+        try{ await loadFromSupabase(); }catch(e){ console.error('loadFromSupabase:',e); renderCampaignsList(); renderDashboard(); }
+        try{ if(typeof window._postAuthInit==='function') window._postAuthInit(); }catch(e){}
+      } else if(event === 'SIGNED_OUT'){
+        currentUser = null;
+        campaigns = [];
+        leads = [];
+        try{ renderCampaignsList(); }catch(e){}
+        showLoginScreen();
+      }
+    }catch(e){
+      console.error('[CAPTURO] onAuthStateChange error:',e);
+      // Se deu erro no SIGNED_IN, esconde a tela de login de qualquer forma
+      if(event === 'SIGNED_IN') hideLoginScreen();
     }
   });
 }
@@ -11005,14 +11023,22 @@ async function authAction(){
 // ── Login ─────────────────────────────────────────────────────
 async function doSignIn(){
   const sb = getSupabase();
+  if(!sb){ setAuthMsg('Erro: sistema nao carregado. Recarregue a pagina.'); return; }
   const email    = (document.getElementById('authEmail')?.value||'').trim();
   const password = document.getElementById('authPassword')?.value||'';
   const btn      = document.getElementById('authBtn');
   if(!email || !password){ setAuthMsg('Preencha e-mail e senha.'); return; }
   btn.disabled = true; btn.textContent = 'Entrando…';
   setAuthMsg('');
+
+  // Timeout de seguranca: se travar, desbloqueia em 12s
+  const safetyTimer = setTimeout(()=>{
+    if(btn.disabled){ btn.disabled=false; btn.textContent='Entrar'; setAuthMsg('Conexao lenta. Tente novamente.'); }
+  }, 12000);
+
   try{
     const { error } = await sb.auth.signInWithPassword({ email, password });
+    clearTimeout(safetyTimer);
     if(error){
       const msg = error.message.includes('Invalid login') || error.message.includes('invalid_credentials')
         ? 'E-mail ou senha incorretos.'
@@ -11020,9 +11046,10 @@ async function doSignIn(){
       setAuthMsg(msg);
       btn.disabled = false; btn.textContent = 'Entrar';
     }
-    // Se OK, o onAuthStateChange cuida do resto
+    // Se OK, o onAuthStateChange cuida do resto (hideLoginScreen)
   }catch(e){
-    setAuthMsg('Erro de conexão. Verifique sua internet.');
+    clearTimeout(safetyTimer);
+    setAuthMsg('Erro de conexao. Verifique sua internet.');
     btn.disabled = false; btn.textContent = 'Entrar';
     console.error('doSignIn error:',e);
   }
@@ -11152,25 +11179,40 @@ async function saveToSupabase(){
 // ── Carregar do Supabase ──────────────────────────────────────
 async function loadFromSupabase(){
   const sb = getSupabase();
-  if(!sb || !currentUser) return;
+  if(!sb || !currentUser){
+    renderCampaignsList(); renderDashboard(); return;
+  }
+
+  // Helper: sempre renderiza no final, seja qual for o resultado
+  function _render(){
+    try{ if(typeof renderCampaignsList==='function') renderCampaignsList(); }catch(e){}
+    try{ if(typeof renderDashboard==='function') renderDashboard(); }catch(e){}
+  }
+
   try{
+    // 1. Campanhas
     const { data:campData, error:campErr } = await sb
       .from('campaigns').select('*')
       .eq('user_id', currentUser.id)
       .order('created_at',{ ascending:true });
-    if(campErr){ console.error('[CAPTURO] load campaigns:',campErr); renderCampaignsList(); return; }
-    if(!campData || campData.length === 0){
-      // Nenhuma campanha na nuvem — mantém locais e renderiza
-      renderCampaignsList();
-      renderDashboard();
-      return;
+
+    if(campErr){
+      console.error('[CAPTURO] load campaigns:',campErr);
+      _render(); return;
     }
 
-    const { data:leadsData, error:leadsErr } = await sb
-      .from('leads').select('*')
-      .eq('user_id', currentUser.id);
-    if(leadsErr){ console.error('[CAPTURO] load leads:',leadsErr); }
+    if(!campData || campData.length === 0){
+      _render(); return;
+    }
 
+    // 2. Leads
+    let leadsData = [];
+    try{
+      const { data:ld } = await sb.from('leads').select('*').eq('user_id', currentUser.id);
+      leadsData = ld || [];
+    }catch(e){ console.warn('[CAPTURO] load leads error:',e); }
+
+    // 3. Montar campanhas
     campaigns = campData.map(c=>{
       const cfg = c.settings || {};
       return {
@@ -11189,7 +11231,7 @@ async function loadFromSupabase(){
         cityList:        cfg.cityList        || [],
         disabled:        cfg.disabled        || false,
         createdAt:       c.created_at,
-        leads: (leadsData||[]).filter(l=>l.campaign_id===c.id).map(l=>({
+        leads: leadsData.filter(l=>l.campaign_id===c.id).map(l=>({
           id:                    l.id,
           name:                  l.name               || '',
           nicho:                 l.nicho               || '',
@@ -11227,36 +11269,51 @@ async function loadFromSupabase(){
     });
 
     try{ localStorage.setItem('pr6', JSON.stringify(campaigns)); }catch(e){}
-    // ── Carrega templates e chat history do perfil ────────────
-    const { data:profileData } = await sb.from('profiles')
-      .select('custom_templates, ai_chat_history')
-      .eq('id', currentUser.id).single();
-    if(profileData?.custom_templates?.length){
-      customTemplates = profileData.custom_templates;
-      try{ localStorage.setItem('capturo-templates', JSON.stringify(customTemplates)); }catch(e){}
-      if(typeof renderTemplates==='function') renderTemplates();
+
+    // Se havia campanha ativa, recarregar os leads dela
+    if(activeCampaignId){
+      const c = campaigns.find(x=>x.id===activeCampaignId);
+      if(c) leads = [...(c.leads||[])];
     }
-    if(profileData?.ai_chat_history?.length){
-      aiChatHistory = profileData.ai_chat_history;
-      // Restaura mensagens visuais do chat
-      const msgs=document.getElementById('aiChatMessages');
-      if(msgs){
-        msgs.innerHTML='';
-        aiChatHistory.forEach(m=>{
-          const d=document.createElement('div');
-          d.style.cssText=`display:flex;gap:10px;align-items:flex-start;${m.role==='user'?'flex-direction:row-reverse':''}`;
-          d.innerHTML=`<div style="max-width:80%;padding:10px 14px;border-radius:${m.role==='user'?'16px 4px 16px 16px':'4px 16px 16px 16px'};background:${m.role==='user'?'var(--accent)':'var(--s2)'};color:${m.role==='user'?'#fff':'var(--text)'};font-size:13px;line-height:1.5">${(m.content||'').replace(/\n/g,'<br>')}</div>`;
-          msgs.appendChild(d);
-        });
-        msgs.scrollTop=msgs.scrollHeight;
+
+    // 4. Templates e chat — em bloco separado, erro aqui não trava nada
+    try{
+      const { data:profileData } = await sb.from('profiles')
+        .select('custom_templates, ai_chat_history')
+        .eq('id', currentUser.id).single();
+      if(profileData?.custom_templates?.length){
+        customTemplates = profileData.custom_templates;
+        try{ localStorage.setItem('capturo-templates', JSON.stringify(customTemplates)); }catch(e){}
+        if(typeof renderTemplates==='function') renderTemplates();
       }
+      if(profileData?.ai_chat_history?.length){
+        aiChatHistory = profileData.ai_chat_history;
+        const msgs=document.getElementById('aiChatMessages');
+        if(msgs){
+          msgs.innerHTML='';
+          aiChatHistory.forEach(m=>{
+            const d=document.createElement('div');
+            d.style.cssText=`display:flex;gap:10px;align-items:flex-start;${m.role==='user'?'flex-direction:row-reverse':''}`;
+            d.innerHTML=`<div style="max-width:80%;padding:10px 14px;border-radius:${m.role==='user'?'16px 4px 16px 16px':'4px 16px 16px 16px'};background:${m.role==='user'?'var(--accent)':'var(--s2)'};color:${m.role==='user'?'#fff':'var(--text)'};font-size:13px;line-height:1.5">${(m.content||'').replace(/\n/g,'<br>')}</div>`;
+            msgs.appendChild(d);
+          });
+          msgs.scrollTop=msgs.scrollHeight;
+        }
+      }
+    }catch(profileErr){
+      console.warn('[CAPTURO] load profile (non-critical):',profileErr);
     }
-    if(typeof renderNavTabs==='function') renderNavTabs();
-    if(typeof renderCampaignsList==='function') renderCampaignsList();
-    const total = (leadsData||[]).length;
-    toast(`☁️ ${campData.length} campanha(s) e ${total} lead(s) carregados da nuvem`,'success',3500);
+
+    // 5. Renderizar — SEMPRE executa
+    _render();
+    try{ if(typeof renderAll==='function') renderAll(); }catch(e){}
+
+    toast(`☁️ ${campData.length} campanha(s) e ${leadsData.length} lead(s) carregados`,'success',3000);
+
   }catch(e){
     console.error('[CAPTURO] loadFromSupabase error:',e);
+    // NUNCA deixa a tela presa — renderiza com o que tiver local
+    _render();
   }
 }
 
