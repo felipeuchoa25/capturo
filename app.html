@@ -3343,13 +3343,27 @@ function toast(msg, type='info', duration=3500){
         <span id="alertasSkeletonMsg">Localizando cidade...</span>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px">
-        ${[1,2,3].map(()=>`<div style="background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:20px;height:180px;position:relative;overflow:hidden">
+        <div style="background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:20px;height:180px;position:relative;overflow:hidden">
           <div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.03) 50%,transparent 100%);animation:shimmerSkeleton 1.4s ease infinite"></div>
           <div style="height:12px;width:60%;background:var(--s2);border-radius:6px;margin-bottom:10px"></div>
           <div style="height:10px;width:40%;background:var(--s2);border-radius:6px;margin-bottom:18px;opacity:.6"></div>
           <div style="height:8px;width:80%;background:var(--s2);border-radius:4px;margin-bottom:8px;opacity:.4"></div>
           <div style="height:8px;width:55%;background:var(--s2);border-radius:4px;opacity:.3"></div>
-        </div>`).join('')}
+        </div>
+        <div style="background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:20px;height:180px;position:relative;overflow:hidden">
+          <div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.03) 50%,transparent 100%);animation:shimmerSkeleton 1.4s ease infinite"></div>
+          <div style="height:12px;width:55%;background:var(--s2);border-radius:6px;margin-bottom:10px"></div>
+          <div style="height:10px;width:35%;background:var(--s2);border-radius:6px;margin-bottom:18px;opacity:.6"></div>
+          <div style="height:8px;width:75%;background:var(--s2);border-radius:4px;margin-bottom:8px;opacity:.4"></div>
+          <div style="height:8px;width:50%;background:var(--s2);border-radius:4px;opacity:.3"></div>
+        </div>
+        <div style="background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:20px;height:180px;position:relative;overflow:hidden">
+          <div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.03) 50%,transparent 100%);animation:shimmerSkeleton 1.4s ease infinite"></div>
+          <div style="height:12px;width:65%;background:var(--s2);border-radius:6px;margin-bottom:10px"></div>
+          <div style="height:10px;width:45%;background:var(--s2);border-radius:6px;margin-bottom:18px;opacity:.6"></div>
+          <div style="height:8px;width:70%;background:var(--s2);border-radius:4px;margin-bottom:8px;opacity:.4"></div>
+          <div style="height:8px;width:60%;background:var(--s2);border-radius:4px;opacity:.3"></div>
+        </div>
       </div>
     </div>
 
@@ -5703,7 +5717,8 @@ async function findEmailCascade(lead, keys){
       address: address
     });
     const url = PROXY_URL + '?' + params.toString();
-    const r = await fetch(url, {signal: AbortSignal.timeout(30000)});
+    // Timeout curto para não travar a busca se o proxy estiver offline/CORS
+    const r = await fetch(url, {signal: AbortSignal.timeout(8000)});
     if(r.ok){
       const d = await r.json();
       if(d && d.email){
@@ -5712,7 +5727,8 @@ async function findEmailCascade(lead, keys){
       }
     }
   }catch(e){
-    console.warn('Proxy error:', e.message);
+    // Proxy CORS/timeout — esperado quando o Google Apps Script não está acessível
+    if(!e.message?.includes('abort') && !e.message?.includes('fetch')) console.warn('Proxy error:', e.message);
     // Fallback to direct Hunter if proxy fails
     if(keys.hKey && domain){
       setStat(`<span class="spinner"></span>📧 Fallback Hunter: ${name}`);
@@ -8962,12 +8978,14 @@ async function syncToSheets(silent=false){
     if(!silent){statusEl.className='status-pill pill-ok';statusEl.textContent=`✓ ${leads.length} salvos`;setStat(`✓ ${leads.length} leads no Google Sheets!`);}
     else{if(statusEl)statusEl.className='status-pill pill-ok',statusEl.textContent='✓ auto-salvo';}
   }catch(e){
-    console.error('[CAPTURO] syncToSheets error:',e);
-    if(!silent){
-      statusEl.className='status-pill pill-err';
-      statusEl.textContent='✗ Erro Sheets';
-      setStat('✗ Sheets: '+e.message);
-      toast('❌ Erro ao salvar no Sheets: '+e.message,'error',6000);
+    console.warn('[CAPTURO] syncToSheets error:',e);
+    // Só mostra erro se não for falha de configuração (base64, EF 500, CORS)
+    const isConfigErr = e.message&&(e.message.includes('500')||e.message.includes('base64')||e.message.includes('CORS')||e.message.includes('Failed to fetch'));
+    if(!silent && !isConfigErr){
+      if(statusEl){ statusEl.className='status-pill pill-err'; statusEl.textContent='✗ Sheets'; }
+      toast('❌ Sheets: '+e.message,'error',5000);
+    } else if(!silent && isConfigErr){
+      if(statusEl){ statusEl.className='status-pill pill-idle'; statusEl.textContent='⚬ Sheets'; }
     }
   }
 }
@@ -11793,7 +11811,8 @@ function guiaScroll(sectionId){
       await saveToSupabase();
       console.log('[CAPTURO] Auto-save Supabase OK —',totalLeads,'leads');
     }catch(e){
-      console.warn('[CAPTURO] Auto-save Supabase erro:',e);
+      // Silencia erros de auto-save — não spammar o console
+      if(!(e.message||'').includes('uuid')) console.warn('[CAPTURO] Auto-save erro:',e);
     }
   }, 2*60*1000);
 
@@ -12412,8 +12431,20 @@ async function saveToSupabase(){
         }
         continue;
       }
+      // ── Garante UUID válido para o Supabase ───────────────────
+      // IDs locais como "m177...", "g...", "nn...", "csv_..." não
+      // são aceitos pelo Supabase (coluna tipo uuid).
+      // Gera e persiste um UUID v4 real em l._supaId.
+      const _isUUID = id => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id||'');
+      (camp.leads||[]).forEach(l => {
+        if(!_isUUID(l.id)) l._supaId = l._supaId || crypto.randomUUID();
+        else l._supaId = l.id;
+      });
+      // Persiste os _supaId no localStorage para consistência
+      try{ saveCampaigns(); }catch(_){}
+
       const campLeads = (camp.leads||[]).map(l=>({
-        id:                  l.id,
+        id:                  l._supaId || l.id,
         campaign_id:         camp.id,
         user_id:             currentUser.id,
         name:                l.name                    || '',
