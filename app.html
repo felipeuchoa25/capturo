@@ -6816,40 +6816,214 @@ async function buscarNovosNegocios(){
         det = dd?.result||{};
       }catch(e){ det={name:p.name,formatted_address:p.vicinity||''}; }
 
-      // Tenta verificar data via CNPJ apenas se tiver nome e cidade
+      // ── Cascata de APIs CNPJ ─────────────────────────────────
+      // Tenta buscar dados reais do CNPJ pelo nome da empresa.
+      // Se uma API falhar ou não achar, tenta a próxima automaticamente.
       let isNova=false;
       let cnpjData=null;
-      // Verifica CNPJ via publica.cnpj.ws (sem chave, sem BrasilAPI, sem ReceitaWS)
-      // Tenta extrair CNPJ do telefone ou website do Google Places
-      if(det.name){
+
+      // Função auxiliar: normaliza o retorno de qualquer API para um objeto padrão
+      function _normalizarCnpjData(raw, fonte){
+        if(!raw) return null;
+        // publica.cnpj.ws / cnpj.ws
+        if(raw.estabelecimento){
+          const e=raw.estabelecimento;
+          const ddd=e.ddd1||'';
+          const tel=e.telefone1||'';
+          return {
+            cnpj: (raw.cnpj||'').replace(/\D/g,''),
+            razao_social: raw.razao_social||'',
+            nome_fantasia: e.nome_fantasia||'',
+            data_inicio_atividade: e.data_inicio_atividade||'',
+            telefone: ddd&&tel ? `(${ddd}) ${tel}` : '',
+            email: e.email||'',
+            logradouro: e.logradouro||'',
+            numero: e.numero||'',
+            bairro: e.bairro?.nome||e.bairro||'',
+            municipio: e.cidade?.nome||e.municipio||'',
+            uf: e.estado?.sigla||e.uf||'',
+            cep: e.cep||'',
+            porte: raw.porte?.descricao||'',
+            capital_social: raw.capital_social||null,
+            qsa: (raw.socios||[]).map(s=>({nome_socio:s.nome||''})),
+            _fonte: fonte
+          };
+        }
+        // BrasilAPI / OpenCNPJ / ReceitaWS / consultar.io
+        const tel = raw.telefone||raw.ddd_telefone_1||
+                    (raw.telefones&&raw.telefones[0]
+                      ? `(${raw.telefones[0].ddd}) ${raw.telefones[0].numero}` : '')||'';
+        return {
+          cnpj: (raw.cnpj||raw.taxId||'').replace(/\D/g,''),
+          razao_social: raw.razao_social||raw.company?.name||raw.nome||'',
+          nome_fantasia: raw.nome_fantasia||raw.alias||'',
+          data_inicio_atividade: raw.data_inicio_atividade||raw.data_inicio_atividades||
+                                  raw.founded||raw.abertura||'',
+          telefone: tel,
+          email: raw.email||'',
+          logradouro: raw.logradouro||raw.address?.street||'',
+          numero: raw.numero||raw.address?.number||'',
+          bairro: raw.bairro||raw.address?.district||'',
+          municipio: raw.municipio||raw.address?.city||'',
+          uf: raw.uf||raw.address?.state||'',
+          cep: raw.cep||raw.address?.zip||'',
+          porte: raw.porte||raw.descricao_porte||raw.porte_empresa||'',
+          capital_social: raw.capital_social||raw.company?.equity||null,
+          qsa: (raw.qsa||raw.socios||[]).map(s=>({nome_socio:s.nome_socio||s.nome||''})),
+          _fonte: fonte
+        };
+      }
+
+      // Função auxiliar: busca CNPJ por nome numa API e retorna objeto normalizado ou null
+      async function _buscarCnpjPorNome(nome, cidadeBusca){
+        const nomeCod = encodeURIComponent(nome);
+        const cidCod  = encodeURIComponent(cidadeBusca||'');
+
+        // ── 1ª tentativa: BrasilAPI search ───────────────────
         try{
-          // Busca CNPJ pelo nome via Google Places (campo business_status ou intl_phone)
-          // Se o place_id tiver CNPJ no campo, usamos. Caso contrário, inclui sem verificar.
-          const possibleCnpj = det.intl_phone_number?.replace(/\D/g,'') || null;
-          if(possibleCnpj && possibleCnpj.length===14){
-            const r2=await fetch(`https://publica.cnpj.ws/cnpj/${possibleCnpj}`,
-              {headers:{Accept:'application/json'}}).catch(()=>null);
-            if(r2&&r2.ok){
-              const dd2=await r2.json().catch(()=>null);
-              const dtStr = dd2?.estabelecimento?.data_inicio_atividade || dd2?.data_abertura || null;
-              if(dtStr){
-                cnpjData={data_inicio_atividade:dtStr, nome:dd2?.razao_social||det.name};
-                const dtAb=new Date(dtStr);
-                isNova = dtAb>=dataLimite;
+          const r = await fetch(
+            `https://brasilapi.com.br/api/cnpj/v1/search?text=${nomeCod}`,
+            {signal: AbortSignal.timeout(5000)}
+          ).catch(()=>null);
+          if(r&&r.ok){
+            const arr = await r.json().catch(()=>null);
+            const match = Array.isArray(arr) ? arr[0] : (arr?.companies?.[0]||null);
+            if(match?.cnpj){
+              // Busca detalhes completos com o CNPJ encontrado
+              const cnpjClean = match.cnpj.replace(/\D/g,'');
+              const r2 = await fetch(
+                `https://brasilapi.com.br/api/cnpj/v1/${cnpjClean}`,
+                {signal: AbortSignal.timeout(5000)}
+              ).catch(()=>null);
+              if(r2&&r2.ok){
+                const d = await r2.json().catch(()=>null);
+                const n = _normalizarCnpjData(d,'BrasilAPI');
+                if(n?.data_inicio_atividade) return n;
               }
             }
           }
         }catch(e){}
+
+        // ── 2ª tentativa: OpenCNPJ (api.opencnpj.org) ────────
+        try{
+          // OpenCNPJ não tem search por nome, mas podemos tentar via publica.cnpj.ws search
+          const r = await fetch(
+            `https://publica.cnpj.ws/cnpj/search?query=${nomeCod}&municipio=${cidCod}`,
+            {headers:{Accept:'application/json'}, signal: AbortSignal.timeout(5000)}
+          ).catch(()=>null);
+          if(r&&r.ok){
+            const arr = await r.json().catch(()=>null);
+            const match = Array.isArray(arr) ? arr[0] : null;
+            if(match?.cnpj){
+              const cnpjClean = match.cnpj.replace(/\D/g,'');
+              const r2 = await fetch(
+                `https://publica.cnpj.ws/cnpj/${cnpjClean}`,
+                {headers:{Accept:'application/json'}, signal: AbortSignal.timeout(5000)}
+              ).catch(()=>null);
+              if(r2&&r2.ok){
+                const d = await r2.json().catch(()=>null);
+                const n = _normalizarCnpjData(d,'CNPJws');
+                if(n?.data_inicio_atividade) return n;
+              }
+            }
+          }
+        }catch(e){}
+
+        // ── 3ª tentativa: api.opencnpj.org direto (por nome não suportado,
+        //    mas tenta ReceitaWS search como fallback) ────────
+        try{
+          const r = await fetch(
+            `https://receitaws.com.br/v1/cnpj/search?company=${nomeCod}&city=${cidCod}`,
+            {headers:{Accept:'application/json'}, signal: AbortSignal.timeout(6000)}
+          ).catch(()=>null);
+          if(r&&r.ok){
+            const data = await r.json().catch(()=>null);
+            const cnpjNum = data?.results?.[0]?.cnpj || data?.cnpj || null;
+            if(cnpjNum){
+              const cnpjClean = cnpjNum.replace(/\D/g,'');
+              const r2 = await fetch(
+                `https://brasilapi.com.br/api/cnpj/v1/${cnpjClean}`,
+                {signal: AbortSignal.timeout(5000)}
+              ).catch(()=>null);
+              if(r2&&r2.ok){
+                const d = await r2.json().catch(()=>null);
+                const n = _normalizarCnpjData(d,'ReceitaWS+BrasilAPI');
+                if(n?.data_inicio_atividade) return n;
+              }
+              // Se BrasilAPI falhou, tenta OpenCNPJ com o número
+              const r3 = await fetch(
+                `https://api.opencnpj.org/${cnpjClean}`,
+                {signal: AbortSignal.timeout(5000)}
+              ).catch(()=>null);
+              if(r3&&r3.ok){
+                const d3 = await r3.json().catch(()=>null);
+                const n3 = _normalizarCnpjData(d3?.data||d3,'OpenCNPJ');
+                if(n3?.data_inicio_atividade) return n3;
+              }
+            }
+          }
+        }catch(e){}
+
+        // ── 4ª tentativa: Speedio /buscarcnpj por nome ───────
+        try{
+          const r = await fetch(
+            `https://api.apiconsultacnpj.com.br/buscarcnpj?cnpj=${nomeCod}`,
+            {signal: AbortSignal.timeout(5000)}
+          ).catch(()=>null);
+          if(r&&r.ok){
+            const d = await r.json().catch(()=>null);
+            const n = _normalizarCnpjData(d,'Speedio');
+            if(n?.data_inicio_atividade) return n;
+          }
+        }catch(e){}
+
+        return null; // Nenhuma API encontrou
+      }
+
+      if(det.name){
+        try{
+          cnpjData = await _buscarCnpjPorNome(det.name, cidade);
+          if(cnpjData?.data_inicio_atividade){
+            // Normaliza formato de data (aceita YYYY-MM-DD ou DD/MM/YYYY)
+            const dtStr = cnpjData.data_inicio_atividade;
+            const dtAb = new Date(dtStr.includes('/')
+              ? dtStr.replace(/(\d{2})\/(\d{2})\/(\d{4})/,'$3-$2-$1')
+              : dtStr);
+            isNova = !isNaN(dtAb) && dtAb >= dataLimite;
+            // Complementa com dados do Google Places se a API não trouxe telefone
+            if(!cnpjData.telefone && det.formatted_phone_number)
+              cnpjData.telefone = det.formatted_phone_number;
+            if(!cnpjData.email && det.website)
+              cnpjData.website = det.website;
+          }
+        }catch(e){ cnpjData=null; }
       }
 
       // Se não conseguiu verificar CNPJ, inclui mesmo assim (melhor ter mais do que menos)
       if(isNova||cnpjData===null){
         const lead={
           id:'nn'+Date.now()+'_'+i,
-          name: det.name||p.name||'',
+          // Prefere dados da Receita Federal; Google Places como fallback
+          name: cnpjData?.razao_social||cnpjData?.nome_fantasia||det.name||p.name||'',
+          nome_fantasia: cnpjData?.nome_fantasia||det.name||p.name||'',
+          razao_social: cnpjData?.razao_social||'',
+          cnpj: cnpjData?.cnpj||'',
+          data_inicio_atividade: cnpjData?.data_inicio_atividade||'',
+          telefone: cnpjData?.telefone||det.formatted_phone_number||'',
+          email: cnpjData?.email||'',
+          logradouro: cnpjData?.logradouro||'',
+          numero: cnpjData?.numero||'',
+          bairro: cnpjData?.bairro||'',
+          municipio: cnpjData?.municipio||cidade,
+          uf: cnpjData?.uf||uf,
+          cep: cnpjData?.cep||'',
+          porte: cnpjData?.porte||'',
+          capital_social: cnpjData?.capital_social||null,
+          qsa: cnpjData?.qsa||[],
+          // Dados do Google Places (complementares)
           formatted_address: det.formatted_address||p.vicinity||'',
-          formatted_phone_number: det.formatted_phone_number||'',
-          website: det.website||'',
+          formatted_phone_number: cnpjData?.telefone||det.formatted_phone_number||'',
+          website: cnpjData?.website||det.website||'',
           rating: det.rating||null,
           user_ratings_total: det.user_ratings_total||null,
           place_id: p.place_id,
@@ -6862,8 +7036,11 @@ async function buscarNovosNegocios(){
           status:'new',
           source:'novos_negocios',
           cnpjData: cnpjData,
+          _apiFonte: cnpjData?._fonte||'',
           isNova: isNova,
-          notes: isNova?`Empresa aberta em ${cnpjData?.data_inicio_atividade||'data desconhecida'} — menos de ${dias} dias.`:''
+          notes: isNova
+            ? `Empresa aberta em ${cnpjData?.data_inicio_atividade||'data desconhecida'} — menos de ${dias} dias. Fonte: ${cnpjData?._fonte||'API'}.`
+            : cnpjData ? `Dados CNPJ via ${cnpjData._fonte}` : ''
         };
         novas.push(lead);
       }
@@ -6998,12 +7175,14 @@ function _renderAlertasResultados(lista, cidade, nicho, dias){
         </div>
       </div>
       <div style="font-size:11px;color:var(--muted2);margin-bottom:8px;line-height:1.6">
-        <div>📅 Abertura: <strong style="color:var(--text)">${dtFmt}</strong></div>
-        <div>🏷 ${cnae}</div>
-        ${tel!=='—'?`<div>📞 <span style="font-family:monospace">${tel}</span></div>`:''}
+        <div>📅 Abertura: <strong style="color:${dtFmt!=='—'?'var(--text)':'var(--muted2)'}">${dtFmt}</strong>
+          ${emp._apiFonte?`<span style="font-size:9px;background:var(--accent-bg);color:var(--accent);padding:1px 6px;border-radius:10px;margin-left:4px">${escHtml(emp._apiFonte)}</span>`:'<span style="font-size:9px;background:rgba(255,157,62,.1);color:var(--orange);padding:1px 6px;border-radius:10px;margin-left:4px">Google Places</span>'}
+        </div>
+        ${cnae!=='—'?`<div>🏷 ${cnae}</div>`:''}
+        ${tel!=='—'?`<div>📞 <span style="font-family:monospace">${tel}</span></div>`:`<div style="opacity:.5">📞 Telefone não encontrado</div>`}
         ${email?`<div>✉ <span style="font-family:monospace">${email}</span></div>`:''}
-        <div>👤 Sócio: ${socios}</div>
-        <div style="display:flex;gap:12px"><span>Porte: ${porte}</span><span>Capital: ${capital}</span></div>
+        <div>👤 Sócio: <strong style="color:${socios!=='—'?'var(--text)':'var(--muted2)'}">${socios}</strong></div>
+        <div style="display:flex;gap:12px"><span>Porte: <strong style="color:var(--text)">${porte}</strong></span><span>Capital: <strong style="color:var(--text)">${capital}</strong></span></div>
       </div>
       <!-- Pitch IA -->
       <div id="pitch-area-${idx}" style="display:none;background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:12px;margin-bottom:10px;font-size:12px;line-height:1.6;color:var(--text2);font-style:italic"></div>
