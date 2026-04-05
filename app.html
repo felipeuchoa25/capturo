@@ -5118,7 +5118,7 @@ async function startMapsSearch(){
   const useHunter=$('enableHunter').checked&&('via-edge-function');
   // ── Verifica saldo de Leads ───────────────────────────────────
   if(leadsRestantes() < 1){
-    toast('⚡ Você não tem Leads disponíveis. Recarregue para continuar prospectando.','warn',6000);
+    toast('⚡ Você não tem Sinais disponíveis. Recarregue para continuar prospectando.','warn',6000);
     return;
   }
   _leadsEsgotadosAlertado = false;
@@ -5190,7 +5190,7 @@ async function startMapsSearch(){
         if(!passaFiltros(lead, _filters)){ _filteredCount++; continue; }
         // ── Consome 1 Lead; para se sem saldo ───────────────────
         const ok = await consumirSinal('maps_search', {lead_name:lead.name, campaign_id:activeCampaignId});
-        if(!ok){ setStat('⚡ Leads esgotados! Recarregue para continuar.'); if(!_leadsEsgotadosAlertado){_leadsEsgotadosAlertado=true; toast('⚡ Leads esgotados! Recarregue seus Leads para continuar.','warn',5000); setTimeout(()=>abrirModalRecarga('Seus Leads acabaram durante a busca. Escolha um pack para continuar.'),600);} break; }
+        if(!ok){ setStat('⚡ Sinais esgotados! Recarregue para continuar.'); if(!_leadsEsgotadosAlertado){_leadsEsgotadosAlertado=true; toast('⚡ Sinais esgotados! Recarregue seus Sinais para continuar.','warn',5000); setTimeout(()=>abrirModalRecarga('Seus Sinais acabaram durante a busca. Escolha um pack para continuar.'),600);} break; }
         leads.push(lead);
         setProg(5+Math.round(((nbIdx+(i+1)/places.length)/searchList.length)*25));
         setStat(`<span class="spinner"></span>[${nb||searchCity}] ${i+1}/${places.length}: ${lead.name}`);
@@ -5266,7 +5266,7 @@ async function startBioSearch(){
   if(!activeBio.length){alert('Ative pelo menos um site de bio link!');return;}
   // ── Verifica saldo de Leads ───────────────────────────────────
   if(leadsRestantes() < 1){
-    toast('⚡ Você não tem Leads disponíveis. Recarregue para continuar prospectando.','warn',6000);
+    toast('⚡ Você não tem Sinais disponíveis. Recarregue para continuar prospectando.','warn',6000);
     return;
   }
   _leadsEsgotadosAlertado = false;
@@ -5357,7 +5357,7 @@ async function startFullSearch(){
   const gKey='via-edge-function';
   if(!activeCampaignId){alert('Selecione uma campanha!');return;}
   if(leadsRestantes() < 1){
-    toast('⚡ Você não tem Leads disponíveis. Recarregue para continuar prospectando.','warn',6000);
+    toast('⚡ Você não tem Sinais disponíveis. Recarregue para continuar prospectando.','warn',6000);
     return;
   }
   _leadsEsgotadosAlertado = false;
@@ -5503,7 +5503,7 @@ async function startBioSearchInternal(gKey,cseId){
         const phoneMatch=(item.snippet||'').match(/[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}/);
         // ── Consome 1 Lead; para se sem saldo ───────────────────
         const okBio = await consumirSinal('bio_search', {lead_name:name, campaign_id:activeCampaignId});
-        if(!okBio){ setStat('⚡ Leads esgotados! Recarregue para continuar.'); if(!_leadsEsgotadosAlertado){_leadsEsgotadosAlertado=true; toast('⚡ Leads esgotados! Recarregue seus Leads para continuar.','warn',5000); setTimeout(()=>abrirModalRecarga('Seus Leads acabaram durante a busca. Escolha um pack para continuar.'),600);} return; }
+        if(!okBio){ setStat('⚡ Sinais esgotados! Recarregue para continuar.'); if(!_leadsEsgotadosAlertado){_leadsEsgotadosAlertado=true; toast('⚡ Sinais esgotados! Recarregue seus Sinais para continuar.','warn',5000); setTimeout(()=>abrirModalRecarga('Seus Sinais acabaram durante a busca. Escolha um pack para continuar.'),600);} return; }
         leads.push({id:'g'+Date.now()+bi+'_'+ii,name,formatted_address:(item.snippet||'').substring(0,120),t:'volcano',score:10,status:'new',notes:'',siteScore:null,siteIssues:[],sitePitch:'',email:'',emailVerified:false,emailConfidence:0,source:'google',bioUrl:item.link,bioSite:bioSite.domain,snippet:item.snippet||'',formatted_phone_number:phoneMatch?phoneMatch[0]:'',website:item.link,mapsUrl:`https://www.google.com/maps/search/${encodeURIComponent(name)}`,country:isBrasil?'BR':c.country||'US'});
         renderAll();
         // ── Auto-save a cada 50 leads ──────────────────────────
@@ -6819,26 +6819,23 @@ async function buscarNovosNegocios(){
       // Tenta verificar data via CNPJ apenas se tiver nome e cidade
       let isNova=false;
       let cnpjData=null;
+      // Verifica CNPJ via publica.cnpj.ws (sem chave, sem BrasilAPI, sem ReceitaWS)
+      // Tenta extrair CNPJ do telefone ou website do Google Places
       if(det.name){
         try{
-          const nm=encodeURIComponent(det.name);
-          const ct=encodeURIComponent(cidade);
-          const r1=await fetch(`https://receitaws.com.br/v1/cnpj/search?company=${nm}&city=${ct}`,
-            {headers:{Accept:'application/json'}}).catch(()=>null);
-          if(r1&&r1.ok){
-            const d1=await r1.json().catch(()=>null);
-            const cnpjNum=d1?.results?.[0]?.cnpj||d1?.cnpj||null;
-            if(cnpjNum){
-              const clean=cnpjNum.replace(/\D/g,'');
-              const r2=await fetch(`https://brasilapi.com.br/api/cnpj/v1/${clean}`,
-                {headers:{Accept:'application/json','User-Agent':'Mozilla/5.0'}}).catch(()=>null);
-              if(r2&&r2.ok){
-                const dd2=await r2.json().catch(()=>null);
-                if(dd2?.data_inicio_atividade){
-                  cnpjData=dd2;
-                  const dtAb=new Date(dd2.data_inicio_atividade);
-                  isNova = dtAb>=dataLimite;
-                }
+          // Busca CNPJ pelo nome via Google Places (campo business_status ou intl_phone)
+          // Se o place_id tiver CNPJ no campo, usamos. Caso contrário, inclui sem verificar.
+          const possibleCnpj = det.intl_phone_number?.replace(/\D/g,'') || null;
+          if(possibleCnpj && possibleCnpj.length===14){
+            const r2=await fetch(`https://publica.cnpj.ws/cnpj/${possibleCnpj}`,
+              {headers:{Accept:'application/json'}}).catch(()=>null);
+            if(r2&&r2.ok){
+              const dd2=await r2.json().catch(()=>null);
+              const dtStr = dd2?.estabelecimento?.data_inicio_atividade || dd2?.data_abertura || null;
+              if(dtStr){
+                cnpjData={data_inicio_atividade:dtStr, nome:dd2?.razao_social||det.name};
+                const dtAb=new Date(dtStr);
+                isNova = dtAb>=dataLimite;
               }
             }
           }
@@ -6883,6 +6880,13 @@ async function buscarNovosNegocios(){
     }
 
     if(status) status.textContent=`${novas.length} negócio(s) encontrado(s).`;
+    // Registra missão de busca realizada
+    if(novas.length > 0 && typeof completarMissao === 'function'){
+      const hoje = new Date().toDateString();
+      if(localStorage.getItem('capturo_missao_busca_realizada') !== hoje){
+        completarMissao('busca_realizada', 3);
+      }
+    }
     if(!novas.length) toast(`Nenhum negócio encontrado para "${nicho}" em ${cidade}.`,'warn',5000);
 
   }catch(e){
@@ -6894,6 +6898,35 @@ async function buscarNovosNegocios(){
     if(btnBuscar){ btnBuscar.disabled=false; btnBuscar.textContent='Buscar Novos Negócios'; }
     if(btnCancel){ btnCancel.style.display='none'; }
   }
+}
+
+// ── Pitch IA para Novos Negócios ────────────────────────────────────────────
+function _gerarPitchAlerta(idx, nomeEmpresa, nicho){
+  const area = document.getElementById('pitch-area-'+idx);
+  if(!area) return;
+  area.style.display='block';
+  area.textContent='🤖 Gerando pitch...';
+
+  const pitchs = [
+    `Olá! Vi que ${nomeEmpresa} abriu recentemente no segmento de ${nicho}. Parabéns pela abertura! Trabalho com agências que ajudam novos negócios a conquistar os primeiros clientes rápido — posso te mostrar como atrair +30% de clientes em 30 dias. Posso te enviar um material gratuito?`,
+    `Oi! Notei que ${nomeEmpresa} é um negócio novo de ${nicho} na região. Sei que os primeiros meses são decisivos. Tenho uma estratégia específica para negócios recém-abertos que já ajudou dezenas de empresas a lotar a agenda. Tem 5 minutinhos para uma conversa rápida?`,
+    `Olá, tudo bem? Encontrei ${nomeEmpresa} aqui e vi que vocês abriram recentemente. O início é cheio de desafios, né? Trabalho com marketing digital focado em ${nicho} e sei exatamente o que funciona para atrair clientes locais nos primeiros meses. Posso te ajudar?`,
+  ];
+  const pitch = pitchs[idx % pitchs.length];
+
+  setTimeout(()=>{
+    area.innerHTML = `<div style="margin-bottom:8px">"${pitch}"</div>
+      <button onclick="navigator.clipboard.writeText(this.closest('[id^=pitch-area]')||document.getElementById('pitch-area-${idx}').querySelector('div').textContent.replace(/^\"|\"$/g,'')).then(()=>{this.textContent='✅ Copiado!';setTimeout(()=>{this.textContent='📋 Copiar';},1800)})" 
+        style="background:var(--purple-bg);border:1px solid rgba(184,122,255,.3);color:var(--purple);padding:5px 12px;border-radius:8px;font-size:10px;font-weight:600;cursor:pointer;width:100%">📋 Copiar Pitch</button>`;
+    // Bind do botão copiar corretamente
+    const btn = area.querySelector('button');
+    if(btn) btn.onclick = ()=>{
+      navigator.clipboard.writeText(pitch).then(()=>{
+        btn.textContent='✅ Copiado!';
+        setTimeout(()=>{ btn.textContent='📋 Copiar Pitch'; },1800);
+      });
+    };
+  }, 600);
 }
 
 function cancelarBuscaAlertas(){
@@ -6930,12 +6963,27 @@ function _renderAlertasResultados(lista, cidade, nicho, dias){
     const dtFmt  = dataAb ? new Date(dataAb.replace(/(\d{2})\/(\d{2})\/(\d{4})/,'$3-$2-$1'))
                               .toLocaleDateString('pt-BR') : '—';
     const cnae   = escHtml(emp.cnae_fiscal_descricao||(emp.atividade_principal&&emp.atividade_principal[0]?.text)||'—');
-    const tel    = escHtml(emp.telefone||emp.ddd_telefone_1||'—');
+    const tel    = escHtml(emp.telefone||emp.ddd_telefone_1||emp.formatted_phone_number||'—');
     const email  = escHtml(emp.email||'');
     const porte  = escHtml(emp.porte||emp.descricao_porte||'—');
     const capital = emp.capital_social ? 'R$ '+parseFloat(emp.capital_social).toLocaleString('pt-BR',{minimumFractionDigits:2}) : '—';
     const socios = (emp.qsa||[]).map(s=>escHtml(s.nome_socio||s.nome||'')).join(', ')||'—';
     const diasAberto = dataAb ? Math.round((Date.now()-new Date(dataAb.replace(/(\d{2})\/(\d{2})\/(\d{4})/,'$3-$2-$1')).getTime())/(1000*60*60*24)) : null;
+
+    // ── Score de Oportunidade (0–100) ──────────────────────────────────────
+    let score = 50;
+    if(diasAberto!==null){
+      if(diasAberto<=7)  score=98;
+      else if(diasAberto<=15) score=92;
+      else if(diasAberto<=30) score=85;
+      else if(diasAberto<=60) score=75;
+      else if(diasAberto<=90) score=65;
+    }
+    if(emp.capital_social && parseFloat(emp.capital_social)>=50000) score=Math.min(100,score+8);
+    if(tel!=='—') score=Math.min(100,score+5);
+    if(email)     score=Math.min(100,score+4);
+    const scoreCor = score>=85?'var(--green)':score>=70?'var(--orange)':'var(--accent)';
+    const scoreLabel2 = score>=85?'🔥 Alta':score>=70?'⚡ Média':'🌡 Normal';
 
     return `<div style="background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:16px;position:relative;overflow:hidden">
       <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--volcano),var(--hot))"></div>
@@ -6944,7 +6992,10 @@ function _renderAlertasResultados(lista, cidade, nicho, dias){
           <div style="font-size:13px;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:3px">${nome}</div>
           <div style="font-size:10px;color:var(--muted2);font-family:'IBM Plex Mono',monospace">${cnpj}</div>
         </div>
-        ${diasAberto!==null?`<span style="font-size:10px;background:rgba(255,69,0,.15);color:var(--volcano);padding:3px 8px;border-radius:20px;font-weight:700;white-space:nowrap;flex-shrink:0">${diasAberto}d atrás</span>`:''}
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
+          ${diasAberto!==null?`<span style="font-size:10px;background:rgba(255,69,0,.15);color:var(--volcano);padding:3px 8px;border-radius:20px;font-weight:700;white-space:nowrap">${diasAberto}d atrás</span>`:''}
+          <span style="font-size:10px;background:rgba(0,0,0,.3);border:1px solid ${scoreCor}33;color:${scoreCor};padding:3px 8px;border-radius:20px;font-weight:700">Score ${score}</span>
+        </div>
       </div>
       <div style="font-size:11px;color:var(--muted2);margin-bottom:8px;line-height:1.6">
         <div>📅 Abertura: <strong style="color:var(--text)">${dtFmt}</strong></div>
@@ -6954,10 +7005,13 @@ function _renderAlertasResultados(lista, cidade, nicho, dias){
         <div>👤 Sócio: ${socios}</div>
         <div style="display:flex;gap:12px"><span>Porte: ${porte}</span><span>Capital: ${capital}</span></div>
       </div>
+      <!-- Pitch IA -->
+      <div id="pitch-area-${idx}" style="display:none;background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:12px;margin-bottom:10px;font-size:12px;line-height:1.6;color:var(--text2);font-style:italic"></div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
         <button onclick="_importarAlertaLeadUnico(${idx})" class="btn btn-primary" style="font-size:10px;padding:5px 10px">+ Importar Lead</button>
-        ${cnpj?`<a href="https://www.receitaws.com.br/v1/cnpj/${cnpj.replace(/\D/g,'')}" target="_blank" class="btn btn-ghost" style="font-size:10px;padding:5px 10px;text-decoration:none">📋 Receita</a>`:''}
+        <button onclick="_gerarPitchAlerta(${idx},'${nome.replace(/'/g,"\\'").replace(/"/g,'\\"')}','${escHtml(nicho)}')" class="btn btn-ghost" style="font-size:10px;padding:5px 10px;color:var(--purple);border-color:rgba(184,122,255,.3);background:var(--purple-bg)">🤖 Pitch IA</button>
         ${tel!=='—'?`<a href="https://wa.me/55${tel.replace(/\D/g,'')}" target="_blank" class="btn btn-ghost" style="font-size:10px;padding:5px 10px;text-decoration:none;color:#25D366;border-color:#25D36633">💬 WA</a>`:''}
+        ${cnpj?`<a href="https://publica.cnpj.ws/cnpj/${cnpj.replace(/\D/g,'')}" target="_blank" class="btn btn-ghost" style="font-size:10px;padding:5px 10px;text-decoration:none">📋 CNPJ</a>`:''}
       </div>
     </div>`;
   }).join('');
@@ -6969,6 +7023,13 @@ function _importarAlertaLeadUnico(idx){
   if(!activeCampaignId){ toast('Abra uma campanha antes de importar.','warn'); return; }
   _importarEmpresaComoLead(emp);
   toast(`✅ "${emp.razao_social||emp.nome||'Lead'}" importado para a campanha!`,'ok',3000);
+  // Registra missão de importar lead
+  if(typeof completarMissao === 'function'){
+    const hoje = new Date().toDateString();
+    if(localStorage.getItem('capturo_missao_importar_lead') !== hoje){
+      completarMissao('importar_lead', 2);
+    }
+  }
 }
 
 function importarAlertasParaCampanha(){
@@ -9896,6 +9957,35 @@ function renderDashboard(){
 
   // Show sections
   const ms=$('dashMainSection'); if(ms) ms.style.display='grid';
+
+  // Card extra: ROI de Sinais (inserido dinamicamente se tiver dados)
+  const roiCard = document.getElementById('dashRoiSinais');
+  if(!roiCard){
+    const grid = $('dashKpiCards');
+    if(grid){
+      const sinaisUsados = _leadsProfile.sinais_used || 0;
+      const sinaisTotal  = _leadsProfile.sinais_limit || 0;
+      const roiPorSinal  = sinaisUsados > 0 ? (receita / sinaisUsados).toFixed(0) : '—';
+      const div = document.createElement('div');
+      div.id = 'dashRoiSinais';
+      div.className = 'kpi-card';
+      div.style.borderLeft = '3px solid var(--teal)';
+      div.innerHTML = `
+        <div class="kpi-icon" style="font-size:22px;margin-bottom:8px">⚡</div>
+        <div class="kpi-value" style="font-size:28px;color:var(--teal)">${sinaisUsados}</div>
+        <div class="kpi-label">Sinais Usados</div>
+        <div class="kpi-sub" style="color:var(--muted2)">ROI: ${roiPorSinal!=='—'?'R$'+roiPorSinal+'/Sinal':'—'}</div>`;
+      grid.appendChild(div);
+    }
+  } else {
+    // Atualiza valores
+    const sinaisUsados = _leadsProfile.sinais_used || 0;
+    const roiPorSinal  = sinaisUsados > 0 ? (receita / sinaisUsados).toFixed(0) : '—';
+    const valEl = roiCard.querySelector('.kpi-value');
+    const subEl = roiCard.querySelector('.kpi-sub');
+    if(valEl) valEl.textContent = sinaisUsados;
+    if(subEl) subEl.textContent = 'ROI: '+(roiPorSinal!=='—'?'R$'+roiPorSinal+'/Sinal':'—');
+  }
   const ts=$('dashThermoSection'); if(ts) ts.style.display='block';
 
   // Thermo bar compacta
@@ -11177,7 +11267,7 @@ function atualizarBadgeLeads(){
   if(lblEl) lblEl.textContent = 'Leads';
   const cor = restantes <= 5 ? 'var(--red)' : restantes <= 15 ? 'var(--orange)' : 'var(--accent)';
   if(numEl) numEl.style.color = cor;
-  el.title = `${restantes} leads restantes de ${_leadsProfile.sinais_limit}`;
+  el.title = `${restantes} Sinais restantes de ${_leadsProfile.sinais_limit}`;
   // Atualiza também o item do menu dropdown
   const menuLeadsEl = document.querySelector('#userMenu .um-leads span:last-child');
   if(menuLeadsEl){ menuLeadsEl.textContent = restantes; menuLeadsEl.style.color = cor; }
@@ -11292,7 +11382,7 @@ function updateUserHeader(){
     <div id="leadsBadge" onclick="abrirModalRecarga()" title="${restantes} leads restantes" style="display:flex;align-items:center;gap:5px;background:var(--accent-bg);border:1px solid rgba(79,142,255,.2);border-radius:var(--r-pill);padding:4px 12px 4px 8px;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='rgba(79,142,255,.2)'">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><circle cx="12" cy="12" r="3" fill="${corLeads}"/><circle cx="12" cy="12" r="7" stroke="${corLeads}" stroke-width="1.5" opacity=".4" fill="none"/></svg>
       <span class="sb-num" style="font-size:11px;font-weight:700;color:${corLeads};font-family:monospace">${restantes}</span>
-      <span class="sb-lbl" style="font-size:10px;color:var(--muted2)">Leads</span>
+      <span class="sb-lbl" style="font-size:10px;color:var(--muted2)">Sinais</span>
     </div>
     <!-- Avatar unificado clicável -->
     <div style="position:relative" id="userAvatarWrap">
@@ -11308,7 +11398,7 @@ function updateUserHeader(){
           <div class="um-email">${currentUser.email}</div>
         </div>
         <div class="um-leads" onclick="fecharUserMenu();abrirModalRecarga()">
-          <span style="font-size:12px;color:var(--muted2)">Leads restantes</span>
+          <span style="font-size:12px;color:var(--muted2)">Sinais restantes</span>
           <span style="font-size:13px;font-weight:700;color:${corLeads}">${restantes}</span>
         </div>
         <div class="um-item" onclick="fecharUserMenu();openUserProfile()">
@@ -12453,33 +12543,38 @@ window._postAuthInit = function(){
 /* ── Modal Recarga de Leads ── */
 #modalRecarga{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);align-items:center;justify-content:center}
 #modalRecarga.open{display:flex}
-.recarga-box{background:var(--card-bg,#1a1d23);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:32px 28px;max-width:480px;width:90%;text-align:center;position:relative}
-.recarga-close{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.1);border:none;color:var(--muted2,#aaa);cursor:pointer;font-size:18px;line-height:1;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+.recarga-box{background:var(--s1);border:1px solid var(--border2);border-radius:24px;padding:32px 28px;max-width:480px;width:90%;text-align:center;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+.recarga-close{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.08);border:none;color:var(--muted2,#aaa);cursor:pointer;font-size:18px;line-height:1;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:all .15s}
 .recarga-close:hover,.recarga-close:active{background:rgba(255,59,48,.2);color:var(--red,#ff453a)}
-.recarga-title{font-size:20px;font-weight:700;color:var(--fg,#f0f0f0);margin-bottom:4px}
-.recarga-sub{font-size:13px;color:var(--muted2,#888);margin-bottom:24px}
+.recarga-title{font-size:22px;font-weight:800;color:var(--text);margin-bottom:4px;letter-spacing:-.02em}
+.recarga-sub{font-size:13px;color:var(--muted2);margin-bottom:24px}
 .recarga-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
-.recarga-card{background:var(--accent-bg,rgba(0,122,255,.08));border:1.5px solid rgba(0,122,255,.18);border-radius:14px;padding:16px 10px;cursor:pointer;transition:border-color .2s,transform .15s}
-.recarga-card:hover{border-color:var(--accent,#007aff);transform:translateY(-2px)}
-.recarga-card.destaque{border-color:var(--accent,#007aff);background:rgba(0,122,255,.14)}
-.recarga-qtd{font-size:22px;font-weight:800;color:var(--accent,#007aff)}
-.recarga-label{font-size:11px;color:var(--muted2,#888);margin:2px 0 8px}
-.recarga-preco{font-size:15px;font-weight:700;color:var(--fg,#f0f0f0)}
-.recarga-custo{font-size:10px;color:var(--muted2,#888);margin-top:2px}
-.recarga-badge{display:inline-block;font-size:9px;font-weight:700;background:var(--accent,#007aff);color:#fff;border-radius:20px;padding:2px 7px;margin-top:6px}
-.recarga-mensal{border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;cursor:pointer;transition:border-color .2s}
-.recarga-mensal:hover{border-color:var(--accent,#007aff)}
+.recarga-card{background:var(--s2);border:1.5px solid var(--border);border-radius:16px;padding:18px 10px;cursor:pointer;transition:border-color .2s,transform .15s,box-shadow .2s;position:relative}
+.recarga-card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 8px 24px rgba(79,142,255,.2)}
+.recarga-card.destaque{border-color:var(--accent);background:var(--accent-bg)}
+.recarga-card.destaque:hover{box-shadow:0 8px 28px rgba(79,142,255,.3)}
+.recarga-qtd{font-size:26px;font-weight:800;color:var(--accent)}
+.recarga-label{font-size:11px;color:var(--muted2);margin:2px 0 8px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.recarga-preco{font-size:16px;font-weight:700;color:var(--text)}
+.recarga-custo{font-size:10px;color:var(--muted2);margin-top:3px}
+.recarga-badge{display:inline-block;font-size:9px;font-weight:700;background:var(--accent);color:#fff;border-radius:20px;padding:2px 8px;margin-top:7px}
+.recarga-mensal{border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;cursor:pointer;transition:border-color .2s,background .2s}
+.recarga-mensal:hover{border-color:var(--accent);background:var(--accent-bg)}
 .recarga-mensal-info{text-align:left}
-.recarga-mensal-titulo{font-size:13px;font-weight:700;color:var(--fg,#f0f0f0)}
-.recarga-mensal-desc{font-size:11px;color:var(--muted2,#888);margin-top:2px}
-.recarga-mensal-btn{font-size:12px;font-weight:700;background:var(--accent,#007aff);color:#fff;border:none;border-radius:8px;padding:7px 14px;cursor:pointer;white-space:nowrap}
+.recarga-mensal-titulo{font-size:13px;font-weight:700;color:var(--text)}
+.recarga-mensal-desc{font-size:11px;color:var(--muted2);margin-top:2px}
+.recarga-mensal-btn{font-size:12px;font-weight:700;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:8px 16px;cursor:pointer;white-space:nowrap;transition:opacity .15s}
+.recarga-mensal-btn:hover{opacity:.85}
+/* Missões */
+.missao-item{display:flex;justify-content:space-between;align-items:center;background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;transition:border-color .2s}
+.missao-item:hover{border-color:var(--border2)}
 </style>
 
-<!-- ── MODAL RECARGA DE LEADS ── -->
-<div id="modalRecarga" role="dialog" aria-modal="true" aria-label="Recarregar Leads">
+<!-- ── MODAL RECARGA DE RAIOS ── -->
+<div id="modalRecarga" role="dialog" aria-modal="true" aria-label="Recarregar Sinais">
   <div class="recarga-box">
     <button class="recarga-close" onclick="fecharModalRecarga()" title="Fechar">✕</button>
-    <div class="recarga-title">⚡ Recarregar Leads</div>
+    <div class="recarga-title">⚡ Recarregar Sinais</div>
     <div class="recarga-sub" id="recargaSub">Escolha um pack para continuar prospectando</div>
 
     <!-- Packs avulsos -->
@@ -12487,24 +12582,24 @@ window._postAuthInit = function(){
       <!-- Pack 50 -->
       <div class="recarga-card" onclick="abrirHotmart('PACK_50')">
         <div class="recarga-qtd">50</div>
-        <div class="recarga-label">Leads</div>
+        <div class="recarga-label">Sinais</div>
         <div class="recarga-preco">R$&nbsp;97</div>
-        <div class="recarga-custo">R$&nbsp;1,94/lead</div>
+        <div class="recarga-custo">R$&nbsp;1,94/Sinal</div>
       </div>
       <!-- Pack 150 -->
       <div class="recarga-card destaque" onclick="abrirHotmart('PACK_150')">
         <div class="recarga-qtd">150</div>
-        <div class="recarga-label">Leads</div>
+        <div class="recarga-label">Sinais</div>
         <div class="recarga-preco">R$&nbsp;197</div>
-        <div class="recarga-custo">R$&nbsp;1,31/lead</div>
+        <div class="recarga-custo">R$&nbsp;1,31/Sinal</div>
         <div class="recarga-badge">Mais popular</div>
       </div>
       <!-- Pack 400 -->
       <div class="recarga-card" onclick="abrirHotmart('PACK_400')">
         <div class="recarga-qtd">400</div>
-        <div class="recarga-label">Leads</div>
+        <div class="recarga-label">Sinais</div>
         <div class="recarga-preco">R$&nbsp;397</div>
-        <div class="recarga-custo">R$&nbsp;0,99/lead</div>
+        <div class="recarga-custo">R$&nbsp;0,99/Sinal</div>
         <div class="recarga-badge">Melhor custo</div>
       </div>
     </div>
@@ -12513,9 +12608,14 @@ window._postAuthInit = function(){
     <div class="recarga-mensal" onclick="abrirHotmart('PLANO_MENSAL')">
       <div class="recarga-mensal-info">
         <div class="recarga-mensal-titulo">📅 Plano Mensal — R$ 97/mês</div>
-        <div class="recarga-mensal-desc">40 Leads/mês renovados automaticamente + acesso completo</div>
+        <div class="recarga-mensal-desc">80 Sinais/mês renovados automaticamente + acesso completo</div>
       </div>
       <button class="recarga-mensal-btn">Assinar</button>
+    </div>
+
+    <!-- Nota de uso -->
+    <div style="margin-top:12px;font-size:10px;color:var(--muted2);text-align:center;line-height:1.6">
+      Sinais extras são usados primeiro. Depois voltam os do plano mensal.
     </div>
   </div>
 </div>
@@ -12560,7 +12660,7 @@ window._postAuthInit = function(){
       <!-- Estatísticas -->
       <div class="up-section">
         <div class="up-section-title">📊 Suas Estatísticas</div>
-        <div class="up-stat-row"><span class="up-stat-label">Leads disponíveis</span><span class="up-stat-val" id="upStatDisp">—</span></div>
+        <div class="up-stat-row"><span class="up-stat-label">Sinais disponíveis</span><span class="up-stat-val" id="upStatDisp">—</span></div>
         <div class="up-stat-row"><span class="up-stat-label">Leads usados</span><span class="up-stat-val" id="upStatUsed">—</span></div>
         <div class="up-stat-row"><span class="up-stat-label">Campanhas ativas</span><span class="up-stat-val" id="upStatCamp">—</span></div>
         <div class="up-stat-row"><span class="up-stat-label">Total de leads captados</span><span class="up-stat-val" id="upStatLeads">—</span></div>
@@ -12575,6 +12675,15 @@ window._postAuthInit = function(){
           <div style="text-align:center;padding:20px;color:var(--muted2);font-size:11px">
             <span class="spinner"></span> Carregando...
           </div>
+        </div>
+      </div>
+
+      <!-- Missões Diárias -->
+      <div class="up-section">
+        <div class="up-section-title">🎯 Missões — Ganhe Sinais Grátis</div>
+        <div style="font-size:11px;color:var(--muted2);margin-bottom:12px;line-height:1.5">Complete tarefas diárias para ganhar Sinais sem pagar nada.</div>
+        <div id="missoesList" style="display:flex;flex-direction:column;gap:8px">
+          <!-- Preenchido via JS -->
         </div>
       </div>
 
@@ -12626,6 +12735,9 @@ function openUserProfile(){
   if(!modal) return;
   modal.classList.add('open');
   populateUserProfile();
+  renderMissoes();
+  // Check-in diário automático ao abrir o perfil
+  setTimeout(_registrarCheckinMissao, 500);
 }
 function closeUserProfile(){
   const modal = document.getElementById('userProfileModal');
@@ -12800,8 +12912,82 @@ function abrirHotmart(oferta){
   window.open(url, '_blank', 'noopener');
 }
 
-// Abrir modal automaticamente quando leads chegam a 0 durante uma busca
-// (o toast de "Leads esgotados" já existe nos loops de busca — basta chamar abrirModalRecarga lá se quiser)
+// ── SISTEMA DE MISSÕES DIÁRIAS ────────────────────────────────────────────
+const MISSOES = [
+  { id:'daily_checkin',  icon:'🔥', titulo:'Check-in Diário',        desc:'Abra o app hoje',               recompensa:2  },
+  { id:'busca_realizada',icon:'🔍', titulo:'Fazer uma Busca',         desc:'Execute qualquer prospecção',   recompensa:3  },
+  { id:'importar_lead',  icon:'📥', titulo:'Importar 1 Lead',         desc:'Importe um lead novo',          recompensa:2  },
+  { id:'indicar_amigo',  icon:'🤝', titulo:'Indicar o CAPTURO',       desc:'Compartilhe seu link de convite',recompensa:50 },
+];
+
+function renderMissoes(){
+  const container = document.getElementById('missoesList');
+  if(!container) return;
+  const hoje = new Date().toDateString();
+  container.innerHTML = MISSOES.map(m=>{
+    const feita = localStorage.getItem(`capturo_missao_${m.id}`) === hoje;
+    return `<div style="display:flex;justify-content:space-between;align-items:center;background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:10px 14px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:18px">${m.icon}</span>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:${feita?'var(--muted2)':'var(--text)'};${feita?'text-decoration:line-through':''}">${m.titulo}</div>
+          <div style="font-size:10px;color:var(--muted2)">${m.desc}</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+        <span style="font-size:11px;font-weight:700;color:var(--accent)">+${m.recompensa}</span>
+        ${feita
+          ? `<span style="font-size:10px;color:var(--green);font-weight:700">✅ Feito</span>`
+          : m.id==='indicar_amigo'
+            ? `<button onclick="copiarLinkConvite()" style="background:var(--accent-bg);border:1px solid rgba(79,142,255,.3);color:var(--accent);padding:5px 10px;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer">Copiar Link</button>`
+            : `<button onclick="completarMissao('${m.id}',${m.recompensa})" style="background:var(--green-bg);border:1px solid var(--green-b);color:var(--green);padding:5px 10px;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer">Coletar</button>`
+        }
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function completarMissao(missaoId, recompensa){
+  const hoje = new Date().toDateString();
+  const jaFeita = localStorage.getItem(`capturo_missao_${missaoId}`) === hoje;
+  if(jaFeita){ toast('Você já completou essa missão hoje!','warn'); return; }
+
+  const sb = typeof getSupabase==='function' ? getSupabase() : null;
+  if(sb && currentUser){
+    try{
+      const { data: p } = await sb.from('profiles').select('sinais_limit').eq('id',currentUser.id).single();
+      if(p){
+        await sb.from('profiles').update({ sinais_limit: (p.sinais_limit||0)+recompensa }).eq('id',currentUser.id);
+        _leadsProfile.sinais_limit = (_leadsProfile.sinais_limit||0)+recompensa;
+        atualizarBadgeLeads();
+      }
+    }catch(e){ console.warn('Missão Supabase:',e); }
+  }
+
+  localStorage.setItem(`capturo_missao_${missaoId}`, hoje);
+  renderMissoes();
+  toast(`🎉 +${recompensa} Sinais! Missão "${missaoId.replace(/_/g,' ')}" concluída!`,'ok',4000);
+}
+
+function copiarLinkConvite(){
+  const link = window.location.origin + '?ref=' + (currentUser?.id?.substring(0,8)||'capturo');
+  navigator.clipboard.writeText(link).then(()=>{
+    toast('🔗 Link de convite copiado! Compartilhe com amigos.','ok',4000);
+    // Registra a missão
+    completarMissao('indicar_amigo', 50);
+  });
+}
+
+// Registra missão de check-in automaticamente quando o perfil é aberto
+function _registrarCheckinMissao(){
+  const hoje = new Date().toDateString();
+  if(localStorage.getItem('capturo_missao_daily_checkin') !== hoje){
+    completarMissao('daily_checkin', 2);
+  }
+}
+
+// Abrir modal automaticamente quando sinais chegam a 0 durante uma busca
+// (o toast de "Sinais esgotados" já existe nos loops de busca — basta chamar abrirModalRecarga lá se quiser)
 </script>
 
 <script>
