@@ -1185,73 +1185,593 @@ select option{background:var(--s2);color:var(--text)}
 .tour-btn-next{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif}
 .tour-btn-skip{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:11px;font-family:'Plus Jakarta Sans',sans-serif}
 
+/* ══════════════════════════════════════════════════════════
+   CAPTURO v6 — Apple Design System Upgrades
+   ══════════════════════════════════════════════════════════ */
+
+/* ── OVERRIDE: CSS Variables (Grok + Gemini best-of) ── */
+:root {
+  --bg:          #0a0a0f;
+  --bg2:         #0f0f18;
+  --s1:          #14141f;
+  --s2:          #1c1c2e;
+  --s3:          #23233a;
+  --border:      rgba(255,255,255,.09);
+  --border2:     rgba(255,255,255,.14);
+  --border3:     rgba(255,255,255,.22);
+  --text:        #f0f0fa;
+  --text2:       #c8c8e0;
+  --muted:       #8888aa;
+  --muted2:      #52527a;
+  --accent:      #5e9cff;
+  --accent2:     #7ab3ff;
+  --accent-bg:   rgba(94,156,255,.10);
+  --accent-mid:  rgba(94,156,255,.18);
+  --accent-glow: rgba(94,156,255,.28);
+  --green:       #34c759;
+  --green-bg:    rgba(52,199,89,.08);
+  --green-b:     rgba(52,199,89,.22);
+  --red:         #ff453a;
+  --orange:      #ff9f0a;
+  --purple:      #bf5af2;
+  --purple-bg:   rgba(191,90,242,.08);
+  --teal:        #5ac8fa;
+  --indigo:      #6e6ef6;
+  --volcano:     #ff453a;
+  --volcano-bg:  rgba(255,69,58,.08);
+  --volcano-b:   rgba(255,69,58,.22);
+  --hot:         #ff9f0a;
+  --hot-bg:      rgba(255,159,10,.08);
+  --hot-b:       rgba(255,159,10,.22);
+  --warm:        #ffd60a;
+  --warm-bg:     rgba(255,214,10,.08);
+  --warm-b:      rgba(255,214,10,.22);
+  --cold:        #5e9cff;
+  --cold-bg:     rgba(94,156,255,.08);
+  --cold-b:      rgba(94,156,255,.22);
+  --frozen:      #5ac8fa;
+  --frozen-bg:   rgba(90,200,250,.08);
+  --frozen-b:    rgba(90,200,250,.22);
+  --shadow-xs:   0 1px 3px rgba(0,0,0,.5);
+  --shadow-sm:   0 2px 8px rgba(0,0,0,.45);
+  --shadow:      0 4px 20px rgba(0,0,0,.5);
+  --shadow-md:   0 8px 32px rgba(0,0,0,.55);
+  --shadow-lg:   0 20px 60px rgba(0,0,0,.65);
+  --shadow-accent: 0 4px 24px rgba(94,156,255,.32);
+  --r-xs:3px; --r-sm:8px; --r:12px; --r-lg:16px; --r-xl:20px; --r-pill:100px;
+  --ease-spring: cubic-bezier(.4,0,.2,1);
+  --ease-bounce: cubic-bezier(.34,1.56,.64,1);
+}
+
+/* ── BODY ambient glow ── */
+body::before {
+  background:
+    radial-gradient(ellipse 80% 50% at 15% -5%, rgba(94,156,255,.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 110%, rgba(191,90,242,.06) 0%, transparent 55%);
+}
+
+/* ── TOPNAV Glass ── */
+.topnav {
+  background: rgba(10,10,15,.88) !important;
+  backdrop-filter: saturate(180%) blur(28px) !important;
+  -webkit-backdrop-filter: saturate(180%) blur(28px) !important;
+  border-bottom: 1px solid rgba(255,255,255,.06) !important;
+}
+
+/* ── CAMPAIGN CARDS ── */
+.campaign-card {
+  transition: all .3s var(--ease-spring) !important;
+}
+.campaign-card:hover {
+  border-color: rgba(94,156,255,.3) !important;
+  transform: translateY(-4px) !important;
+  box-shadow: 0 12px 40px rgba(0,0,0,.5), 0 0 0 1px rgba(94,156,255,.12) !important;
+}
+
+/* ── LEAD CARDS ── */
+.lead-card {
+  border-radius: 14px !important;
+  transition: all .28s var(--ease-spring) !important;
+}
+.lead-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 12px 40px rgba(0,0,0,.5) !important;
+  border-color: rgba(94,156,255,.25) !important;
+}
+
+/* ── BUTTONS ── */
+.btn-new {
+  background: linear-gradient(135deg, #5e9cff 0%, #3a7dff 100%) !important;
+  border-radius: var(--r-pill) !important;
+  letter-spacing: -.02em !important;
+  box-shadow: 0 4px 16px rgba(94,156,255,.35) !important;
+}
+.btn-new:hover {
+  box-shadow: 0 8px 28px rgba(94,156,255,.5) !important;
+  transform: translateY(-2px) !important;
+  filter: brightness(1.08) !important;
+}
+
+/* ── INPUTS ── */
+input[type=text]:focus,
+input[type=password]:focus,
+input[type=email]:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px rgba(94,156,255,.14) !important;
+  background: rgba(255,255,255,.07) !important;
+}
+
+/* ── MODALS ── */
+.modal-box, .cmodal-box {
+  border: 1px solid rgba(255,255,255,.1) !important;
+  box-shadow: 0 32px 80px rgba(0,0,0,.7) !important;
+}
+
+/* ── NAV TABS ── */
+.nav-tab.active {
+  background: rgba(94,156,255,.12) !important;
+  color: var(--accent) !important;
+}
+
+/* ── STAT BOXES ── */
+.stat-box:hover {
+  border-color: rgba(94,156,255,.2) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,.4) !important;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  background: rgba(10,10,16,.96) !important;
+  border-right: 1px solid rgba(255,255,255,.05) !important;
+}
+.sb-item.active {
+  background: rgba(94,156,255,.1) !important;
+  color: var(--accent2) !important;
+}
+.sb-item.active::before {
+  background: var(--accent) !important;
+}
+
+/* ── PIPE CARDS ── */
+.pipe-card:hover {
+  border-color: var(--accent) !important;
+  box-shadow: 0 4px 20px rgba(94,156,255,.15) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* ── SCROLL REFINED ── */
+::-webkit-scrollbar { width:4px; height:4px; }
+::-webkit-scrollbar-thumb { background:rgba(255,255,255,.08); border-radius:20px; }
+::-webkit-scrollbar-thumb:hover { background:rgba(255,255,255,.16); }
+
+/* ── PAGE LOAD ANIMATION ── */
+.page.active {
+  animation: pageIn .35s var(--ease-spring) both;
+}
+@keyframes pageIn {
+  from { opacity:0; transform:translateY(10px) }
+  to   { opacity:1; transform:translateY(0) }
+}
+
+/* ── SIGNAL / RAIOS BADGE ── */
+#leadsBadge {
+  font-family: -apple-system, 'DM Sans', sans-serif !important;
+}
+
+/* ── TOAST REFINEMENT ── */
+.toast-msg {
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-radius: 14px !important;
+}
+
 </style>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23222840'/><circle cx='50' cy='50' r='32' fill='none' stroke='%234e7fff' stroke-width='3' opacity='0.6'/><circle cx='50' cy='50' r='22' fill='none' stroke='%234e7fff' stroke-width='2' opacity='0.7'/><circle cx='50' cy='50' r='12' fill='none' stroke='%234e7fff' stroke-width='2' opacity='0.8'/><circle cx='50' cy='50' r='4' fill='%234e7fff'/><line x1='50' y1='50' x2='74' y2='50' stroke='%234e7fff' stroke-width='2' opacity='0.7' stroke-dasharray='3 2'/><circle cx='68' cy='34' r='5' fill='%23ff4d4d' opacity='0.9'/><circle cx='32' cy='62' r='4' fill='%23f5b833' opacity='0.9'/><text x='50' y='92' font-family='monospace' font-size='14' font-weight='700' fill='%234e7fff' text-anchor='middle' opacity='0.9'>C</text></svg>">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230a0a0f'/><circle cx='50' cy='50' r='32' fill='none' stroke='%235e9cff' stroke-width='3' opacity='0.6'/><circle cx='50' cy='50' r='22' fill='none' stroke='%235e9cff' stroke-width='2' opacity='0.7'/><circle cx='50' cy='50' r='12' fill='none' stroke='%235e9cff' stroke-width='2' opacity='0.8'/><circle cx='50' cy='50' r='4' fill='%235e9cff'/><line x1='50' y1='50' x2='74' y2='50' stroke='%235e9cff' stroke-width='2' opacity='0.7' stroke-dasharray='3 2'/><circle cx='68' cy='34' r='5' fill='%23ff443a' opacity='0.9'/><circle cx='32' cy='62' r='4' fill='%23ffd60a' opacity='0.9'/></svg>">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="theme-blue">
+<script>
+// ── ATALHO GLOBAL $ ────────────────────────────────────────────
+function $(id){ return document.getElementById(id); }
+</script>
 <!-- CAPTURO authorship watermark — do not remove -->
 <span aria-hidden="true" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;pointer-events:none;opacity:0" data-cap="CAP-7B3E92A1F0C84D56" data-author="Felipe Uchoa" data-year="2025">CAPTURO v5.0 © 2024-2025 Felipe Uchoa <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="593f3c3530293c35383b382d1931362d34383035773a3634">[email&#160;protected]</a></span>
 
-<!-- ══ LOGIN SCREEN ══════════════════════════════════════════ -->
-<div id="loginScreen" style="display:flex;position:fixed;inset:0;z-index:99999;background:var(--bg);align-items:center;justify-content:center;padding:20px">
-  <div style="width:100%;max-width:420px">
+<!-- ══ LOGIN SCREEN — CAPTURO v6 Apple Dark ═══════════════════ -->
+<style>
+/* ── CAPTURO v6 LOGIN — Apple High-End Dark ── */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+
+#loginScreen {
+  display: flex;
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-family: -apple-system, 'DM Sans', BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  overflow: hidden;
+}
+
+/* Background orbs animados */
+#loginScreen::before {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(94,156,255,.12) 0%, transparent 70%);
+  top: -200px; left: -150px;
+  border-radius: 50%;
+  animation: loginOrb1 8s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+#loginScreen::after {
+  content: '';
+  position: absolute;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(130,80,255,.08) 0%, transparent 70%);
+  bottom: -150px; right: -100px;
+  border-radius: 50%;
+  animation: loginOrb2 10s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes loginOrb1 { from{transform:translate(0,0) scale(1)} to{transform:translate(60px,40px) scale(1.15)} }
+@keyframes loginOrb2 { from{transform:translate(0,0) scale(1)} to{transform:translate(-40px,-60px) scale(1.1)} }
+
+.login-wrap {
+  width: 100%;
+  max-width: 400px;
+  position: relative;
+  z-index: 1;
+  animation: loginFadeUp .6s cubic-bezier(.4,0,.2,1) both;
+}
+@keyframes loginFadeUp {
+  from { opacity:0; transform:translateY(28px) }
+  to   { opacity:1; transform:translateY(0) }
+}
+
+/* ── LOGO BADGE ── */
+.login-logo-wrap {
+  text-align: center;
+  margin-bottom: 40px;
+}
+.login-logo-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px; height: 64px;
+  background: linear-gradient(145deg, #1a1a2e 0%, #0f0f1a 100%);
+  border: 1px solid rgba(94,156,255,.25);
+  border-radius: 20px;
+  box-shadow: 0 0 40px rgba(94,156,255,.2), 0 8px 32px rgba(0,0,0,.5);
+  margin-bottom: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.login-logo-icon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(145deg, rgba(94,156,255,.08) 0%, transparent 60%);
+}
+.login-logo-title {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  color: #f0f0fa;
+  margin-bottom: 6px;
+}
+.login-logo-sub {
+  font-size: 13px;
+  color: #8888aa;
+  font-weight: 400;
+  letter-spacing: .01em;
+}
+
+/* ── STATUS BAR (topo do card) ── */
+.login-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.login-status-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #8888aa;
+  font-weight: 500;
+}
+.login-status-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: #34c759;
+  box-shadow: 0 0 6px #34c759;
+  animation: statusPulse 2s ease-in-out infinite;
+}
+@keyframes statusPulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* ── CARD ── */
+.login-card {
+  background: rgba(20,20,31,.85);
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 24px;
+  padding: 32px 32px 28px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.03) inset,
+    0 32px 64px rgba(0,0,0,.6),
+    0 8px 24px rgba(0,0,0,.4);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+/* ── TABS ── */
+.login-tabs {
+  display: flex;
+  gap: 0;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 12px;
+  padding: 3px;
+  margin-bottom: 28px;
+}
+.login-tab {
+  flex: 1;
+  padding: 8px;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: #8888aa;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s cubic-bezier(.4,0,.2,1);
+  font-family: inherit;
+}
+.login-tab.active {
+  background: rgba(255,255,255,.1);
+  color: #f0f0fa;
+  box-shadow: 0 1px 4px rgba(0,0,0,.3), 0 0 0 1px rgba(255,255,255,.06) inset;
+}
+
+/* ── FIELDS ── */
+.login-field {
+  margin-bottom: 16px;
+}
+.login-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #6868aa;
+  margin-bottom: 7px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.login-input {
+  width: 100%;
+  padding: 14px 16px;
+  background: rgba(255,255,255,.05);
+  border: 1.5px solid rgba(255,255,255,.09);
+  border-radius: 14px;
+  color: #f0f0fa;
+  font-size: 15px;
+  font-family: inherit;
+  outline: none;
+  transition: all .2s cubic-bezier(.4,0,.2,1);
+  -webkit-appearance: none;
+}
+.login-input::placeholder { color: rgba(136,136,170,.5); }
+.login-input:focus {
+  border-color: rgba(94,156,255,.6);
+  background: rgba(255,255,255,.07);
+  box-shadow: 0 0 0 3px rgba(94,156,255,.12);
+}
+
+/* ── BTN ── */
+.login-btn {
+  width: 100%;
+  padding: 15px;
+  background: #5e9cff;
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: -.01em;
+  transition: all .2s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 4px 20px rgba(94,156,255,.35), 0 1px 0 rgba(255,255,255,.1) inset;
+  position: relative;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.login-btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 50%;
+  background: linear-gradient(to bottom, rgba(255,255,255,.12), transparent);
+  border-radius: 14px 14px 0 0;
+}
+.login-btn:hover {
+  background: #6aaeff;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(94,156,255,.45);
+}
+.login-btn:active { transform: scale(.98); }
+.login-btn:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── MSG ── */
+.login-msg {
+  margin-top: 14px;
+  font-size: 12px;
+  text-align: center;
+  min-height: 18px;
+  color: #ff5252;
+  font-weight: 500;
+}
+
+/* ── FOOTER ── */
+.login-footer-lock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+.login-footer-lock span {
+  font-size: 11px;
+  color: #52527a;
+  font-weight: 500;
+}
+.login-page-footer {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 10px;
+  color: #3a3a5a;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+/* Raios badge */
+.login-raios-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(94,156,255,.08);
+  border: 1px solid rgba(94,156,255,.18);
+  border-radius: 100px;
+  padding: 4px 12px 4px 8px;
+  font-size: 11px;
+  color: #5e9cff;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+</style>
+
+<div id="loginScreen" style="display:flex">
+  <div class="login-wrap">
 
     <!-- Logo -->
-    <div style="text-align:center;margin-bottom:36px">
-      <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:10px">
-        <div style="width:44px;height:44px;background:linear-gradient(135deg,var(--accent),#0056cc);border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,122,255,.35)">
-          <svg width="24" height="24" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="14" stroke="white" stroke-width="1.5" opacity="0.5"/><circle cx="18" cy="18" r="9" stroke="white" stroke-width="1.5" opacity="0.7"/><circle cx="18" cy="18" r="4" stroke="white" stroke-width="1.5"/><circle cx="18" cy="18" r="2" fill="white"/></svg>
-        </div>
-        <div style="font-size:24px;font-weight:900;letter-spacing:-.04em;color:var(--text)">CAPTURO</div>
+    <div class="login-logo-wrap">
+      <div class="login-logo-icon">
+        <svg width="32" height="32" viewBox="0 0 36 36" fill="none">
+          <circle cx="18" cy="18" r="13" stroke="rgba(94,156,255,.4)" stroke-width="1.5"/>
+          <circle cx="18" cy="18" r="8.5" stroke="rgba(94,156,255,.6)" stroke-width="1.5"/>
+          <circle cx="18" cy="18" r="4" stroke="rgba(94,156,255,.8)" stroke-width="1.5"/>
+          <circle cx="18" cy="18" r="1.8" fill="#5e9cff"/>
+          <line x1="18" y1="18" x2="28" y2="10" stroke="rgba(94,156,255,.5)" stroke-width="1.2" stroke-linecap="round"/>
+          <circle cx="27.5" cy="10.2" r="2.2" fill="#5e9cff" opacity=".9"/>
+          <circle cx="9" cy="24" r="2" fill="rgba(255,82,82,.8)"/>
+          <circle cx="24" cy="27" r="1.6" fill="rgba(255,191,0,.7)"/>
+        </svg>
       </div>
-      <div id="authSubtitle" style="font-size:14px;color:var(--muted2)">Entre na sua conta para continuar</div>
+      <div class="login-logo-title">CAPTURO</div>
+      <div class="login-logo-sub" id="authSubtitle">Prospecção inteligente de leads</div>
     </div>
 
-    <!-- Card do formulário -->
-    <div style="background:var(--s1);border:1px solid var(--border);border-radius:20px;padding:28px 28px;box-shadow:var(--shadow-lg)">
+    <!-- Status bar -->
+    <div class="login-status-bar">
+      <div class="login-status-item">
+        <div class="login-status-dot"></div>
+        Sistema online
+      </div>
+      <div class="login-status-item" style="color:#52527a">·</div>
+      <div class="login-status-item">⚡ Raios disponíveis</div>
+      <div class="login-status-item" style="color:#52527a">·</div>
+      <div class="login-status-item">🔒 Acesso seguro</div>
+    </div>
+
+    <!-- Card -->
+    <div class="login-card">
+
+      <!-- Tabs Login / Cadastro -->
+      <div class="login-tabs">
+        <button class="login-tab active" id="tabLogin" onclick="setAuthMode('login')">Entrar</button>
+        <button class="login-tab" id="tabSignup" onclick="setAuthMode('signup')">Criar Conta</button>
+      </div>
 
       <!-- Campo Nome (só no cadastro) -->
-      <div id="authNameField" style="display:none;margin-bottom:14px">
-        <label style="display:block;font-size:12px;font-weight:600;color:var(--muted2);margin-bottom:6px;letter-spacing:.02em">NOME</label>
-        <input id="authName" type="text" placeholder="Seu nome completo" style="width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--s2);color:var(--text);font-size:14px;outline:none;transition:border .2s" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+      <div id="authNameField" style="display:none" class="login-field">
+        <label class="login-label">Nome completo</label>
+        <input id="authName" type="text" placeholder="Seu nome" class="login-input" onkeydown="if(event.key==='Enter')authAction()">
       </div>
 
       <!-- Email -->
-      <div style="margin-bottom:14px">
-        <label style="display:block;font-size:12px;font-weight:600;color:var(--muted2);margin-bottom:6px;letter-spacing:.02em">E-MAIL</label>
-        <input id="authEmail" type="email" placeholder="seu@email.com" style="width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--s2);color:var(--text);font-size:14px;outline:none;transition:border .2s" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'" onkeydown="if(event.key==='Enter')authAction()">
+      <div class="login-field">
+        <label class="login-label">E-mail</label>
+        <input id="authEmail" type="email" placeholder="voce@email.com" class="login-input" onkeydown="if(event.key==='Enter')authAction()">
       </div>
 
       <!-- Senha -->
-      <div style="margin-bottom:20px">
-        <label style="display:block;font-size:12px;font-weight:600;color:var(--muted2);margin-bottom:6px;letter-spacing:.02em">SENHA</label>
-        <input id="authPassword" type="password" placeholder="••••••••" style="width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--s2);color:var(--text);font-size:14px;outline:none;transition:border .2s" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'" onkeydown="if(event.key==='Enter')authAction()">
+      <div class="login-field" style="margin-bottom:22px">
+        <label class="login-label">Senha</label>
+        <input id="authPassword" type="password" placeholder="••••••••" class="login-input" onkeydown="if(event.key==='Enter')authAction()">
       </div>
 
-      <!-- Botão principal -->
-      <button id="authBtn" onclick="authAction()" style="width:100%;padding:13px;background:linear-gradient(135deg,var(--accent),#0056cc);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,122,255,.35);transition:opacity .2s">
+      <!-- Botão -->
+      <button id="authBtn" class="login-btn" onclick="authAction()">
         Entrar
       </button>
 
-      <!-- Mensagem de erro/sucesso -->
-      <div id="authMsg" style="margin-top:12px;font-size:12px;text-align:center;min-height:18px;color:var(--red)"></div>
+      <!-- Mensagem -->
+      <div id="authMsg" class="login-msg"></div>
 
-      <!-- Acesso restrito -->
-      <div style="text-align:center;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
-        <span style="font-size:12px;color:var(--muted2)">🔒 Acesso restrito a membros</span>
+      <!-- Rodapé do card -->
+      <div class="login-footer-lock">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#52527a" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span>Acesso exclusivo para membros</span>
       </div>
     </div>
 
-    <!-- Rodapé -->
-    <div style="text-align:center;margin-top:20px;font-size:11px;color:var(--muted2)">
-      CAPTURO v5.0 · Prospecção inteligente de leads
+    <!-- Rodapé da página -->
+    <div class="login-page-footer">
+      CAPTURO v6.0 &nbsp;·&nbsp; Prospecção Inteligente
     </div>
+
   </div>
 </div>
+<script>
+function setAuthMode(mode){
+  _authMode = mode;
+  const isSignup = mode === 'signup';
+  const nameField = document.getElementById('authNameField');
+  const btn = document.getElementById('authBtn');
+  const sub = document.getElementById('authSubtitle');
+  const tabL = document.getElementById('tabLogin');
+  const tabS = document.getElementById('tabSignup');
+  if(nameField) nameField.style.display = isSignup ? 'block' : 'none';
+  if(btn){ btn.textContent = isSignup ? 'Criar conta' : 'Entrar'; btn.disabled = false; }
+  if(sub) sub.textContent = isSignup ? 'Crie sua conta gratuita' : 'Prospecção inteligente de leads';
+  if(tabL){ tabL.classList.toggle('active', !isSignup); }
+  if(tabS){ tabS.classList.toggle('active', isSignup); }
+  const msg = document.getElementById('authMsg');
+  if(msg) msg.textContent = '';
+}
+function authAction(){
+  if(_authMode === 'signup') doSignUp();
+  else doSignIn();
+}
+function setAuthMsg(msg, color){
+  const el = document.getElementById('authMsg');
+  if(el){ el.textContent = msg; if(color) el.style.color = color; else el.style.color = '#ff5252'; }
+}
+</script>
 <!-- ══ /LOGIN SCREEN ══════════════════════════════════════════ -->
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 /**
  * CAPTURO v5.0 — Sistema de Prospecção Inteligente de Leads
  * @author    Felipe Uchoa <felipelabat@hotmail.com>
@@ -7233,23 +7753,6 @@ function cancelarBuscaAlertas(){
 function _renderAlertasResultados(lista, cidade, nicho, dias){
   const el = $('alertasResultados');
   const vazio = $('alertasVazio');
-  const contador = $('alertasContador');
-  const grid = $('alertasGrid');
-  if(!el||!grid) return;
-
-  if(!lista.length){
-    if(vazio){ vazio.style.display='block'; }
-    el.style.display='none';
-    return;
-  }
-
-  if(vazio) vazio.style.display='none';
-  el.style.display='block';
-  if(contador) contador.textContent=`${lista.length} negócio(s) aberto(s) nos últimos ${dias} dias — ${nicho} em ${cidade}`;
-
-function _renderAlertasResultados(lista, cidade, nicho, dias){
-  const el = $('alertasResultados');
-  const vazio = $('alertasVazio');
   const skeleton = $('alertasSkeleton');
   const contador = $('alertasContador');
   const grid = $('alertasGrid');
@@ -11640,7 +12143,14 @@ async function initAuth(){
   if(!sb){ console.warn('[CAPTURO] Supabase nao carregado'); showLoginScreen(); return; }
 
   try{
-    const { data:{ session } } = await sb.auth.getSession();
+    const { data:{ session }, error: sessionErr } = await sb.auth.getSession();
+    // Limpa token inválido/expirado automaticamente
+    if(sessionErr && (sessionErr.message||'').toLowerCase().includes('refresh')){
+      console.warn('[CAPTURO] Refresh token inválido — limpando sessão');
+      try{ await sb.auth.signOut(); }catch(_){}
+      showLoginScreen();
+      return;
+    }
     if(session){
       currentUser = session.user;
       hideLoginScreen();
@@ -11651,6 +12161,10 @@ async function initAuth(){
     }
   }catch(e){
     console.error('[CAPTURO] initAuth getSession error:',e);
+    // Se erro de refresh token, limpa storage e mostra login
+    if((e.message||'').toLowerCase().includes('refresh') || (e.message||'').toLowerCase().includes('token')){
+      try{ await sb.auth.signOut(); }catch(_){}
+    }
     showLoginScreen();
   }
 
