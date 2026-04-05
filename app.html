@@ -1372,10 +1372,6 @@ select:focus {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="theme-blue">
-<script>
-// ── ATALHO GLOBAL $ ────────────────────────────────────────────
-function $(id){ return document.getElementById(id); }
-</script>
 <!-- CAPTURO authorship watermark — do not remove -->
 <span aria-hidden="true" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;pointer-events:none;opacity:0" data-cap="CAP-7B3E92A1F0C84D56" data-author="Felipe Uchoa" data-year="2025">CAPTURO v5.0 © 2024-2025 Felipe Uchoa <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="593f3c3530293c35383b382d1931362d34383035773a3634">[email&#160;protected]</a></span>
 
@@ -1392,9 +1388,9 @@ function $(id){ return document.getElementById(id); }
   background: #000;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 40px 20px 20px;
   font-family: -apple-system, 'DM Sans', BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 /* Background orbs animados */
@@ -1427,6 +1423,7 @@ function $(id){ return document.getElementById(id); }
   position: relative;
   z-index: 1;
   animation: loginFadeUp .6s cubic-bezier(.4,0,.2,1) both;
+  margin: auto;
 }
 @keyframes loginFadeUp {
   from { opacity:0; transform:translateY(28px) }
