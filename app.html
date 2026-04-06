@@ -2207,17 +2207,15 @@ function toast(msg, type='info', duration=3500){
   <!-- CAPTURO text -->
   <text font-family="IBM Plex Mono,monospace" font-size="108" font-weight="700" text-anchor="middle" x="450" y="300" letter-spacing="16" fill="#4e7fff" opacity="0.07">CAPTURO</text>
   <text font-family="IBM Plex Mono,monospace" font-size="13" text-anchor="middle" x="450" y="334" letter-spacing="7" fill="#4e7fff" opacity="0.06">INTELIGÊNCIA EM PROSPECÇÃO LOCAL</text>
-  <!-- Pills coloridos -->
-  <rect x="62"  y="415" width="118" height="28" rx="14" fill="#4e7fff" opacity="0.12" stroke="#4e7fff" stroke-width="1" stroke-opacity="0.35"/>
-  <text font-family="IBM Plex Mono,monospace" font-size="11" font-weight="600" text-anchor="middle" x="121" y="433" fill="#6690ff" opacity="0.55">🗺 MAPS</text>
-  <rect x="200" y="415" width="138" height="28" rx="14" fill="#ff4d4d" opacity="0.10" stroke="#ff4d4d" stroke-width="1" stroke-opacity="0.35"/>
-  <text font-family="IBM Plex Mono,monospace" font-size="11" font-weight="600" text-anchor="middle" x="269" y="433" fill="#ff6b6b" opacity="0.55">🌋 BIO LINKS</text>
-  <rect x="358" y="415" width="138" height="28" rx="14" fill="#28dd80" opacity="0.10" stroke="#28dd80" stroke-width="1" stroke-opacity="0.35"/>
-  <text font-family="IBM Plex Mono,monospace" font-size="11" font-weight="600" text-anchor="middle" x="427" y="433" fill="#35e88a" opacity="0.55">✉ HUNTER.IO</text>
-  <rect x="516" y="415" width="120" height="28" rx="14" fill="#f5b833" opacity="0.10" stroke="#f5b833" stroke-width="1" stroke-opacity="0.35"/>
-  <text font-family="IBM Plex Mono,monospace" font-size="11" font-weight="600" text-anchor="middle" x="576" y="433" fill="#f5c844" opacity="0.55">📊 SHEETS</text>
-  <rect x="656" y="415" width="128" height="28" rx="14" fill="#b060ff" opacity="0.10" stroke="#b060ff" stroke-width="1" stroke-opacity="0.35"/>
-  <text font-family="IBM Plex Mono,monospace" font-size="11" font-weight="600" text-anchor="middle" x="720" y="433" fill="#c882ff" opacity="0.55">✦ IA CLAUDE</text>
+  <!-- Pills coloridos centralizados -->
+  <rect x="106" y="415" width="130" height="28" rx="14" fill="#4e7fff" opacity="0.12" stroke="#4e7fff" stroke-width="1" stroke-opacity="0.35"/>
+  <text font-family="IBM Plex Mono,monospace" font-size="11" font-weight="600" text-anchor="middle" x="171" y="433" fill="#6690ff" opacity="0.35">🗺 PROSPECÇÃO</text>
+  <rect x="260" y="415" width="118" height="28" rx="14" fill="#ff4d4d" opacity="0.10" stroke="#ff4d4d" stroke-width="1" stroke-opacity="0.35"/>
+  <text font-family="IBM Plex Mono,monospace" font-size="11" font-weight="600" text-anchor="middle" x="319" y="433" fill="#ff6b6b" opacity="0.35">🌋 LEADS</text>
+  <rect x="402" y="415" width="118" height="28" rx="14" fill="#f5b833" opacity="0.10" stroke="#f5b833" stroke-width="1" stroke-opacity="0.35"/>
+  <text font-family="IBM Plex Mono,monospace" font-size="11" font-weight="600" text-anchor="middle" x="461" y="433" fill="#f5c844" opacity="0.35">📊 RELATÓRIOS</text>
+  <rect x="544" y="415" width="130" height="28" rx="14" fill="#28dd80" opacity="0.10" stroke="#28dd80" stroke-width="1" stroke-opacity="0.35"/>
+  <text font-family="IBM Plex Mono,monospace" font-size="11" font-weight="600" text-anchor="middle" x="609" y="433" fill="#35e88a" opacity="0.35">⚡ CONVERSÕES</text>
 </svg>
 </div>
 
@@ -3324,14 +3322,7 @@ function toast(msg, type='info', duration=3500){
           Buscar Empresas Novas
         </button>
         <button onclick="cancelarBuscaAlertas()" id="btnCancelarAlertas" class="btn btn-ghost" style="font-size:12px;display:none;color:var(--red)">⏹ Cancelar</button>
-        <!-- Toggle Pitch IA -->
-        <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:12px;color:var(--muted2);margin-left:4px;user-select:none">
-          <div id="pitchToggleWrap" onclick="togglePitchIA()" style="width:34px;height:18px;background:var(--accent);border-radius:9px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0">
-            <div id="pitchToggleKnob" style="position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:left .2s;left:16px"></div>
-          </div>
-          <span>Pitch IA ativo</span>
-          <span style="background:var(--accent-bg);color:var(--accent);font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;border:1px solid rgba(79,142,255,.3)">GRÁTIS</span>
-        </label>
+        <!-- Pitch IA sempre ativo -->
         <span id="alertasStatus" style="font-size:11px;color:var(--muted2);font-family:'IBM Plex Mono',monospace;margin-left:auto"></span>
       </div>
     </div>
@@ -3432,7 +3423,7 @@ function toast(msg, type='info', duration=3500){
 
       <!-- Ações -->
       <div style="display:flex;gap:8px">
-        <button onclick="regenerarPitch()" class="btn btn-ghost" style="font-size:12px;flex:1">🔄 Novo pitch</button>
+        <button onclick="regenerarPitch()" id="btnNovoPitch" class="btn btn-ghost" style="font-size:12px;flex:1">🔄 Novo pitch (2 restantes)</button>
         <button onclick="abrirZapComPitch()" class="btn btn-primary" style="font-size:12px;flex:2;background:linear-gradient(135deg,#25D366,#128C7E);box-shadow:none;display:flex;align-items:center;justify-content:center;gap:6px">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
           Enviar no WhatsApp
@@ -3459,6 +3450,10 @@ function toast(msg, type='info', duration=3500){
       <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-size:14px;font-weight:600">📊 Por Campanha</div>
       <div id="relatorioCampanhas" style="padding:4px 0"></div>
     </div>
+  </div>
+
+  <!-- LEADS GLOBAL PAGE -->
+  <div class="page" id="pageLeads">
     <!-- WhatsApp Semi-auto section -->
     <div style="background:linear-gradient(135deg,rgba(37,211,102,.08),rgba(0,122,255,.06));border:1px solid rgba(37,211,102,.2);border-radius:16px;padding:22px;margin-bottom:20px">
       <div style="display:flex;align-items:flex-start;gap:14px">
@@ -3491,10 +3486,6 @@ function toast(msg, type='info', duration=3500){
         <button onclick="stopWABlast()" class="btn btn-ghost" style="border-radius:20px">Parar</button>
       </div>
     </div>
-  </div>
-
-  <!-- LEADS GLOBAL PAGE -->
-  <div class="page" id="pageLeads">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
       <div>
         <div style="font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.02em">Leads <span style="font-size:13px;font-weight:500;color:var(--muted2);font-family:'IBM Plex Mono',monospace;letter-spacing:0">// Todos os seus prospects</span></div>
@@ -3559,8 +3550,7 @@ function toast(msg, type='info', duration=3500){
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <div style="display:flex;gap:4px;background:var(--s2);border:1px solid var(--border2);border-radius:8px;padding:3px">
-          <button id="tpTabAll" class="engine-tab active" onclick="setTpFilter('all')" style="font-size:11px;padding:5px 12px">Todos</button>
-          <button id="tpTab1" class="engine-tab" onclick="setTpFilter('step1')" style="font-size:11px;padding:5px 12px">1º Contato</button>
+          <button id="tpTab1" class="engine-tab active" onclick="setTpFilter('step1')" style="font-size:11px;padding:5px 12px">1º Contato</button>
           <button id="tpTab2" class="engine-tab" onclick="setTpFilter('step2')" style="font-size:11px;padding:5px 12px">Follow-up</button>
         </div>
         <button class="btn btn-primary" onclick="openNewTemplateModal()" style="font-size:11px">+ Novo Template</button>
@@ -10997,7 +10987,7 @@ function saveCustomTemplates(){ localStorage.setItem('capturo-templates', JSON.s
 function setTpFilter(f){
   tpFilter=f;
   ['All','1','2'].forEach(x=>{ const el=$('tpTab'+(x==='All'?'All':x)); if(el) el.classList.remove('active'); });
-  const map={'all':'tpTabAll','step1':'tpTab1','step2':'tpTab2'};
+  const map={'all':'tpTab1','step1':'tpTab1','step2':'tpTab2'};
   const el=$(map[f]); if(el) el.classList.add('active');
   renderTemplates();
 }
@@ -11960,11 +11950,7 @@ const EF = SUPABASE_URL + '/functions/v1';
 async function efCall(fn, body){
   const r = await fetch(`${EF}/${fn}`, {
     method: 'POST',
-    headers: {
-      'Content-Type':'application/json',
-      'apikey': SUPABASE_KEY,
-      'Authorization': 'Bearer ' + SUPABASE_KEY
-    },
+    headers: {'Content-Type':'application/json'},
     body: JSON.stringify(body)
   });
   if(!r.ok) throw new Error(`Edge Function ${fn} error: ${r.status}`);
@@ -14006,20 +13992,55 @@ function gerarPitchesParaNicho(nomeEmpresa, nicho, diasAberta, cidade){
   const n = nomeEmpresa || 'sua empresa';
   const ni = nicho || 'seu negócio';
   const c = cidade || 'sua cidade';
-
+  // Fallback estático enquanto não carrega IA
   return [
-    `Olá! Vi que a ${n} abriu ${recencia} em ${c}. Parabéns pela abertura! 🎉 Trabalho ajudando empresas de ${ni} a atrair os primeiros clientes rápido — sem precisar depender de indicações. Posso te mostrar como em 5 minutos?`,
-    `Oi! Percebi que a ${n} é nova por aqui e ainda está estruturando a presença digital. Consigo te ajudar a aparecer no Google e atrair clientes locais nos primeiros 30 dias. Vale uma conversa rápida?`,
-    `${n}, parabéns pela abertura! 🚀 Ajudo negócios de ${ni} a não depender só de boca a boca desde o primeiro mês. Se quiser, posso te mostrar um case de como uma empresa parecida com a sua triplicou o movimento em 60 dias.`,
+    `Olá! Vi que a ${n} abriu ${recencia} em ${c}. Parabéns pela abertura! 🎉 Ajudo empresas de ${ni} a atrair os primeiros clientes com site, landing page e apps com preços muito bons. Posso te mostrar como em 5 minutos?`,
+    `Oi! A ${n} é nova em ${c} e posso te ajudar a aparecer no Google e conquistar clientes locais nos primeiros 30 dias — com site, aplicativo ou landing page por um preço muito acessível. Vale uma conversa rápida?`,
+    `${n}, parabéns pela abertura em ${c}! 🚀 Crio sites, landing pages e aplicativos para negócios de ${ni} a preços excelentes. Uma empresa parecida com a sua triplicou o movimento em 60 dias. Posso te mostrar?`,
   ];
+}
+
+async function gerarPitchesIA(nomeEmpresa, nicho, diasAberta, cidade, rodada){
+  const plural = diasAberta === 1 ? 'dia' : 'dias';
+  const recencia = diasAberta <= 30 ? `há ${diasAberta} ${plural}` : `há pouco mais de ${diasAberta} ${plural}`;
+  const prompt = `Crie exatamente 3 mensagens de WhatsApp de prospecção diferentes, criativas, carismáticas e gentis para abordar a empresa "${nomeEmpresa}" do nicho "${nicho}" que abriu ${recencia} em ${cidade}.
+
+Regras obrigatórias:
+- Sempre mencionar o nome da empresa
+- Ser direto, objetivo e educado
+- Mencionar que oferece sites, aplicativos, landing pages com preços muito bons/acessíveis
+- Cada mensagem deve ter um ângulo diferente (abertura recente, presença digital, resultados rápidos)
+- Tom caloroso e pessoal, não corporativo
+- Máximo 3 linhas cada
+- Rodada ${rodada} de 3 (gere variações completamente diferentes das rodadas anteriores)
+
+Responda APENAS com JSON assim (sem markdown):
+{"pitches":["mensagem1","mensagem2","mensagem3"]}`;
+
+  try {
+    const resp = await efCall('claude-ai', {
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 600,
+      messages: [{role:'user', content: prompt}]
+    });
+    const txt = resp?.content?.[0]?.text || '';
+    const clean = txt.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(clean);
+    if(Array.isArray(parsed.pitches) && parsed.pitches.length === 3) return parsed.pitches;
+  } catch(e) {}
+  return gerarPitchesParaNicho(nomeEmpresa, nicho, diasAberta, cidade);
 }
 
 let _currentPitches = [];
 let _currentPitchIdx = 0;
+let _pitchRodada = 0;
+let _pitchEmpresaCtx = {};
 
 function abrirPitchIA(empresa, telefone, nicho){
   _pitchAtualEmpresa = empresa;
   _pitchAtualTelefone = telefone;
+  _pitchRodada = 1;
+  _pitchEmpresaCtx = { empresa, nicho };
 
   const modal = document.getElementById('modalPitchIA');
   if(!modal){ toast('Modal de Pitch não encontrado.','error'); return; }
@@ -14043,10 +14064,17 @@ function abrirPitchIA(empresa, telefone, nicho){
   _currentPitches = gerarPitchesParaNicho(empresa.nome || empresa.name, nicho, empresa._diasAberta || 45, cidade);
   _currentPitchIdx = 0;
   renderPitchContainer();
-
   modal.style.display = 'flex';
 
-  // Registra missão de pitch gerado
+  // Carrega versões IA em segundo plano
+  const nomeEmp = empresa.nome || empresa.name;
+  const dias = empresa._diasAberta || 45;
+  gerarPitchesIA(nomeEmp, nicho, dias, cidade, 1).then(pitches => {
+    _currentPitches = pitches;
+    _currentPitchIdx = 0;
+    renderPitchContainer();
+  });
+
   const hoje = new Date().toDateString();
   if(localStorage.getItem('capturo_missao_pitch_gerado') !== hoje){
     completarMissao('pitch_gerado', 5);
@@ -14056,13 +14084,21 @@ function abrirPitchIA(empresa, telefone, nicho){
 function renderPitchContainer(){
   const c = document.getElementById('pitchContainer');
   if(!c) return;
+  if(!_currentPitches.length){
+    c.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted2);font-size:13px">⏳ Gerando mensagens personalizadas com IA...</div>';
+    return;
+  }
   c.innerHTML = _currentPitches.map((p,i)=>`
-    <div class="pitch-option ${i===_currentPitchIdx?'selected':''}" onclick="selecionarPitch(${i})">
-      <button class="pitch-copy-btn" onclick="event.stopPropagation();copiarPitch(${i})">Copiar</button>
-      <div style="padding-right:48px;font-style:italic">"${p}"</div>
+    <div class="pitch-option ${i===_currentPitchIdx?'selected':''}" onclick="selecionarPitch(${i})" style="margin-bottom:10px;background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:14px 48px 14px 14px;cursor:pointer;transition:all .15s;position:relative">
+      <button class="pitch-copy-btn" onclick="event.stopPropagation();copiarPitch(${i})" style="position:absolute;right:10px;top:10px;font-size:10px;padding:3px 8px;border-radius:6px;background:var(--s2);border:1px solid var(--border);cursor:pointer;color:var(--muted2)">Copiar</button>
+      <div style="font-style:italic;font-size:13px;line-height:1.6;color:var(--text)">"${p}"</div>
     </div>
   `).join('');
   _pitchSelecionado = _currentPitches[_currentPitchIdx];
+  // Update btn text
+  const btn = document.getElementById('btnNovoPitch');
+  if(btn && _pitchRodada < 3) btn.textContent = '🔄 Novo pitch (' + (3-_pitchRodada) + ' restante' + (3-_pitchRodada===1?'':'s') + ')';
+  else if(btn) { btn.textContent = '✅ Limite atingido'; btn.disabled = true; }
 }
 
 function selecionarPitch(idx){
@@ -14076,9 +14112,22 @@ function copiarPitch(idx){
   navigator.clipboard.writeText(txt).then(()=> toast('✅ Pitch copiado!','ok',2500));
 }
 
-function regenerarPitch(){
-  _currentPitchIdx = (_currentPitchIdx + 1) % _currentPitches.length;
+async function regenerarPitch(){
+  if(_pitchRodada >= 3){
+    toast('Limite de 9 opções atingido. Escolha uma das mensagens acima! 😊','warn',3000);
+    return;
+  }
+  _pitchRodada++;
+  const btn = document.querySelector('#modalPitchIA .btn-ghost');
+  if(btn){ btn.textContent = '⏳ Gerando...'; btn.disabled = true; }
+  const { empresa, nicho } = _pitchEmpresaCtx;
+  const cidade = empresa._cidade || empresa.municipio || '';
+  const novos = await gerarPitchesIA(empresa.nome || empresa.name, nicho, empresa._diasAberta || 45, cidade, _pitchRodada);
+  _currentPitches = novos;
+  _currentPitchIdx = 0;
   renderPitchContainer();
+  if(btn){ btn.textContent = `🔄 Novo pitch (${3-_pitchRodada} restante${3-_pitchRodada===1?'':'s'})`; btn.disabled = false; }
+  if(_pitchRodada >= 3 && btn){ btn.textContent = '✅ Limite atingido'; btn.disabled = true; }
 }
 
 function abrirZapComPitch(){
