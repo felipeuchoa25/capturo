@@ -7672,7 +7672,33 @@ async function buscarNovosNegocios(){
   dataLimite.setDate(dataLimite.getDate()-dias);
 
   try{
-    // ── Passo 1: Geocodificar cidade ──────────────────────────
+    // ── Passo 0: Tenta busca direta por CNPJ (mais preciso) ──
+    if(status) status.textContent='Consultando Receita Federal...';
+    if(skMsg)  skMsg.textContent='Buscando CNPJs recentes...';
+    const cnpjDireto = await buscarEmpresasNovas(cidade, uf, nicho, dias);
+    if(cnpjDireto.length > 0){
+      if(status) status.textContent=`${cnpjDireto.length} empresas encontradas via CNPJ direto.`;
+      // Converte para formato padrão e renderiza
+      const novasDireto = cnpjDireto.map((e,i)=>{
+        const dtStr = e.data_inicio_atividade||'';
+        const dt = dtStr ? new Date(dtStr.includes('/')?dtStr.replace(/(\d{2})\/(\d{2})\/(\d{4})/,'$3-$2-$1'):dtStr) : null;
+        const diasAberta = dt && !isNaN(dt) ? Math.floor((Date.now()-dt)/(1000*60*60*24)) : dias;
+        return {
+          nome: e.nome, cnpj: e.cnpj, telefone: e.telefone, email: e.email,
+          municipio: e.municipio, uf: e.uf, _diasAberta: diasAberta,
+          _cidade: e.municipio, data_inicio_atividade: e.data_inicio_atividade,
+          cnpjData: e, _source: 'cnpj-direto',
+          score: Math.min(100, Math.max(10, diasAberta<=7?95:diasAberta<=30?80:diasAberta<=60?65:50))
+        };
+      });
+      _alertasData = novasDireto;
+      _renderAlertasResultados(novasDireto, cidade, nicho, dias);
+      const badge=document.getElementById('alertasBadge');
+      if(badge){ if(novasDireto.length>0){badge.style.display='flex';badge.textContent=novasDireto.length>99?'99+':novasDireto.length;}else badge.style.display='none'; }
+      return; // Sucesso via CNPJ direto — não precisa do Maps
+    }
+
+    // ── Passo 1: Geocodificar cidade (fallback via Maps) ──────
     if(status) status.textContent='Localizando...';
     if(skMsg)  skMsg.textContent='Localizando cidade...';
     let lat, lng;
@@ -7911,33 +7937,81 @@ async function buscarNovosNegocios(){
   }
 }
 
-// ── Pitch IA para Novos Negócios ────────────────────────────────────────────
-function _gerarPitchAlerta(idx, nomeEmpresa, nicho){
+// ── Pitch IA para Novos Negócios (usa IA real via claude-ai) ───────────────
+async function _gerarPitchAlerta(idx, nomeEmpresa, nicho){
   const area = document.getElementById('pitch-area-'+idx);
   if(!area) return;
   area.style.display='block';
-  area.textContent='🤖 Gerando pitch...';
+  area.innerHTML='<span class="spinner"></span> Gerando pitch com IA...';
 
-  const pitchs = [
-    `Olá! Vi que ${nomeEmpresa} abriu recentemente no segmento de ${nicho}. Parabéns pela abertura! Trabalho com agências que ajudam novos negócios a conquistar os primeiros clientes rápido — posso te mostrar como atrair +30% de clientes em 30 dias. Posso te enviar um material gratuito?`,
-    `Oi! Notei que ${nomeEmpresa} é um negócio novo de ${nicho} na região. Sei que os primeiros meses são decisivos. Tenho uma estratégia específica para negócios recém-abertos que já ajudou dezenas de empresas a lotar a agenda. Tem 5 minutinhos para uma conversa rápida?`,
-    `Olá, tudo bem? Encontrei ${nomeEmpresa} aqui e vi que vocês abriram recentemente. O início é cheio de desafios, né? Trabalho com marketing digital focado em ${nicho} e sei exatamente o que funciona para atrair clientes locais nos primeiros meses. Posso te ajudar?`,
-  ];
-  const pitch = pitchs[idx % pitchs.length];
+  // Pega dados CNPJ do lead no _alertasData
+  const emp = _alertasData[idx]||{};
+  const cnpjExtra = emp.cnpjData || null;
+  const dias = emp._diasAberta || 30;
+  const cidade = emp._cidade || emp.municipio || '';
 
-  setTimeout(()=>{
-    area.innerHTML = `<div style="margin-bottom:8px">"${pitch}"</div>
-      <button onclick="navigator.clipboard.writeText(this.closest('[id^=pitch-area]')||document.getElementById('pitch-area-${idx}').querySelector('div').textContent.replace(/^\"|\"$/g,'')).then(()=>{this.textContent='✅ Copiado!';setTimeout(()=>{this.textContent='📋 Copiar';},1800)})" 
-        style="background:var(--purple-bg);border:1px solid rgba(184,122,255,.3);color:var(--purple);padding:5px 12px;border-radius:8px;font-size:10px;font-weight:600;cursor:pointer;width:100%">📋 Copiar Pitch</button>`;
-    // Bind do botão copiar corretamente
-    const btn = area.querySelector('button');
-    if(btn) btn.onclick = ()=>{
-      navigator.clipboard.writeText(pitch).then(()=>{
-        btn.textContent='✅ Copiado!';
-        setTimeout(()=>{ btn.textContent='📋 Copiar Pitch'; },1800);
-      });
-    };
-  }, 600);
+  let pitches = [];
+  try {
+    pitches = await gerarPitchesIA(nomeEmpresa, nicho, dias, cidade, 1, cnpjExtra);
+  } catch(e) {}
+
+  // Fallback se IA falhar
+  if(!pitches || !pitches.length){
+    const socio = cnpjExtra?.socios?.[0]?.nome || cnpjExtra?.qsa?.[0]?.nome_socio || '';
+    const saudacao = socio ? `Olá ${socio.split(' ')[0]}!` : 'Olá!';
+    pitches = [
+      `${saudacao} Vi que ${nomeEmpresa} abriu recentemente no segmento de ${nicho}. Parabéns pela abertura! Posso ajudar a atrair os primeiros clientes com marketing digital. Tem 5 minutinhos?`,
+      `Oi! Notei que ${nomeEmpresa} é um negócio novo de ${nicho} na região. Sei que os primeiros meses são decisivos. Tenho uma estratégia específica para negócios recém-abertos. Posso te ajudar?`,
+    ];
+  }
+
+  const pitch = pitches[0];
+  area.innerHTML = `
+    <div style="font-style:italic;font-size:12px;line-height:1.6;color:var(--text);margin-bottom:8px">"${pitch}"</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <button id="btn-copy-pitch-${idx}" style="background:var(--purple-bg);border:1px solid rgba(184,122,255,.3);color:var(--purple);padding:5px 12px;border-radius:8px;font-size:10px;font-weight:600;cursor:pointer;flex:1">📋 Copiar</button>
+      <button onclick="abrirPitchIA(_alertasData[${idx}],'${(emp.telefone||'').replace(/\D/g,'')}','${nicho.replace(/'/g,"\'")}');" style="background:var(--green-bg);border:1px solid var(--green-b);color:var(--green);padding:5px 12px;border-radius:8px;font-size:10px;font-weight:600;cursor:pointer;flex:1">🔄 Mais opções</button>
+    </div>`;
+  const btn = document.getElementById('btn-copy-pitch-'+idx);
+  if(btn) btn.onclick = ()=>{
+    navigator.clipboard.writeText(pitch).then(()=>{
+      btn.textContent='✅ Copiado!';
+      setTimeout(()=>{ btn.textContent='📋 Copiar'; },1800);
+    });
+  };
+}
+
+// ── BUSCA DIRETA CNPJ por data de abertura (sem precisar do Maps) ───────────
+// Complementa buscarNovosNegocios — útil para empresas sem presença no Maps
+async function buscarEmpresasNovas(cidade, uf, nicho, dias){
+  try {
+    // Tenta via edge function cnpj com busca por município + data
+    const result = await efCall('cnpj', {
+      action: 'buscar_novos',
+      municipio: cidade.toUpperCase(),
+      uf: uf.toUpperCase(),
+      atividade: nicho,
+      dias_abertura: dias,
+      limite: 20
+    });
+    if(result && Array.isArray(result.empresas) && result.empresas.length){
+      return result.empresas.map(e => ({
+        nome: e.razao_social || e.nome_fantasia || '',
+        cnpj: e.cnpj || '',
+        data_inicio_atividade: e.data_inicio_atividade || e.data_abertura || '',
+        telefone: e.telefone || e.ddd_telefone_1 || '',
+        email: e.email || '',
+        municipio: e.municipio || cidade,
+        uf: e.uf || uf,
+        capital_social: e.capital_social || null,
+        cnae_fiscal_descricao: e.cnae_fiscal_descricao || nicho,
+        _source: 'cnpj-direto'
+      }));
+    }
+  } catch(e) {
+    console.warn('[buscarEmpresasNovas] edge function falhou, usando Maps como fallback:', e.message);
+  }
+  return []; // Fallback: retorna vazio, buscarNovosNegocios usa Maps
 }
 
 function cancelarBuscaAlertas(){
