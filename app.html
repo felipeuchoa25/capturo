@@ -3355,6 +3355,13 @@ function toast(msg, type='info', duration=3500){
 
     <!-- ══ RESULTADOS ══ -->
     <div id="alertasResultados" style="display:none">
+      <!-- Legenda de cores -->
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;padding:8px 12px;background:var(--s1);border-radius:10px;border:1px solid var(--border)">
+        <span style="font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;align-self:center">Temperatura:</span>
+        <span style="font-size:11px;display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:var(--volcano);display:inline-block"></span><strong style="color:var(--volcano)">Vulcão</strong> — Score ≥ 80 (aberta ≤7 dias)</span>
+        <span style="font-size:11px;display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:var(--orange);display:inline-block"></span><strong style="color:var(--orange)">Quente</strong> — Score 60–79 (aberta ≤30 dias)</span>
+        <span style="font-size:11px;display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:var(--cold);display:inline-block"></span><strong style="color:var(--cold)">Morno</strong> — Score &lt; 60 (mais de 30 dias)</span>
+      </div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
         <div style="display:flex;align-items:center;gap:10px">
           <div style="font-size:13px;font-weight:800;letter-spacing:-.02em" id="alertasContador">0 encontrados</div>
@@ -7990,7 +7997,10 @@ function _renderAlertasResultados(lista, cidade, nicho, dias){
 
     const nomeEscaped = nome.replace(/'/g,"\\'").replace(/"/g,'\\"');
 
-    return `<div class="alerta-card ${info.cardClass}" id="acard-${idx}" style="animation:fadeInCard .3s ease ${idx*0.06}s both">
+    const socioNomeCard = (emp.qsa||[]).map(s=>s.nome_socio||s.nome||'').filter(Boolean)[0]||'';
+    const situacaoCard = emp.porte||'';
+
+    return `<div class="alerta-card ${info.cardClass}" id="acard-${idx}" style="animation:fadeInCard .3s ease ${idx*0.06}s both;cursor:pointer" onclick="toggleAlertaCard(${idx}, event)">
       <!-- Score badge -->
       <div class="alerta-score-badge ${info.css}">${score}</div>
 
@@ -8014,6 +8024,20 @@ function _renderAlertasResultados(lista, cidade, nicho, dias){
         ${cnpj ? `<div style="font-family:'IBM Plex Mono',monospace;font-size:10px;opacity:.5">${cnpj}</div>` : ''}
       </div>
 
+      <!-- Dados expandidos (visíveis ao clicar no card) -->
+      <div id="acard-extra-${idx}" style="display:none;background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;font-size:11px;line-height:1.9;color:var(--text2);animation:fadeInCard .2s ease">
+        ${emp.razao_social ? `<div>🏢 <strong>Razão Social:</strong> ${escHtml(emp.razao_social)}</div>` : ''}
+        ${emp.nome_fantasia && emp.nome_fantasia !== emp.razao_social ? `<div>🏷 <strong>Nome Fantasia:</strong> ${escHtml(emp.nome_fantasia)}</div>` : ''}
+        ${cnpj ? `<div>📋 <strong>CNPJ:</strong> <span style="font-family:monospace">${cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,'$1.$2.$3/$4-$5')}</span></div>` : ''}
+        ${cnae ? `<div>🏷 <strong>CNAE:</strong> ${cnae}</div>` : ''}
+        ${emp.porte ? `<div>📊 <strong>Porte:</strong> ${escHtml(emp.porte)}</div>` : ''}
+        ${capital ? `<div>💰 <strong>Capital Social:</strong> ${capital}</div>` : ''}
+        ${socios ? `<div>👤 <strong>Sócio(s):</strong> ${socios}</div>` : ''}
+        ${emp.logradouro ? `<div>📍 <strong>Endereço:</strong> ${escHtml([emp.logradouro,emp.numero,emp.bairro,emp.municipio,emp.uf].filter(Boolean).join(', '))}</div>` : ''}
+        ${emp.cep ? `<div>📮 <strong>CEP:</strong> ${escHtml(emp.cep)}</div>` : ''}
+        ${email ? `<div>✉ <strong>E-mail:</strong> ${email}</div>` : ''}
+        <div style="margin-top:6px;font-size:10px;color:var(--muted2)">Fonte: ${escHtml(emp._apiFonte||'Google Maps')}</div>
+      </div>
       <!-- Área de Pitch IA (expandível) -->
       <div id="pitch-inline-${idx}" style="display:none;background:var(--s2);border:1px solid rgba(79,142,255,.25);border-radius:10px;padding:12px;margin-bottom:10px;font-size:12px;line-height:1.6;color:var(--text2);font-style:italic;animation:fadeInCard .25s ease"></div>
 
@@ -8026,7 +8050,7 @@ function _renderAlertasResultados(lista, cidade, nicho, dias){
         </button>
         <!-- Linha de ações secundárias -->
         <div style="display:flex;gap:6px">
-          <button onclick="_importarAlertaLeadUnico(${idx})" class="btn btn-primary" style="font-size:10px;padding:6px 10px;flex:1">+ Importar</button>
+          <button onclick="_importarAlertaLeadUnicoFix(${idx})" class="btn btn-primary" style="font-size:10px;padding:6px 10px;flex:1">+ Importar</button>
           ${tel ? `<a href="https://wa.me/55${tel.replace(/\D/g,'')}" target="_blank" class="btn" style="font-size:10px;padding:6px 10px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;text-decoration:none;display:flex;align-items:center;gap:4px;flex:1;justify-content:center">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
             WA</a>` : ''}
@@ -14408,6 +14432,144 @@ Responda APENAS com JSON assim (sem markdown):
   } catch(e) {}
   return gerarPitchesParaNicho(nomeEmpresa, nicho, diasAberta, cidade);
 }
+
+
+function toggleAlertaCard(idx, e){
+  // Não expandir se clicou em botão
+  if(e && e.target.closest('button,a')) return;
+  const extra = document.getElementById('acard-extra-'+idx);
+  if(!extra) return;
+  extra.style.display = extra.style.display === 'none' ? 'block' : 'none';
+}
+
+// ── PITCH IA: funções completas ───────────────────────────────────────────
+let _currentPitches = [];
+let _currentPitchIdx = 0;
+let _pitchRodada = 0;
+let _pitchEmpresaCtx = {};
+
+function abrirPitchIA(empresa, telefone, nicho){
+  _pitchAtualEmpresa = empresa;
+  _pitchAtualTelefone = telefone;
+  _pitchRodada = 1;
+  _pitchEmpresaCtx = { empresa, nicho };
+
+  const modal = document.getElementById('modalPitchIA');
+  if(!modal){ toast('Modal de Pitch não encontrado.','error'); return; }
+
+  const score = calcularScoreAlerta(empresa);
+  const info = labelScore(score);
+
+  const nomeEl = document.getElementById('pitchLeadNome');
+  if(nomeEl) nomeEl.textContent = empresa.razao_social || empresa.nome_fantasia || empresa.nome || empresa.name || 'Empresa';
+
+  const circle = document.getElementById('pitchScoreCircle');
+  const lbl    = document.getElementById('pitchScoreLabel');
+  const reason = document.getElementById('pitchScoreReason');
+  if(circle){ circle.textContent = score; circle.style.color = info.cor; circle.style.borderColor = info.cor+'66'; circle.style.background = info.cor+'1a'; }
+  if(lbl)   { lbl.textContent = info.label; lbl.style.color = info.cor; }
+  if(reason){
+    const dias = empresa._diasAberta;
+    reason.textContent = dias ? `Empresa aberta há ${dias} dia${dias===1?'':'s'}` : 'Data de abertura não confirmada';
+  }
+
+  // Mostra pitches estáticos primeiro
+  const cidade = empresa._cidade || empresa.municipio || empresa.city || '';
+  _currentPitches = gerarPitchesParaNicho(empresa.razao_social||empresa.nome||empresa.name, nicho, empresa._diasAberta||45, cidade);
+  _currentPitchIdx = 0;
+  renderPitchContainer();
+  modal.style.display = 'flex';
+
+  // Carrega versão IA em segundo plano
+  const nomeEmp = empresa.razao_social || empresa.nome_fantasia || empresa.nome || empresa.name || '';
+  const dias = empresa._diasAberta || 45;
+  gerarPitchesIA(nomeEmp, nicho, dias, cidade, 1, empresa.cnpjData||empresa).then(pitches => {
+    _currentPitches = pitches;
+    _currentPitchIdx = 0;
+    renderPitchContainer();
+  }).catch(()=>{});
+}
+
+function fecharPitchIA(){
+  const modal = document.getElementById('modalPitchIA');
+  if(modal) modal.style.display = 'none';
+}
+
+function renderPitchContainer(){
+  const c = document.getElementById('pitchContainer');
+  if(!c) return;
+  if(!_currentPitches.length){
+    c.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted2);font-size:13px">⏳ Gerando mensagens personalizadas com IA...</div>';
+    return;
+  }
+  c.innerHTML = _currentPitches.map((p,i)=>`
+    <div onclick="selecionarPitch(${i})" style="position:relative;background:${i===_currentPitchIdx?'var(--accent-bg)':'var(--s1)'};border:1.5px solid ${i===_currentPitchIdx?'var(--accent)':'var(--border)'};border-radius:12px;padding:14px 52px 14px 14px;cursor:pointer;transition:all .15s;margin-bottom:8px">
+      <button onclick="event.stopPropagation();copiarPitch(${i})" style="position:absolute;right:10px;top:10px;font-size:10px;padding:3px 8px;border-radius:6px;background:var(--s2);border:1px solid var(--border);cursor:pointer;color:var(--muted2)">Copiar</button>
+      <div style="font-style:italic;font-size:13px;line-height:1.6;color:var(--text)">"${p}"</div>
+    </div>
+  `).join('');
+  _pitchSelecionado = _currentPitches[_currentPitchIdx];
+  const btn = document.getElementById('btnNovoPitch');
+  if(btn){
+    if(_pitchRodada < 3) btn.textContent = '🔄 Novo pitch (' + (3-_pitchRodada) + ' restante' + (3-_pitchRodada===1?'':'s') + ')';
+    else { btn.textContent = '✅ Limite atingido'; btn.disabled = true; }
+  }
+}
+
+function selecionarPitch(idx){
+  _currentPitchIdx = idx;
+  _pitchSelecionado = _currentPitches[idx];
+  renderPitchContainer();
+}
+
+function copiarPitch(idx){
+  const txt = _currentPitches[idx] || _pitchSelecionado;
+  navigator.clipboard.writeText(txt).then(()=> toast('✅ Pitch copiado!','ok',2000));
+}
+
+async function regenerarPitch(){
+  if(_pitchRodada >= 3){
+    toast('Limite de 9 opções atingido. Escolha uma das mensagens! 😊','warn',3000);
+    return;
+  }
+  _pitchRodada++;
+  const btn = document.getElementById('btnNovoPitch');
+  if(btn){ btn.textContent = '⏳ Gerando...'; btn.disabled = true; }
+  const { empresa, nicho } = _pitchEmpresaCtx;
+  const cidade = empresa._cidade || empresa.municipio || empresa.city || '';
+  const novos = await gerarPitchesIA(empresa.razao_social||empresa.nome||empresa.name, nicho, empresa._diasAberta||45, cidade, _pitchRodada, empresa.cnpjData||empresa);
+  _currentPitches = novos;
+  _currentPitchIdx = 0;
+  renderPitchContainer();
+  if(btn) btn.disabled = false;
+}
+
+function abrirZapComPitch(){
+  const txt = _pitchSelecionado || _currentPitches[0] || '';
+  const tel  = (_pitchAtualTelefone||'').replace(/\D/g,'');
+  if(!txt){ toast('Selecione um pitch primeiro.','warn'); return; }
+  const url = tel
+    ? `https://wa.me/55${tel}?text=${encodeURIComponent(txt)}`
+    : `https://wa.me/?text=${encodeURIComponent(txt)}`;
+  window.open(url,'_blank','noopener');
+  fecharPitchIA();
+}
+
+// ── IMPORTAR: salvar campanha após importar ────────────────────────────────
+function _importarAlertaLeadUnicoFix(idx){
+  const emp = _alertasData[idx];
+  if(!emp) return;
+  if(!activeCampaignId){ toast('Selecione uma campanha antes de importar.','warn'); return; }
+  const ok = _importarEmpresaComoLead(emp);
+  if(ok){
+    const c = campaigns.find(x=>x.id===activeCampaignId);
+    if(c){ c.leads = leads; saveCampaigns(); renderAll(); }
+    toast('✅ Lead importado para a campanha!','ok',2500);
+  } else {
+    toast('Lead já existe nesta campanha.','warn',2000);
+  }
+}
+
 
 </script>
 
