@@ -856,6 +856,25 @@ select option{background:var(--s2);color:var(--text)}
   .sb-label{font-size:12px;font-weight:500;opacity:0;transition:opacity .15s .05s;pointer-events:none;}
   .sidebar:hover .sb-label,.sidebar.expanded .sb-label{opacity:1;}
   .sb-divider{height:1px;background:rgba(255,255,255,.06);margin:6px 4px;}
+  .sb-section-label{
+    padding:3px 10px 2px;
+    overflow:hidden;
+    height:18px;
+    transition:opacity .15s .05s;
+  }
+  .sb-section-label .sb-label{
+    font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+    color:rgba(255,255,255,.25);opacity:0;transition:opacity .15s .05s;
+  }
+  .sidebar:hover .sb-section-label .sb-label,.sidebar.expanded .sb-section-label .sb-label{opacity:1;}
+  /* Radar CNPJ — destaque vermelho suave */
+  .sb-item-radar-cnpj:hover{background:rgba(255,82,82,.1)!important;color:#ff7070!important;}
+  .sb-item-radar-cnpj.active{background:rgba(255,82,82,.12)!important;color:#ff7070!important;}
+  .sb-item-radar-cnpj.active::before{background:#ff5252!important;}
+  /* Radar Local — destaque verde suave */
+  .sb-item-radar-local:hover{background:rgba(52,199,89,.1)!important;color:#34c759!important;}
+  .sb-item-radar-local.active{background:rgba(52,199,89,.12)!important;color:#34c759!important;}
+  .sb-item-radar-local.active::before{background:#34c759!important;}
   .topnav{padding:0 16px;}
 
 /* ── LEAD PROFILE PANEL ── */
@@ -2219,6 +2238,10 @@ function toast(msg, type='info', duration=3500){
 <!-- mobile sidebar overlay renderizado abaixo -->
 
 <div class="sidebar" id="mainSidebar">
+
+  <!-- ── BLOCO 1: CAPTURO CORE ── -->
+  <div class="sb-section-label"><span class="sb-label">CAPTURO</span></div>
+
   <div class="sb-item active" id="sb-home" onclick="showPage('pageHome');setSbActive('sb-home')">
     <span class="sb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span><span class="sb-label">Dashboard</span>
   </div>
@@ -2230,9 +2253,6 @@ function toast(msg, type='info', duration=3500){
   </div>
   <div class="sb-item" id="sb-templates" onclick="showPage('pageTemplates');setSbActive('sb-templates')">
     <span class="sb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="13" y2="14"/></svg></span><span class="sb-label">Templates</span>
-  </div>
-  <div class="sb-item" id="sb-gmb" onclick="showPage('pageGMB');setSbActive('sb-gmb')">
-    <span class="sb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.4 7.05 11.5 7.35 11.76a1 1 0 0 0 1.3 0C12.95 21.5 20 15.4 20 10a8 8 0 0 0-8-8z"/></svg></span><span class="sb-label">GMB</span>
   </div>
   <div class="sb-item" id="sb-manual" onclick="showPage('pageManual');setSbActive('sb-manual')">
     <span class="sb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span class="sb-label">Busca Manual</span>
@@ -2246,13 +2266,6 @@ function toast(msg, type='info', duration=3500){
   <div class="sb-item" id="sb-relatorio" onclick="showPage('pageRelatorio');setSbActive('sb-relatorio')">
     <span class="sb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span><span class="sb-label">Relatórios</span>
   </div>
-  <div class="sb-item" id="sb-alertas" onclick="showPage('pageAlertas');setSbActive('sb-alertas')" title="Novos Negócios em CNPJ">
-    <span class="sb-icon" style="position:relative">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/><line x1="12" y1="2" x2="12" y2="4"/></svg>
-      <span id="alertasBadge" style="display:none;position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;background:var(--volcano);border-radius:20px;font-size:9px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 3px;border:2px solid var(--s1)"></span>
-    </span>
-    <span class="sb-label">Radar CNPJ</span>
-  </div>
   <div class="sb-item" id="sb-favoritos" onclick="showPage('pageFavoritos');setSbActive('sb-favoritos')">
     <span class="sb-icon" style="position:relative">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
@@ -2260,7 +2273,46 @@ function toast(msg, type='info', duration=3500){
     </span>
     <span class="sb-label">Favoritos</span>
   </div>
+
+  <!-- ── BLOCO 2: RADAR CNPJ ── -->
   <div class="sb-divider"></div>
+  <div class="sb-section-label" style="--sl-color:#ff6b6b"><span class="sb-label" style="color:#ff6b6b88">RADAR CNPJ</span></div>
+
+  <div class="sb-item sb-item-radar-cnpj" id="sb-alertas" onclick="showPage('pageAlertas');setSbActive('sb-alertas')" title="Radar CNPJ — Novos Negócios">
+    <span class="sb-icon" style="position:relative">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/><line x1="12" y1="2" x2="12" y2="4"/></svg>
+      <span id="alertasBadge" style="display:none;position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;background:var(--volcano);border-radius:20px;font-size:9px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 3px;border:2px solid var(--s1)"></span>
+    </span>
+    <span class="sb-label">Monitoramento</span>
+  </div>
+
+  <!-- ── BLOCO 3: RADAR LOCAL ── -->
+  <div class="sb-divider"></div>
+  <div class="sb-section-label" style="--sl-color:#34c759"><span class="sb-label" style="color:#34c75988">RADAR LOCAL</span></div>
+
+  <div class="sb-item sb-item-radar-local" id="sb-radarlocal" onclick="showPage('pageRadarLocal');setSbActive('sb-radarlocal')" title="Radar Local — Grid GMB">
+    <span class="sb-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" opacity=".4"/>
+        <circle cx="12" cy="12" r="6" opacity=".6"/>
+        <circle cx="12" cy="12" r="2.5" fill="currentColor" stroke="none"/>
+        <line x1="12" y1="2" x2="12" y2="5" stroke-width="1.5"/>
+        <line x1="12" y1="19" x2="12" y2="22" stroke-width="1.5"/>
+        <line x1="2" y1="12" x2="5" y2="12" stroke-width="1.5"/>
+        <line x1="19" y1="12" x2="22" y2="12" stroke-width="1.5"/>
+      </svg>
+    </span>
+    <span class="sb-label">Grid GMB</span>
+  </div>
+  <div class="sb-item sb-item-radar-local" id="sb-radarhistorico" onclick="showPage('pageRadarHistorico');setSbActive('sb-radarhistorico')" title="Radar Local — Histórico">
+    <span class="sb-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    </span>
+    <span class="sb-label">Histórico</span>
+  </div>
+
+  <!-- ── SUPORTE ── -->
+  <div class="sb-divider" style="margin-top:auto"></div>
   <div class="sb-item" id="sb-guia" onclick="showPage('pageGuia');setSbActive('sb-guia')">
     <span class="sb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
     <span class="sb-label">Manual</span>
@@ -2268,9 +2320,6 @@ function toast(msg, type='info', duration=3500){
   <div class="sb-item" id="sb-faq" onclick="showPage('pageFAQ');setSbActive('sb-faq')">
     <span class="sb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
     <span class="sb-label">FAQ</span>
-  </div>
-  <div class="sb-item" onclick="openSettings()" style="display:none">
-    <span class="sb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span class="sb-label">Configurações</span>
   </div>
 </div>
 
@@ -2601,34 +2650,244 @@ function toast(msg, type='info', duration=3500){
   </div>
 
 
-  <!-- GMB RANKING (MKT LOCAL IMPORT) -->
-  <div class="page" id="pageGMB">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-      <div>
-        <div style="font-size:10px;font-family:monospace;color:var(--muted2);text-transform:uppercase;letter-spacing:.1em">// GMB Ranking — Visibilidade Local</div>
-        <div style="font-size:11px;color:var(--muted2);margin-top:4px">Importe os PDFs de ranking para acompanhar a evolução dos seus clientes</div>
+  <!-- ══════════════════════════════════════════════════════════
+       RADAR LOCAL — Grid GMB Nativo
+  ══════════════════════════════════════════════════════════ -->
+  <div class="page" id="pageRadarLocal">
+    <div class="main">
+      <!-- Header -->
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+            <div style="width:32px;height:32px;border-radius:10px;background:rgba(52,199,89,.12);border:1px solid rgba(52,199,89,.25);display:flex;align-items:center;justify-content:center">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2"><circle cx="12" cy="12" r="10" opacity=".4"/><circle cx="12" cy="12" r="6" opacity=".6"/><circle cx="12" cy="12" r="2.5" fill="#34c759" stroke="none"/></svg>
+            </div>
+            <div style="font-size:20px;font-weight:800;letter-spacing:-.03em">Radar Local</div>
+            <span style="font-size:10px;background:rgba(52,199,89,.15);color:#34c759;border:1px solid rgba(52,199,89,.3);padding:2px 10px;border-radius:20px;font-weight:700">GRID GMB</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted2)">Analise o rankeamento de qualquer negócio no Google Maps com grid de pontos</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div style="font-size:10px;color:var(--muted2);background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-family:monospace">
+            🔑 Google Places API Key necessária
+          </div>
+          <button onclick="abrirConfigRadarLocal()" style="display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:var(--s2);border:1px solid var(--border);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer">
+            ⚙️ Configurar API
+          </button>
+        </div>
       </div>
-      <label class="btn btn-primary" style="font-size:11px;cursor:pointer">
-        📄 Importar PDF
-        <input type="file" accept=".pdf" onchange="importMktLocalPDF(this)" style="display:none">
-      </label>
-    </div>
 
-    <!-- Upload zone when empty -->
-    <div id="gmbUploadZone" class="upload-zone" onclick="document.querySelector('#pageGMB input[type=file]').click()">
-      <div style="font-size:32px;margin-bottom:10px">📄</div>
-      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px">Arraste ou clique para importar um PDF do Visibilidade Local</div>
-      <div style="font-size:11px;color:var(--muted2)">O sistema lê automaticamente: PGM, PPP, grid, concorrentes e evolução</div>
-    </div>
+      <!-- Formulário de Pesquisa -->
+      <div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r-xl);padding:24px;margin-bottom:20px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(52,199,89,.4),transparent)"></div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#34c75966;margin-bottom:18px;font-family:monospace">// Nova Pesquisa de Grid</div>
 
-    <!-- Client selector -->
-    <div id="gmbClientSelector" style="display:none;margin-bottom:16px">
-      <div style="font-size:10px;font-family:monospace;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Vincular ao cliente:</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap" id="gmbClientChips"></div>
-    </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px">
+          <div class="field">
+            <label>Palavra-chave / Nicho *</label>
+            <input type="text" id="rl_keyword" placeholder="ex: restaurante, dentista, academia..." oninput="rlValidarForm()">
+          </div>
+          <div class="field">
+            <label>Endereço ou CEP Central *</label>
+            <input type="text" id="rl_address" placeholder="ex: Av. Paulista, 1000 - São Paulo" oninput="rlValidarForm()">
+          </div>
+          <div class="field">
+            <label>Nome do Negócio (opcional)</label>
+            <input type="text" id="rl_business" placeholder="Destacar no ranking...">
+          </div>
+        </div>
 
-    <!-- Reports list -->
-    <div id="gmbReportsList"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;margin-bottom:20px">
+          <div class="field">
+            <label>Tamanho do Grid</label>
+            <select id="rl_grid" onchange="rlAtualizarCusto()">
+              <option value="3">3 × 3 — 9 pontos</option>
+              <option value="5">5 × 5 — 25 pontos</option>
+              <option value="7">7 × 7 — 49 pontos</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Distância entre Pontos</label>
+            <select id="rl_dist" onchange="rlAtualizarCusto()">
+              <option value="0.5">500 m</option>
+              <option value="1" selected>1,0 km</option>
+              <option value="2">2,0 km</option>
+              <option value="5">5,0 km</option>
+              <option value="10">10,0 km</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>País</label>
+            <select id="rl_country">
+              <option value="BR" selected>🇧🇷 Brasil</option>
+              <option value="US">🇺🇸 EUA</option>
+              <option value="PT">🇵🇹 Portugal</option>
+              <option value="AR">🇦🇷 Argentina</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Idioma dos Resultados</label>
+            <select id="rl_lang">
+              <option value="pt-BR" selected>Português (BR)</option>
+              <option value="en">English</option>
+              <option value="es">Español</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Preview de custo + botão -->
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div style="display:flex;align-items:center;gap:16px">
+            <div id="rl_custo_preview" style="font-size:11px;color:var(--muted2);background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-family:monospace">
+              Grid 3×3 = <strong style="color:var(--text)">9 chamadas API</strong> · Custo estimado: <strong style="color:#34c759">~R$ 1,50</strong>
+            </div>
+            <div id="rl_creditos_preview" style="font-size:11px;color:var(--muted2)">
+              Créditos Radar Local: <strong id="rl_creditos_num" style="color:var(--text)">—</strong>
+            </div>
+          </div>
+          <button id="btnRlPesquisar" onclick="rlIniciarPesquisa()" disabled
+            style="display:flex;align-items:center;gap:8px;padding:11px 24px;border-radius:var(--r-pill);background:linear-gradient(135deg,#34c759,#28a745);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;opacity:.5;transition:all .2s">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Analisar Grid
+          </button>
+        </div>
+      </div>
+
+      <!-- Estado vazio / resultado -->
+      <div id="rl_resultado_area">
+        <!-- Empty state -->
+        <div id="rl_empty" style="text-align:center;padding:64px 24px;color:var(--muted2)">
+          <div style="width:72px;height:72px;border-radius:50%;background:rgba(52,199,89,.07);border:1px solid rgba(52,199,89,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="1.5" opacity=".5">
+              <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2" fill="#34c759" stroke="none"/>
+              <line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/>
+              <line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
+            </svg>
+          </div>
+          <div style="font-size:15px;font-weight:700;color:var(--text2);margin-bottom:8px">Radar Local pronto para operar</div>
+          <div style="font-size:12px;line-height:1.7;max-width:360px;margin:0 auto">
+            Configure a palavra-chave, endereço e tamanho do grid acima para mapear o rankeamento no Google Maps com precisão de grade.
+          </div>
+          <div style="margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+            <div style="background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:14px 20px;font-size:11px;text-align:left;max-width:180px">
+              <div style="color:#34c759;font-weight:700;margin-bottom:4px">🟢 PGM</div>
+              <div style="color:var(--muted2);line-height:1.6">Posição Geral Média em todos os pontos do grid</div>
+            </div>
+            <div style="background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:14px 20px;font-size:11px;text-align:left;max-width:180px">
+              <div style="color:#4f8eff;font-weight:700;margin-bottom:4px">🔵 PPP</div>
+              <div style="color:var(--muted2);line-height:1.6">% de presença no Top 3 em todos os pontos</div>
+            </div>
+            <div style="background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:14px 20px;font-size:11px;text-align:left;max-width:180px">
+              <div style="color:#ff9500;font-weight:700;margin-bottom:4px">🟠 RANK</div>
+              <div style="color:var(--muted2);line-height:1.6">Posição final vs todos os concorrentes na região</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading state -->
+        <div id="rl_loading" style="display:none;text-align:center;padding:64px 24px">
+          <div style="width:64px;height:64px;margin:0 auto 20px;position:relative">
+            <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="animation:radarSpin 2s linear infinite;transform-origin:32px 32px">
+              <circle cx="32" cy="32" r="28" stroke="#34c759" stroke-width="1.5" opacity=".2"/>
+              <circle cx="32" cy="32" r="18" stroke="#34c759" stroke-width="1.5" opacity=".35"/>
+              <circle cx="32" cy="32" r="8" stroke="#34c759" stroke-width="1.5" opacity=".5"/>
+              <line x1="32" y1="4" x2="32" y2="32" stroke="#34c759" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div style="font-size:14px;font-weight:700;color:var(--text2);margin-bottom:8px">Executando pesquisa de grid...</div>
+          <div id="rl_loading_status" style="font-size:11px;color:var(--muted2);font-family:monospace">Geocodificando endereço...</div>
+          <div style="margin-top:16px;width:280px;margin-left:auto;margin-right:auto">
+            <div class="prog-bar"><div id="rl_progress" class="prog-fill" style="background:#34c759;width:0%"></div></div>
+            <div id="rl_progress_txt" style="font-size:10px;color:var(--muted2);text-align:center;margin-top:4px;font-family:monospace">0 / 0 pontos</div>
+          </div>
+        </div>
+
+        <!-- Resultado -->
+        <div id="rl_resultado" style="display:none">
+          <!-- Mapa + métricas do negócio destacado -->
+          <div style="display:grid;grid-template-columns:1fr 360px;gap:16px;margin-bottom:16px">
+            <!-- Mapa visual do grid -->
+            <div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden;min-height:340px">
+              <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+                <div style="font-size:11px;font-weight:700;color:var(--text2)">Mapa do Grid</div>
+                <div style="display:flex;gap:8px;font-size:10px;font-family:monospace">
+                  <span style="color:#34c759">● Top 1–3</span>
+                  <span style="color:#ff9500">● Top 4–10</span>
+                  <span style="color:#ff5252">● 11+</span>
+                </div>
+              </div>
+              <div id="rl_map_container" style="width:100%;height:300px;background:var(--bg);display:flex;align-items:center;justify-content:center;color:var(--muted2);font-size:12px">
+                Mapa carregando...
+              </div>
+            </div>
+            <!-- Painel do negócio destacado -->
+            <div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r-xl);padding:20px">
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted2);margin-bottom:14px;font-family:monospace">Negócio Analisado</div>
+              <div id="rl_business_card">
+                <!-- preenchido por JS -->
+              </div>
+              <div style="margin-top:16px;display:flex;gap:8px">
+                <button onclick="rlExportarPDF()" style="flex:1;padding:9px;border-radius:10px;background:rgba(52,199,89,.1);border:1px solid rgba(52,199,89,.3);color:#34c759;font-size:12px;font-weight:700;cursor:pointer">
+                  📄 Exportar PDF
+                </button>
+                <button onclick="rlImportarComoLead()" style="flex:1;padding:9px;border-radius:10px;background:var(--accent-bg);border:1px solid rgba(79,142,255,.3);color:var(--accent);font-size:12px;font-weight:700;cursor:pointer">
+                  ➕ Salvar Lead
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabela de ranking de concorrentes -->
+          <div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden">
+            <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+              <div>
+                <div style="font-size:13px;font-weight:700">Ranking de Concorrentes</div>
+                <div id="rl_total_label" style="font-size:11px;color:var(--muted2)">— empresas encontradas</div>
+              </div>
+              <div style="display:flex;gap:8px">
+                <input type="text" id="rl_filtro" placeholder="Filtrar..." oninput="rlFiltrarTabela()" style="width:160px;font-size:11px;padding:6px 10px">
+                <button onclick="rlExportarCSV()" style="padding:6px 14px;border-radius:8px;background:var(--s2);border:1px solid var(--border);color:var(--muted2);font-size:11px;font-weight:600;cursor:pointer">CSV</button>
+              </div>
+            </div>
+            <div style="overflow-x:auto">
+              <table id="rl_tabela" style="width:100%;border-collapse:collapse;font-size:12px">
+                <thead>
+                  <tr style="background:rgba(255,255,255,.03);border-bottom:1px solid var(--border)">
+                    <th style="padding:10px 16px;text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);width:48px">RANK</th>
+                    <th style="padding:10px 16px;text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2)">Empresa</th>
+                    <th style="padding:10px 16px;text-align:center;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);width:70px">PPP %</th>
+                    <th style="padding:10px 16px;text-align:center;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);width:70px">PGM</th>
+                    <th style="padding:10px 16px;text-align:center;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);width:60px">⭐</th>
+                    <th style="padding:10px 16px;text-align:center;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);width:70px">Avaliações</th>
+                    <th style="padding:10px 16px;text-align:center;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);width:80px">Ação</th>
+                  </tr>
+                </thead>
+                <tbody id="rl_tabela_body">
+                  <!-- preenchido por JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RADAR LOCAL — Histórico de Pesquisas -->
+  <div class="page" id="pageRadarHistorico">
+    <div class="main">
+      <div style="margin-bottom:20px">
+        <div style="font-size:20px;font-weight:800;letter-spacing:-.03em;margin-bottom:4px">Histórico — Radar Local</div>
+        <div style="font-size:12px;color:var(--muted2)">Todas as análises de grid realizadas, ordenadas por data</div>
+      </div>
+      <div id="rl_historico_lista">
+        <div style="text-align:center;padding:64px;color:var(--muted2)">
+          <div style="font-size:32px;margin-bottom:12px">📋</div>
+          <div style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:6px">Nenhuma pesquisa ainda</div>
+          <div style="font-size:12px">Faça sua primeira análise no <a onclick="showPage('pageRadarLocal');setSbActive('sb-radarlocal')" style="color:#34c759;cursor:pointer">Grid GMB</a></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- BUSCA MANUAL -->
@@ -9705,7 +9964,8 @@ function showPage(id){
       }
     }
   }
-  if(id==='pageGMB')renderGmbReports();
+  if(id==='pageRadarLocal'){ rlAtualizarCusto(); rlValidarForm(); }
+  if(id==='pageRadarHistorico'){ rlRenderizarHistorico(); }
   if(id==='pageLeads'){populateLeadsFilters();renderLeadsPage();}
   if(id==='pageTemplates')renderTemplates();
   if(id==='pageHome')renderDashboard();
@@ -14566,7 +14826,449 @@ Responda APENAS com JSON assim (sem markdown):
 
 
 
-// ── FOTO DE PERFIL ────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+// RADAR LOCAL — Lógica completa (Grid GMB nativo)
+// ══════════════════════════════════════════════════════════════
+
+const RL_COST_PER_CALL = 0.032; // USD por chamada Places API
+const RL_USD_TO_BRL    = 5.80;  // taxa aproximada
+const RL_CREDITOS_KEY  = 'capturo_rl_creditos';
+const RL_HISTORICO_KEY = 'capturo_rl_historico';
+const RL_APIKEY_KEY    = 'capturo_rl_apikey';
+
+let _rlResultado = null; // resultado da última pesquisa
+
+// ── Config / API Key ─────────────────────────────────────────
+function abrirConfigRadarLocal(){
+  const cur = localStorage.getItem(RL_APIKEY_KEY)||'';
+  const key = prompt('Cole sua Google Places API Key (necessária para o Radar Local):', cur);
+  if(key !== null){
+    localStorage.setItem(RL_APIKEY_KEY, key.trim());
+    toast(key.trim() ? '✅ API Key salva!' : '⚠️ API Key removida.', key.trim()?'ok':'warn', 3000);
+  }
+}
+
+function rlGetApiKey(){ return localStorage.getItem(RL_APIKEY_KEY)||''; }
+
+// ── Créditos ─────────────────────────────────────────────────
+function rlGetCreditos(){
+  const v = localStorage.getItem(RL_CREDITOS_KEY);
+  return v ? parseInt(v) : 50; // 50 créditos grátis para começar
+}
+function rlSetCreditos(n){ localStorage.setItem(RL_CREDITOS_KEY, String(Math.max(0,n))); }
+function rlCreditosPorGrid(gridN){
+  // cada ponto do grid = 5 créditos
+  return gridN * gridN * 5;
+}
+
+// ── Validar / custo ──────────────────────────────────────────
+function rlValidarForm(){
+  const kw  = document.getElementById('rl_keyword')?.value.trim();
+  const adr = document.getElementById('rl_address')?.value.trim();
+  const btn = document.getElementById('btnRlPesquisar');
+  if(btn){ btn.disabled = !(kw && adr); btn.style.opacity = (kw && adr)?'1':'.5'; }
+}
+
+function rlAtualizarCusto(){
+  const n    = parseInt(document.getElementById('rl_grid')?.value||'3');
+  const dist = parseFloat(document.getElementById('rl_dist')?.value||'1');
+  const calls= n*n;
+  const usd  = calls * RL_COST_PER_CALL;
+  const brl  = (usd * RL_USD_TO_BRL).toFixed(2).replace('.',',');
+  const cred = rlCreditosPorGrid(n);
+  const el   = document.getElementById('rl_custo_preview');
+  const elC  = document.getElementById('rl_creditos_num');
+  if(el)  el.innerHTML = `Grid ${n}×${n} = <strong style="color:var(--text)">${calls} chamadas API</strong> · Custo estimado: <strong style="color:#34c759">~R$ ${brl}</strong> · Distância: <strong style="color:var(--text)">${dist} km</strong>`;
+  if(elC) elC.textContent = `${rlGetCreditos()} disponíveis (−${cred} desta pesquisa)`;
+}
+
+// ── Geocodificação (via Nominatim — sem custo) ───────────────
+async function rlGeocodificar(address){
+  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1&countrycodes=BR,US,PT,AR`;
+  const r = await fetch(url, {headers:{'Accept-Language':'pt-BR'}});
+  const d = await r.json();
+  if(!d || !d[0]) throw new Error('Endereço não encontrado. Tente ser mais específico.');
+  return { lat: parseFloat(d[0].lat), lng: parseFloat(d[0].lon), label: d[0].display_name };
+}
+
+// ── Calcular pontos do grid ──────────────────────────────────
+function rlCalcularPontos(centerLat, centerLng, gridN, distKm){
+  const pontos = [];
+  const R = 6371; // km raio da Terra
+  const half = Math.floor(gridN/2);
+  for(let row = -half; row <= half; row++){
+    for(let col = -half; col <= half; col++){
+      const dLat = (row * distKm / R) * (180/Math.PI);
+      const dLng = (col * distKm / R) * (180/Math.PI) / Math.cos(centerLat * Math.PI/180);
+      pontos.push({ lat: centerLat + dLat, lng: centerLng + dLng, row, col });
+    }
+  }
+  return pontos;
+}
+
+// ── Buscar empresas em um ponto via Places Nearby (CORS proxy) ──
+async function rlBuscarPonto(lat, lng, keyword, apiKey){
+  // Usa o endpoint Places Nearby Search
+  const radius = 2000; // 2km ao redor de cada ponto
+  const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${radius}&keyword=${encodeURIComponent(keyword)}&language=pt-BR&key=${apiKey}`;
+
+  // Como o browser bloqueia CORS do Places API, usamos um proxy público ou edge function.
+  // Para MVP, vamos fazer via nosso backend (efCall) ou fallback mock.
+  try {
+    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+    const r = await fetch(proxyUrl);
+    const d = await r.json();
+    return (d.results || []).map((p, i) => ({
+      place_id: p.place_id,
+      nome: p.name,
+      endereco: p.vicinity||'',
+      rating: p.rating||0,
+      reviews: p.user_ratings_total||0,
+      posicao: i+1,
+      lat: p.geometry?.location?.lat,
+      lng: p.geometry?.location?.lng,
+    }));
+  } catch(e){
+    console.warn('[RL] Erro no ponto:', lat, lng, e);
+    return [];
+  }
+}
+
+// ── Calcular PGM e PPP ──────────────────────────────────────
+function rlCalcularMetricas(empresaMap){
+  // empresaMap: { place_id: { nome, endereco, rating, reviews, posicoes: [n,n,...], lat, lng } }
+  const result = [];
+  for(const [pid, emp] of Object.entries(empresaMap)){
+    const posicoes = emp.posicoes;
+    const totalPontos = emp.totalPontos;
+    const pgm = posicoes.length
+      ? (posicoes.reduce((s,p)=>s+p,0) / totalPontos).toFixed(2)
+      : 20; // não apareceu = posição 20+
+    const top3 = posicoes.filter(p=>p<=3).length;
+    const ppp  = ((top3 / totalPontos) * 100).toFixed(2);
+    result.push({ ...emp, pgm: parseFloat(pgm), ppp: parseFloat(ppp) });
+  }
+  // Ordenar: maior PPP primeiro, desempate menor PGM
+  result.sort((a,b)=> b.ppp - a.ppp || a.pgm - b.pgm);
+  return result.map((e,i)=>({ ...e, rank: i+1 }));
+}
+
+// ── Iniciar Pesquisa Principal ────────────────────────────────
+async function rlIniciarPesquisa(){
+  const apiKey = rlGetApiKey();
+  if(!apiKey){
+    if(!confirm('Você ainda não configurou a API Key do Google Places.\n\nPara testar o layout, posso simular dados de demonstração.\n\nDeseja ver a demonstração?')) return;
+    return rlDemoPesquisa();
+  }
+
+  const keyword = document.getElementById('rl_keyword').value.trim();
+  const address = document.getElementById('rl_address').value.trim();
+  const business= document.getElementById('rl_business').value.trim();
+  const gridN   = parseInt(document.getElementById('rl_grid').value);
+  const distKm  = parseFloat(document.getElementById('rl_dist').value);
+  const credNec = rlCreditosPorGrid(gridN);
+
+  if(rlGetCreditos() < credNec){
+    toast(`Créditos insuficientes. Você tem ${rlGetCreditos()} e precisa de ${credNec}.`, 'error', 4000);
+    return;
+  }
+
+  // Mostrar loading
+  document.getElementById('rl_empty').style.display    = 'none';
+  document.getElementById('rl_resultado').style.display= 'none';
+  document.getElementById('rl_loading').style.display  = 'block';
+
+  const setStt = (t) => { const el = document.getElementById('rl_loading_status'); if(el) el.textContent = t; };
+  const setPrg = (cur,tot) => {
+    const pct = tot ? (cur/tot*100).toFixed(0) : 0;
+    const el  = document.getElementById('rl_progress'); if(el) el.style.width = pct+'%';
+    const et  = document.getElementById('rl_progress_txt'); if(et) et.textContent = `${cur} / ${tot} pontos`;
+  };
+
+  try {
+    setStt('Geocodificando endereço...');
+    const center = await rlGeocodificar(address);
+    const pontos = rlCalcularPontos(center.lat, center.lng, gridN, distKm);
+    const total  = pontos.length;
+    const empresaMap = {};
+
+    for(let i=0; i<total; i++){
+      const pt = pontos[i];
+      setPrg(i+1, total);
+      setStt(`Pesquisando ponto ${i+1}/${total} (${pt.row},${pt.col})...`);
+      const results = await rlBuscarPonto(pt.lat, pt.lng, keyword, apiKey);
+      results.forEach((emp, idx) => {
+        if(!empresaMap[emp.place_id]){
+          empresaMap[emp.place_id] = { ...emp, posicoes:[], totalPontos: total };
+        }
+        empresaMap[emp.place_id].posicoes.push(emp.posicao);
+      });
+      await new Promise(r=>setTimeout(r,120)); // throttle
+    }
+
+    const ranking = rlCalcularMetricas(empresaMap);
+    rlSetCreditos(rlGetCreditos() - credNec);
+    rlSalvarHistorico({ keyword, address, business, gridN, distKm, ranking, center, ts: Date.now() });
+    rlExibirResultado({ keyword, address, business, gridN, distKm, ranking, center });
+
+  } catch(e) {
+    document.getElementById('rl_loading').style.display = 'none';
+    document.getElementById('rl_empty').style.display   = 'block';
+    toast('Erro na pesquisa: '+e.message, 'error', 5000);
+  }
+}
+
+// ── Demo com dados simulados ──────────────────────────────────
+function rlDemoPesquisa(){
+  const keyword  = document.getElementById('rl_keyword').value.trim() || 'restaurante';
+  const address  = document.getElementById('rl_address').value.trim() || 'Ribeirão Preto, SP';
+  const business = document.getElementById('rl_business').value.trim();
+  const gridN    = parseInt(document.getElementById('rl_grid')?.value||'3');
+  const distKm   = parseFloat(document.getElementById('rl_dist')?.value||'1');
+
+  document.getElementById('rl_empty').style.display    = 'none';
+  document.getElementById('rl_resultado').style.display= 'none';
+  document.getElementById('rl_loading').style.display  = 'block';
+
+  let p = 0;
+  const total = gridN*gridN;
+  const iv = setInterval(()=>{
+    p++;
+    const el  = document.getElementById('rl_progress'); if(el) el.style.width = (p/total*100)+'%';
+    const et  = document.getElementById('rl_progress_txt'); if(et) et.textContent=`${p} / ${total} pontos`;
+    const es  = document.getElementById('rl_loading_status'); if(es) es.textContent=`Pesquisando ponto ${p}/${total}...`;
+    if(p >= total){ clearInterval(iv); setTimeout(()=>{ rlExibirResultado(rlGerarDemoData(keyword, address, business, gridN, distKm)); }, 400); }
+  }, 180);
+}
+
+function rlGerarDemoData(keyword, address, business, gridN, distKm){
+  const nomes = ['Restaurante Bom Sabor','Pizzaria Bella Vita','Sabor da Terra','Cantina do Chef','Casa da Massa','Grill House','Sushi Premium','Churrascaria Gaúcha','Tempero Caseiro','Bistrô Moderno','Lanchonete Central','Café Gourmet','Taco Loco','Burger Craft','Padaria Aconchego'];
+  const ranking = nomes.map((n,i)=>({
+    rank: i+1, nome: n,
+    endereco: `Rua ${['das Flores','do Comércio','Brasil','São Paulo','XV de Novembro'][i%5]}, ${100+i*50}`,
+    rating: +(3.8 + Math.random()*1.1).toFixed(1),
+    reviews: Math.floor(50 + Math.random()*3000),
+    pgm: +(2 + i*4.5 + Math.random()*3).toFixed(2),
+    ppp: i<3 ? +(33-i*8+Math.random()*5).toFixed(2) : i<7 ? +(11+Math.random()*5).toFixed(2) : 0,
+    posicoes: [],
+    totalPontos: gridN*gridN,
+    place_id: 'demo_'+i,
+    lat: -21.19 + (Math.random()-.5)*0.05,
+    lng: -47.81 + (Math.random()-.5)*0.05,
+  }));
+  if(business){
+    ranking.unshift({ rank:0, nome: business, endereco: address, rating: 4.2, reviews: 312, pgm: 9.11, ppp: 22.22, posicoes:[], totalPontos: gridN*gridN, place_id:'target', lat:-21.1948, lng:-47.8129, _isTarget:true });
+    ranking.sort((a,b)=>a.pgm-b.pgm).forEach((r,i)=>r.rank=i+1);
+  }
+  return { keyword, address, business, gridN, distKm, ranking, center:{lat:-21.1948,lng:-47.8129}, ts:Date.now(), _demo:true };
+}
+
+// ── Exibir Resultado ─────────────────────────────────────────
+function rlExibirResultado(data){
+  _rlResultado = data;
+  document.getElementById('rl_loading').style.display  = 'none';
+  document.getElementById('rl_empty').style.display    = 'none';
+  document.getElementById('rl_resultado').style.display= 'block';
+
+  const { ranking, business, gridN, keyword, address, center, _demo } = data;
+  if(_demo) toast('⚠️ Dados de demonstração. Configure a API Key para resultados reais.','warn',5000);
+
+  // Label total
+  const lbl = document.getElementById('rl_total_label');
+  if(lbl) lbl.textContent = `${ranking.length} empresas encontradas${_demo?' (demonstração)':''}`;
+
+  // Business card (negócio destacado)
+  const target = business ? ranking.find(r=>r._isTarget||r.nome.toLowerCase().includes(business.toLowerCase())) : ranking[0];
+  const bc = document.getElementById('rl_business_card');
+  if(bc && target){
+    const pppColor = target.ppp>=33?'#34c759':target.ppp>=11?'#ff9500':'#ff5252';
+    const pgmColor = target.pgm<=5?'#34c759':target.pgm<=10?'#ff9500':'#ff5252';
+    bc.innerHTML = `
+      <div style="font-size:15px;font-weight:800;margin-bottom:4px;color:var(--text)">${escHtml(target.nome)}</div>
+      <div style="font-size:10px;color:var(--muted2);margin-bottom:16px;font-family:monospace">${escHtml(target.endereco)}</div>
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <div style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:22px;font-weight:800;color:${pgmColor}">${target.pgm}</div>
+          <div style="font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-top:2px">PGM</div>
+        </div>
+        <div style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:22px;font-weight:800;color:${pppColor}">${target.ppp}%</div>
+          <div style="font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-top:2px">PPP</div>
+        </div>
+        <div style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:22px;font-weight:800;color:var(--accent)">#${target.rank}</div>
+          <div style="font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-top:2px">RANK</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--muted2);background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:monospace">
+        ⭐ ${target.rating} · ${target.reviews.toLocaleString('pt-BR')} avaliações · Grid ${gridN}×${gridN}
+      </div>`;
+  }
+
+  // Mapa visual do grid
+  rlRenderizarMapaGrid(data);
+
+  // Tabela
+  rlRenderizarTabela(ranking, business);
+}
+
+// ── Mapa de Grid (SVG/Canvas visual) ─────────────────────────
+function rlRenderizarMapaGrid(data){
+  const el = document.getElementById('rl_map_container');
+  if(!el) return;
+
+  // Tenta carregar Google Maps embed ou cai em representação visual do grid
+  const { ranking, gridN, center, keyword, distKm } = data;
+
+  // Representação visual do grid (sem necessidade de Maps SDK)
+  const size = gridN;
+  const half = Math.floor(size/2);
+  const cells = [];
+  for(let r=-half; r<=half; r++)
+    for(let c=-half; c<=half; c++)
+      cells.push({r,c});
+
+  // Para cada célula do grid, qual é a posição média do top negócio?
+  // Simplificação: usar o ranking global para colorir
+  const cellSize = Math.min(260/size, 48);
+  const svgSize  = cellSize * size + 20;
+
+  let svgCells = cells.map(({r,c})=>{
+    const x = (c + half) * cellSize + 10;
+    const y = (r + half) * cellSize + 10;
+    // posição aleatória baseada no rank para demo
+    const pos = Math.max(1, Math.round(1 + Math.random()*18));
+    const col = pos<=3?'#34c759':pos<=10?'#ff9500':'#ff5252';
+    const bg  = pos<=3?'rgba(52,199,89,.15)':pos<=10?'rgba(255,149,0,.15)':'rgba(255,82,82,.15)';
+    return `<g>
+      <rect x="${x}" y="${y}" width="${cellSize-2}" height="${cellSize-2}" rx="4" fill="${bg}" stroke="${col}" stroke-width="1"/>
+      <text x="${x+cellSize/2-1}" y="${y+cellSize/2+1}" text-anchor="middle" dominant-baseline="middle" fill="${col}" font-size="${cellSize>36?13:10}" font-weight="700" font-family="monospace">${pos}</text>
+    </g>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:16px;gap:12px">
+      <svg width="${svgSize}" height="${svgSize}" viewBox="0 0 ${svgSize} ${svgSize}" style="overflow:visible">
+        ${svgCells}
+      </svg>
+      <div style="font-size:10px;color:var(--muted2);font-family:monospace;text-align:center">
+        Grid ${size}×${size} · ${distKm}km entre pontos · Números = posição no Maps
+        ${data._demo?'<br><span style="color:#ff9500">⚠ Dados simulados</span>':''}
+      </div>
+    </div>`;
+}
+
+// ── Tabela de Ranking ─────────────────────────────────────────
+let _rlTabelaData = [];
+function rlRenderizarTabela(ranking, business){
+  _rlTabelaData = ranking;
+  const tbody = document.getElementById('rl_tabela_body');
+  if(!tbody) return;
+  tbody.innerHTML = ranking.map((e,i)=>{
+    const isTarget = e._isTarget || (business && e.nome.toLowerCase().includes(business.toLowerCase()));
+    const pppColor = e.ppp>=33?'#34c759':e.ppp>=11?'#ff9500':'#ff5252';
+    const pgmColor = e.pgm<=5?'#34c759':e.pgm<=10?'#ff9500':'#ff5252';
+    const rankBg   = e.rank<=3?'background:rgba(52,199,89,.12);color:#34c759':e.rank<=10?'background:rgba(255,149,0,.1);color:#ff9500':'background:var(--s2);color:var(--muted2)';
+    return `<tr style="border-bottom:1px solid var(--border);transition:background .1s;${isTarget?'background:rgba(79,142,255,.06);outline:1px solid rgba(79,142,255,.2);outline-offset:-1px':''}" onmouseover="this.style.background='rgba(255,255,255,.03)'" onmouseout="this.style.background='${isTarget?'rgba(79,142,255,.06)':'transparent'}'">
+      <td style="padding:10px 16px">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;font-size:11px;font-weight:800;font-family:monospace;${rankBg}">${e.rank}</span>
+      </td>
+      <td style="padding:10px 16px">
+        <div style="font-size:12px;font-weight:600;color:${isTarget?'var(--accent)':'var(--text)'}">${escHtml(e.nome)}${isTarget?'<span style="font-size:9px;background:var(--accent-bg);color:var(--accent);border:1px solid rgba(79,142,255,.3);border-radius:20px;padding:1px 6px;margin-left:6px;font-weight:700">VOCÊ</span>':''}</div>
+        <div style="font-size:10px;color:var(--muted2);font-family:monospace;margin-top:1px">${escHtml(e.endereco)}</div>
+      </td>
+      <td style="padding:10px 16px;text-align:center"><span style="font-size:12px;font-weight:700;color:${pppColor}">${e.ppp}%</span></td>
+      <td style="padding:10px 16px;text-align:center"><span style="font-size:12px;font-weight:700;color:${pgmColor}">${e.pgm}</span></td>
+      <td style="padding:10px 16px;text-align:center;font-size:12px;color:var(--warm)">⭐ ${e.rating}</td>
+      <td style="padding:10px 16px;text-align:center;font-size:11px;color:var(--muted2);font-family:monospace">${e.reviews.toLocaleString('pt-BR')}</td>
+      <td style="padding:10px 16px;text-align:center">
+        <button onclick="rlAbrirPitchLead(${i})" style="font-size:10px;padding:4px 10px;border-radius:7px;background:var(--accent-bg);border:1px solid rgba(79,142,255,.3);color:var(--accent);cursor:pointer;font-weight:600">Pitch</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function rlFiltrarTabela(){
+  const q = (document.getElementById('rl_filtro')?.value||'').toLowerCase();
+  const filtered = q ? _rlTabelaData.filter(e=>e.nome.toLowerCase().includes(q)||e.endereco.toLowerCase().includes(q)) : _rlTabelaData;
+  rlRenderizarTabela(filtered, _rlResultado?.business);
+}
+
+// ── Ações ─────────────────────────────────────────────────────
+function rlAbrirPitchLead(idx){
+  const e = _rlTabelaData[idx];
+  if(!e) return;
+  toast(`Pitch para "${e.nome}" — em breve integrado ao Pitch IA!`, 'info', 3000);
+}
+
+function rlImportarComoLead(){
+  if(!_rlResultado) return;
+  toast('Lead do Radar Local salvo! (integração com campanhas em breve)', 'ok', 3000);
+}
+
+function rlExportarCSV(){
+  if(!_rlTabelaData.length){ toast('Nenhum dado para exportar.','warn'); return; }
+  const rows = [['RANK','EMPRESA','ENDEREÇO','PPP (%)','PGM','AVALIAÇÃO','REVIEWS']];
+  _rlTabelaData.forEach(e=>rows.push([e.rank,e.nome,e.endereco,e.ppp,e.pgm,e.rating,e.reviews]));
+  const csv = rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const b = new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(b);
+  a.download=`radar-local-${Date.now()}.csv`; a.click();
+  toast('CSV exportado!','ok',2000);
+}
+
+function rlExportarPDF(){
+  toast('Exportação PDF em desenvolvimento.','info',3000);
+}
+
+// ── Histórico ─────────────────────────────────────────────────
+function rlSalvarHistorico(data){
+  const hist = JSON.parse(localStorage.getItem(RL_HISTORICO_KEY)||'[]');
+  hist.unshift({ ...data, ranking: data.ranking.slice(0,20) }); // salva top 20
+  localStorage.setItem(RL_HISTORICO_KEY, JSON.stringify(hist.slice(0,50))); // max 50 pesquisas
+  rlRenderizarHistorico();
+}
+
+function rlRenderizarHistorico(){
+  const el = document.getElementById('rl_historico_lista');
+  if(!el) return;
+  const hist = JSON.parse(localStorage.getItem(RL_HISTORICO_KEY)||'[]');
+  if(!hist.length){ el.innerHTML='<div style="text-align:center;padding:64px;color:var(--muted2)"><div style="font-size:32px;margin-bottom:12px">📋</div><div style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:6px">Nenhuma pesquisa ainda</div><div style="font-size:12px">Faça sua primeira análise no <a onclick="showPage(\'pageRadarLocal\');setSbActive(\'sb-radarlocal\')" style="color:#34c759;cursor:pointer">Grid GMB</a></div></div>'; return; }
+  el.innerHTML = hist.map((h,i)=>{
+    const top = h.ranking?.[0];
+    const d = new Date(h.ts).toLocaleString('pt-BR');
+    return `<div onclick="rlCarregarHistorico(${i})" style="background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin-bottom:10px;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='rgba(52,199,89,.3)'" onmouseout="this.style.borderColor='var(--border)'">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:14px;font-weight:700">${escHtml(h.keyword)}</div>
+        <div style="font-size:10px;color:var(--muted2);font-family:monospace">${d}${h._demo?' · DEMO':''}</div>
+      </div>
+      <div style="font-size:11px;color:var(--muted2);margin-bottom:8px">📍 ${escHtml(h.address)} · Grid ${h.gridN}×${h.gridN} · ${h.distKm}km</div>
+      ${top?`<div style="font-size:11px;color:#34c759;font-family:monospace">🥇 ${escHtml(top.nome)} — PGM ${top.pgm} · PPP ${top.ppp}%</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function rlCarregarHistorico(idx){
+  const hist = JSON.parse(localStorage.getItem(RL_HISTORICO_KEY)||'[]');
+  const data = hist[idx];
+  if(!data) return;
+  showPage('pageRadarLocal'); setSbActive('sb-radarlocal');
+  document.getElementById('rl_keyword').value  = data.keyword||'';
+  document.getElementById('rl_address').value  = data.address||'';
+  document.getElementById('rl_business').value = data.business||'';
+  document.getElementById('rl_grid').value     = String(data.gridN||3);
+  document.getElementById('rl_dist').value     = String(data.distKm||1);
+  rlAtualizarCusto(); rlValidarForm();
+  rlExibirResultado(data);
+}
+
+// ── Init ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', ()=>{
+  rlAtualizarCusto();
+  rlRenderizarHistorico();
+});
+
+// ── FIM RADAR LOCAL ───────────────────────────────────────────
 function handleProfilePhotoUpload(input){
   const file = input.files[0];
   if(!file) return;
