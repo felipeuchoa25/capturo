@@ -2606,7 +2606,7 @@ function toast(msg, type='info', duration=3500){
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
       <div>
         <div style="font-size:10px;font-family:monospace;color:var(--muted2);text-transform:uppercase;letter-spacing:.1em">// GMB Ranking — Visibilidade Local</div>
-        <div style="font-size:11px;color:var(--muted2);margin-top:4px">Importe os PDFs do <a href="https://app.mktlocal.io" target="_blank" style="color:var(--accent2)">Visibilidade Local</a> para acompanhar a evolução do ranking dos seus clientes</div>
+        <div style="font-size:11px;color:var(--muted2);margin-top:4px">Importe os PDFs de ranking para acompanhar a evolução dos seus clientes</div>
       </div>
       <label class="btn btn-primary" style="font-size:11px;cursor:pointer">
         📄 Importar PDF
@@ -7780,8 +7780,7 @@ async function buscarNovosNegocios(){
 
       // Função auxiliar: busca CNPJ por nome numa API e retorna objeto normalizado ou null
       async function _buscarCnpjPorNome(nome, cidadeBusca){
-        // Via Edge Function Supabase (sem CORS, sem chaves expostas no browser)
-        // Toda a logica de fallback fica no servidor: supabase/functions/cnpj
+        // Tenta via Edge Function primeiro
         try{
           const d = await efCall('cnpj', {
             action: 'buscar-por-nome',
@@ -7789,6 +7788,23 @@ async function buscarNovosNegocios(){
             cidade: cidadeBusca || ''
           });
           if(d?.data_inicio_atividade) return _normalizarCnpjData(d, 'EdgeFunction');
+        }catch(e){}
+        // Fallback direto: BrasilAPI (funciona no browser sem CORS)
+        try{
+          const nomeCod = encodeURIComponent(nome);
+          const r = await fetch('https://brasilapi.com.br/api/cnpj/v1/search?text='+nomeCod, {headers:{Accept:'application/json'}}).catch(()=>null);
+          if(r && r.ok){
+            const arr = await r.json().catch(()=>null);
+            const match = Array.isArray(arr) ? arr[0] : arr?.companies?.[0] ?? null;
+            if(match?.cnpj){
+              const clean = match.cnpj.replace(/\D/g,'');
+              const r2 = await fetch('https://brasilapi.com.br/api/cnpj/v1/'+clean).catch(()=>null);
+              if(r2 && r2.ok){
+                const d2 = await r2.json().catch(()=>null);
+                if(d2?.data_inicio_atividade) return _normalizarCnpjData(d2, 'BrasilAPI');
+              }
+            }
+          }
         }catch(e){}
         return null;
       }
@@ -13964,7 +13980,11 @@ window._postAuthInit = function(){
     <!-- Hero -->
     <div class="up-hero">
       <button class="up-close" onclick="closeUserProfile()">✕</button>
-      <div class="up-avatar" id="upAvatar">?</div>
+      <div style="position:relative;cursor:pointer;margin-bottom:4px" onclick="document.getElementById('upPhotoInput').click()" title="Clique para trocar a foto">
+        <div class="up-avatar" id="upAvatar" style="overflow:hidden">?</div>
+        <div style="position:absolute;bottom:0;right:0;width:20px;height:20px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;border:2px solid rgba(255,255,255,.3)">📷</div>
+      </div>
+      <input type="file" id="upPhotoInput" accept="image/*" style="display:none" onchange="handleProfilePhotoUpload(this)">
       <div class="up-name" id="upName">—</div>
       <div class="up-email" id="upEmail">—</div>
     </div>
@@ -14097,7 +14117,12 @@ async function populateUserProfile(){
   const since = user?.created_at ? new Date(user.created_at).toLocaleDateString('pt-BR',{month:'long',year:'numeric'}) : '—';
   const initials = name.charAt(0).toUpperCase();
 
-  document.getElementById('upAvatar').textContent = initials;
+  const savedPhoto = localStorage.getItem('capturo_profile_photo');
+  const avEl = document.getElementById('upAvatar');
+  if(avEl){
+    if(savedPhoto) avEl.innerHTML = '<img src="'+savedPhoto+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+    else avEl.textContent = initials;
+  }
   document.getElementById('upName').textContent = name;
   document.getElementById('upEmail').textContent = email;
   document.getElementById('upStatSince').textContent = since;
@@ -14429,6 +14454,33 @@ Responda APENAS com JSON assim (sem markdown):
   return gerarPitchesParaNicho(nomeEmpresa, nicho, diasAberta, cidade);
 }
 
+
+
+// ── FOTO DE PERFIL ────────────────────────────────────────────
+function handleProfilePhotoUpload(input){
+  const file = input.files[0];
+  if(!file) return;
+  if(file.size > 2*1024*1024){ toast('Foto muito grande. Max 2MB.','warn'); return; }
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const dataUrl = e.target.result;
+    localStorage.setItem('capturo_profile_photo', dataUrl);
+    _aplicarFotoPerfilUI(dataUrl);
+    toast('Foto atualizada!','ok',2000);
+  };
+  reader.readAsDataURL(file);
+}
+
+function _aplicarFotoPerfilUI(dataUrl){
+  const av = document.getElementById('upAvatar');
+  if(av) av.innerHTML = '<img src="'+dataUrl+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+  // Atualiza também o avatar do menu
+  const menuAv = document.querySelector('.um-avatar');
+  if(menuAv && !menuAv.querySelector('img')){
+    const initText = menuAv.textContent;
+    menuAv.innerHTML = '<img src="'+dataUrl+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+  }
+}
 
 // ── TOGGLE CARD ALERTA ────────────────────────────────────────
 function toggleAlertaCard(idx, e){
