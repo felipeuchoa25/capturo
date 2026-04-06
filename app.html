@@ -2283,7 +2283,7 @@ function toast(msg, type='info', duration=3500){
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/><line x1="12" y1="2" x2="12" y2="4"/></svg>
       <span id="alertasBadge" style="display:none;position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;background:var(--volcano);border-radius:20px;font-size:9px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 3px;border:2px solid var(--s1)"></span>
     </span>
-    <span class="sb-label">Monitoramento</span>
+    <span class="sb-label">Radar CNPJ</span>
   </div>
 
   <!-- ── BLOCO 3: RADAR LOCAL ── -->
@@ -2302,7 +2302,7 @@ function toast(msg, type='info', duration=3500){
         <line x1="19" y1="12" x2="22" y2="12" stroke-width="1.5"/>
       </svg>
     </span>
-    <span class="sb-label">Grid GMB</span>
+    <span class="sb-label">Radar Local</span>
   </div>
   <div class="sb-item sb-item-radar-local" id="sb-radarhistorico" onclick="showPage('pageRadarHistorico');setSbActive('sb-radarhistorico')" title="Radar Local — Histórico">
     <span class="sb-icon">
@@ -2911,7 +2911,7 @@ function toast(msg, type='info', duration=3500){
         </div>
         <div class="field">
           <label>Cidade *</label>
-          <input type="text" id="mCity" placeholder="Ex: Uberlândia">
+          <input type="text" id="mCity" placeholder="Ex: São Paulo">
         </div>
         <div class="field">
           <label>Nicho</label>
@@ -3634,6 +3634,11 @@ function toast(msg, type='info', duration=3500){
           <button onclick="exportarAlertasCSV()" class="btn btn-ghost" style="font-size:11px">⬇ CSV</button>
         </div>
       </div>
+      <!-- Aviso: leads temporários -->
+      <div id="alertasAvisoTemp" style="display:none;background:rgba(255,149,0,.08);border:1px solid rgba(255,149,0,.25);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:11px;color:#cc7a00;align-items:center;gap:8px;flex-wrap:wrap">
+        <span>⚠️ <strong>Estes leads são temporários</strong> — se fechar a aba você os perde. Importe para uma campanha ou exporte CSV para salvar.</span>
+        <button onclick="importarAlertasParaCampanha()" style="background:#ff8c00;color:#fff;border:none;border-radius:8px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0">📥 Importar agora</button>
+      </div>
       <div id="alertasGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px"></div>
     </div>
 
@@ -4170,7 +4175,7 @@ function toast(msg, type='info', duration=3500){
         <div class="field"><label>Website</label><input type="text" id="cWebsite" placeholder="https://clinica.com.br"></div>
       </div>
       <div class="cfield-row">
-        <div class="field"><label>Cidade</label><input type="text" id="cCityField" placeholder="Uberlândia"></div>
+        <div class="field"><label>Cidade</label><input type="text" id="cCityField" placeholder="São Paulo"></div>
         <div class="field"><label>Bairro</label><input type="text" id="cNeighborhood" placeholder="Santa Mônica"></div>
       </div>
       <div class="cfield-row">
@@ -5734,7 +5739,7 @@ function openCampaign(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   $('pageCampaign').classList.add('active');
   const nb = c.neighborhood ? ` ➔ ${c.neighborhood}` : '';
-  $('campaignInfoBar').innerHTML=`Campanha: <strong>${c.name}</strong>${nb} &nbsp;|&nbsp; Mercado: <strong style="color:var(--accent2)">${c.market==='nacional'?'🇧🇷 Brasil':'🌐 '+c.country}</strong> &nbsp;|&nbsp; Nicho: <strong style="color:var(--warm)">${c.nicho}</strong> &nbsp;|&nbsp; Raio: <strong>${parseInt(c.radius)/1000}km</strong>`;
+  $('campaignInfoBar').innerHTML=`Campanha: <strong>${c.name}</strong>${nb} &nbsp;|&nbsp; Mercado: <strong style="color:var(--accent2)">${c.market==='nacional'?'🇧🇷 Brasil':'🌐 '+c.country}</strong> &nbsp;|&nbsp; Nicho: <strong style="color:var(--accent2)">${c.nicho}</strong> &nbsp;|&nbsp; Raio: <strong>${parseInt(c.radius)/1000}km</strong>`;
   renderAll();renderCampaignsList();
 }
 function saveCampaigns(){
@@ -7936,7 +7941,7 @@ async function buscarNovosNegocios(){
 
   try{
     // ── Passo 0: Tenta busca direta por CNPJ (mais preciso) ──
-    if(status) status.textContent='Consultando Receita Federal...';
+    if(status) status.textContent='Buscando...';
     if(skMsg)  skMsg.textContent='Buscando CNPJs recentes...';
     const cnpjDireto = await buscarEmpresasNovas(cidade, uf, nicho, dias);
     if(cnpjDireto.length > 0){
@@ -8306,6 +8311,10 @@ function _renderAlertasResultados(lista, cidade, nicho, dias){
   if(vazio) vazio.style.display='none';
   el.style.display='block';
 
+  // Mostrar aviso de leads temporários
+  const avisoTemp = $('alertasAvisoTemp');
+  if(avisoTemp) avisoTemp.style.display='flex';
+
   // Ordena por score decrescente
   const sorted = [...lista].sort((a,b)=>{
     const sa = calcularScoreAlerta(a), sb = calcularScoreAlerta(b);
@@ -8402,7 +8411,7 @@ function _renderAlertasResultados(lista, cidade, nicho, dias){
         ${telCel  ? `<div>📱 <span style="font-family:'IBM Plex Mono',monospace;color:#22c55e;font-weight:700;background:rgba(34,197,94,.13);padding:1px 7px;border-radius:6px;border:1px solid rgba(34,197,94,.25)">${telCel}</span> <span style="font-size:9px;color:var(--muted2)">celular</span></div>` : ''}
         ${email   ? `<div>✉ <a href="mailto:${email}" style="color:var(--accent);text-decoration:none;font-family:'IBM Plex Mono',monospace">${email}</a></div>` : ''}
         ${capital ? `<div>💰 <strong style="color:var(--green)">${capital}</strong> <span style="font-size:9px;color:var(--muted2)">capital social</span></div>` : ''}
-        ${endereco ? `<div>📍 <span style="color:var(--text2)">${endereco}</span></div>` : ''}
+        ${endereco ? `<div>📍 <span style="color:#333;font-weight:500">${endereco}</span></div>` : ''}
       </div>
 
       <!-- Sócios e CNAEs secundários (expansível) -->
@@ -8422,7 +8431,7 @@ function _renderAlertasResultados(lista, cidade, nicho, dias){
       <div style="display:flex;gap:6px;flex-direction:column">
         <!-- Toggle expandir dados / Pitch IA -->
         <div style="display:flex;gap:6px">
-          <button onclick="event.stopPropagation();toggleAlertaCard(${idx},event)" class="btn btn-ghost" style="font-size:10px;padding:6px 10px;flex:1;color:var(--muted2)">
+          <button onclick="event.stopPropagation();toggleAlertaCard(${idx})" class="btn btn-ghost btn-ver-mais" style="font-size:10px;padding:6px 10px;flex:1;color:var(--muted2)">
             📂 Ver mais dados
           </button>
           <button onclick="event.stopPropagation();abrirPitchIA(_alertasData[${idx}],'${waNum}','${escHtml(nicho)}')" class="btn-pitch" style="flex:2">
@@ -8466,6 +8475,9 @@ function importarAlertasParaCampanha(){
   const c = campaigns.find(x=>x.id===activeCampaignId);
   if(c) c.leads = leads;
   saveCampaigns(); renderAll();
+  // Esconde o aviso de temporário
+  const avisoTemp = $('alertasAvisoTemp');
+  if(avisoTemp) avisoTemp.style.display='none';
   toast(`✅ ${count} lead(s) importado(s) para a campanha!`,'ok',4000);
   showPage('pageCampaign'); setSbActive('sb-campaign');
 }
@@ -12652,7 +12664,7 @@ function selectAllBulkLeads(){
 
 <div id="toastContainer"></div>
 <!-- ── INDICADOR DE SYNC NA NUVEM ── -->
-<div id="syncIndicator" style="display:none;position:fixed;bottom:80px;left:16px;z-index:9990;background:var(--s1);border:1px solid var(--border);border-radius:var(--r-pill);padding:6px 12px;font-size:11px;font-weight:600;color:var(--muted2);display:flex;align-items:center;gap:6px;box-shadow:var(--shadow-sm);transition:opacity .3s;pointer-events:none">
+<div id="syncIndicator" style="display:none;position:fixed;bottom:80px;left:16px;z-index:9990;background:var(--s1);border:1px solid var(--border);border-radius:var(--r-pill);padding:6px 12px;font-size:11px;font-weight:600;color:var(--muted2);align-items:center;gap:6px;box-shadow:var(--shadow-sm);transition:opacity .3s;pointer-events:none">
   <span id="syncDot" style="width:7px;height:7px;border-radius:50%;background:var(--muted2);flex-shrink:0;transition:background .3s"></span>
   <span id="syncText">Sincronizando...</span>
 </div>
@@ -12720,6 +12732,8 @@ function _syncShow(state){
   if(state === 'saving'){
     dot.style.background = 'var(--orange)';
     txt.textContent = 'Salvando na nuvem...';
+    // Segurança: some após 12s mesmo que ok/error não seja chamado
+    _syncHideTimer = setTimeout(()=>{ el.style.opacity='0'; setTimeout(()=>{ el.style.display='none'; },400); }, 12000);
   } else if(state === 'ok'){
     dot.style.background = 'var(--green)';
     txt.textContent = '✓ Salvo na nuvem';
@@ -14240,7 +14254,7 @@ window._postAuthInit = function(){
 .alerta-card.score-baixo{ border-left:4px solid var(--cold); }
 .alerta-card { color: var(--text) !important; }
 .alerta-card * { color: inherit; }
-.alerta-card .alerta-score-badge { color: #fff !important; }
+.alerta-card .alerta-score-badge { /* cor gerenciada pelas classes asb-* */ }
 
 @keyframes fadeInCard{
   from{ opacity:0; transform:translateY(8px); }
@@ -14257,9 +14271,9 @@ window._postAuthInit = function(){
   font-size:13px;font-weight:800;
   font-family:'IBM Plex Mono',monospace;
 }
-.asb-alta{ background:rgba(255,77,77,.15);color:var(--volcano);border:1.5px solid rgba(255,77,77,.3); }
-.asb-med{ background:rgba(255,140,0,.12);color:var(--orange);border:1.5px solid rgba(255,140,0,.25); }
-.asb-baixo{ background:rgba(79,142,255,.1);color:var(--cold);border:1.5px solid rgba(79,142,255,.2); }
+.asb-alta{ background:#ff4d4d;color:#fff !important;border:none;box-shadow:0 2px 8px rgba(255,77,77,.4); }
+.asb-med{ background:#ff8c00;color:#fff !important;border:none;box-shadow:0 2px 8px rgba(255,140,0,.35); }
+.asb-baixo{ background:#4f8eff;color:#fff !important;border:none;box-shadow:0 2px 8px rgba(79,142,255,.35); }
 
 /* Botão pitch no card */
 .btn-pitch{
@@ -15366,10 +15380,13 @@ function _aplicarFotoPerfilUI(dataUrl){
 
 // ── TOGGLE CARD ALERTA ────────────────────────────────────────
 function toggleAlertaCard(idx, e){
-  if(e && e.target.closest('button,a')) return;
   const extra = document.getElementById('acard-extra-'+idx);
   if(!extra) return;
-  extra.style.display = extra.style.display === 'none' ? 'block' : 'none';
+  const isOpen = extra.style.display !== 'none';
+  extra.style.display = isOpen ? 'none' : 'block';
+  // Atualiza texto do botão
+  const btn = document.querySelector(`#acard-${idx} .btn-ver-mais`);
+  if(btn) btn.textContent = isOpen ? '📂 Ver mais dados' : '📁 Recolher dados';
 }
 
 // ── PITCH IA: funções completas ───────────────────────────────
