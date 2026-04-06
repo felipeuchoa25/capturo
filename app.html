@@ -3529,7 +3529,7 @@ function toast(msg, type='info', duration=3500){
         RADAR DE OPORTUNIDADE
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;margin-bottom:18px">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;margin-bottom:18px;overflow:visible">
         <!-- Estado -->
         <div>
           <label style="font-size:10px;color:var(--muted2);display:block;margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Estado</label>
@@ -3545,13 +3545,13 @@ function toast(msg, type='info', duration=3500){
           </select>
         </div>
         <!-- Nicho -->
-        <div style="position:relative">
+        <div style="position:relative;z-index:100">
           <label style="font-size:10px;color:var(--muted2);display:block;margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Nicho / Atividade</label>
           <input type="text" id="alertaNichoSearch" placeholder="Buscar nicho..." autocomplete="off"
             oninput="filterAlertaNichos(this.value)" onfocus="showAlertaNichoDropdown()"
             style="width:100%;font-size:12px;padding:9px 12px;border-radius:10px;border:1px solid var(--border2);background:var(--s2);color:var(--text)" readonly
             onclick="this.removeAttribute('readonly');showAlertaNichoDropdown()">
-          <div id="alertaNichoDropdown" style="display:none;position:absolute;left:0;right:0;z-index:9999;max-height:220px;overflow-y:auto;border:1px solid var(--border2);border-radius:10px;background:var(--s1);box-shadow:0 8px 28px rgba(0,0,0,.5);margin-top:2px">
+          <div id="alertaNichoDropdown" style="display:none;position:absolute;left:0;right:0;z-index:99999;max-height:260px;overflow-y:auto;border:1px solid var(--border2);border-radius:10px;background:var(--s1);box-shadow:0 12px 40px rgba(0,0,0,.7);margin-top:2px">
             <div id="alertaNichoList"></div>
           </div>
           <input type="hidden" id="alertaNicho" value="">
@@ -7162,16 +7162,20 @@ function openClientFromLead(leadId){
   $('clientModalSub').textContent=lead.name||'';
   $('cName').value=lead.name||'';
   $('cNichoField').value=(camp&&camp.nicho)||'';
-  $('cOwner').value='';
-  $('cPhone').value=lead.formatted_phone_number||lead.phone||'';
-  $('cEmailField').value=lead.email||'';
+  $('cOwner').value=(lead.cnpjData?.qsa?.[0]?.nome_socio||lead.cnpjData?.socios?.[0]?.nome||'');
+  $('cPhone').value=lead.formatted_phone_number||lead.phone||lead.cnpjData?.ddd_telefone_1||'';
+  $('cEmailField').value=lead.email||lead.cnpjData?.email||'';
   $('cWebsite').value=lead.website||'';
-  $('cCityField').value=lead.city||(camp&&camp.city)||'';
-  $('cNeighborhood').value=lead.neighborhood||'';
-  $('cAddress').value=lead.formatted_address||'';
-  ['cZip','cValue','cDueDay','cBank','cWorkNotes','cBranches'].forEach(id=>{const el=$(id);if(el)el.value='';});
+  $('cCityField').value=lead.city||(camp&&camp.city)||lead.cnpjData?.municipio||'';
+  $('cNeighborhood').value=lead.neighborhood||lead.cnpjData?.bairro||'';
+  const endCnpj=lead.cnpjData?[lead.cnpjData.logradouro,lead.cnpjData.numero,lead.cnpjData.complemento].filter(Boolean).join(', '):'';
+  $('cAddress').value=lead.formatted_address||endCnpj||'';
+  if($('cZip'))$('cZip').value=lead.cnpjData?.cep||'';
+  ['cValue','cDueDay','cBank','cWorkNotes','cBranches'].forEach(id=>{const el=$(id);if(el)el.value='';});
   $('cStartDate').value=new Date().toISOString().split('T')[0];
   document.querySelectorAll('.service-chip').forEach(c=>c.classList.remove('on'));
+  // Salva dados CNPJ para ser incluído no cliente
+  window._pendingClientCnpjData = lead.cnpjData||null;
   $('clientModal').classList.add('open');
   showPage('pageClients'); setSbActive('sb-clients');
   toast('✅ Dados do lead pré-preenchidos! Complete o valor mensal e salve.','success',4000);
@@ -8374,7 +8378,7 @@ function _renderAlertasResultados(lista, cidade, nicho, dias){
     return `<div class="alerta-card ${info.cardClass}" id="acard-${idx}" style="animation:fadeInCard .3s ease ${idx*0.06}s both">
 
       <!-- Score badge com tooltip -->
-      <div class="alerta-score-badge ${info.css}" title="${scoreTip}" style="cursor:help;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px">
+      <div class="alerta-score-badge ${info.css}" title="Score de oportunidade (1–99): mede urgência com base nos dias desde a abertura, capital social e contato disponível. Quanto maior, mais quente o lead!" style="cursor:help;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px">
         <span style="font-size:13px;font-weight:800;line-height:1">${score}</span>
         <span style="font-size:7px;font-weight:600;opacity:.75;letter-spacing:.03em">SCORE</span>
       </div>
@@ -8394,8 +8398,8 @@ function _renderAlertasResultados(lista, cidade, nicho, dias){
       <div style="font-size:11px;color:var(--text2);line-height:1.9;margin-bottom:10px;border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:1px">
         ${dtFmt!=='—' ? `<div>📅 <strong style="color:var(--text)">${dtFmt}</strong>${emp._apiFonte?` <span style="font-size:9px;background:var(--accent-bg);color:var(--accent);padding:1px 5px;border-radius:8px">${escHtml(emp._apiFonte)}</span>`:''}</div>` : ''}
         ${cnaePrinc ? `<div>🏷 <span title="${cnaeCod?'CNPJ CNAE: '+cnaeCod:''}">${cnaePrinc}${cnaeCod?` <span style="font-size:9px;color:var(--muted2)">[${cnaeCod}]</span>`:''}</span></div>` : ''}
-        ${telFixo ? `<div>📞 <span style="font-family:'IBM Plex Mono',monospace;color:var(--accent2);font-weight:700">${telFixo}</span> <span style="font-size:9px;color:var(--muted2)">fixo</span></div>` : `<div style="opacity:.4">📞 Tel. não encontrado</div>`}
-        ${telCel  ? `<div>📱 <span style="font-family:'IBM Plex Mono',monospace;color:var(--green);font-weight:700">${telCel}</span> <span style="font-size:9px;color:var(--muted2)">celular</span></div>` : ''}
+        ${telFixo ? `<div>📞 <span style="font-family:'IBM Plex Mono',monospace;color:#4f8eff;font-weight:700;background:rgba(79,142,255,.13);padding:1px 7px;border-radius:6px;border:1px solid rgba(79,142,255,.25)">${telFixo}</span> <span style="font-size:9px;color:var(--muted2)">fixo</span></div>` : `<div style="opacity:.4">📞 Tel. não encontrado</div>`}
+        ${telCel  ? `<div>📱 <span style="font-family:'IBM Plex Mono',monospace;color:#22c55e;font-weight:700;background:rgba(34,197,94,.13);padding:1px 7px;border-radius:6px;border:1px solid rgba(34,197,94,.25)">${telCel}</span> <span style="font-size:9px;color:var(--muted2)">celular</span></div>` : ''}
         ${email   ? `<div>✉ <a href="mailto:${email}" style="color:var(--accent);text-decoration:none;font-family:'IBM Plex Mono',monospace">${email}</a></div>` : ''}
         ${capital ? `<div>💰 <strong style="color:var(--green)">${capital}</strong> <span style="font-size:9px;color:var(--muted2)">capital social</span></div>` : ''}
         ${endereco ? `<div>📍 <span style="color:var(--text2)">${endereco}</span></div>` : ''}
@@ -10305,10 +10309,12 @@ function saveClient(){
     workNotes:$('cWorkNotes').value,
     branches:$('cBranches').value,
     services,
+    cnpjData: window._pendingClientCnpjData || existing?.cnpjData || null,
     createdAt:existing?.createdAt||new Date().toISOString(),
     updatedAt:new Date().toISOString(),
     history:existing?.history||[]
   };
+  window._pendingClientCnpjData = null;
   if(existing){clients=clients.map(c=>c.id===id?cl:c);}
   else{clients.push(cl);}
   saveClients();closeClientModal();renderClients();
@@ -10333,24 +10339,88 @@ function renderClients(){
   grid.innerHTML=clients.map(cl=>{
     const services=(cl.services||[]).map(s=>`<span class="client-tag ct-marketing">${s}</span>`).join('');
     const branches=cl.branches?cl.branches.split('\n').filter(Boolean).length:0;
-    return `<div class="client-card">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">
-        <div>
-          <div style="font-size:14px;font-weight:700;margin-bottom:3px">${cl.name}</div>
-          <div style="font-size:10px;color:var(--muted2);font-family:monospace">${cl.niche||''}${cl.city?' — '+cl.city:''}</div>
+
+    // Dados enriquecidos via CNPJ (se tiver sido importado do Radar)
+    const cnpjD = cl.cnpjData || {};
+    const capital = cnpjD.capital_social ? 'R$ '+parseFloat(String(cnpjD.capital_social).replace(/\./g,'').replace(',','.')).toLocaleString('pt-BR',{maximumFractionDigits:0}) : '';
+    const cnae = cnpjD.cnae_fiscal_descricao || cnpjD.atividade_principal?.[0]?.text || '';
+    const cnaeCod = cnpjD.cnae_fiscal || '';
+    const sociosArr = (cnpjD.qsa||cnpjD.socios||[]);
+    const sociosFmt = sociosArr.slice(0,3).map(s=>{
+      const n = s.nome_socio||s.nome||'';
+      const q = s.qualificacao_socio||s.descricao_qualificacao||'';
+      return n + (q?` <span style="color:var(--muted2);font-size:9px">(${q})</span>`:'');
+    }).filter(Boolean).join(', ');
+    const cnaesSecArr = (cnpjD.cnaes_secundarios||cnpjD.atividades_secundarias||[]).slice(0,4);
+    const cnaesSecFmt = cnaesSecArr.map(c=>(c.descricao||c.text||'')).filter(Boolean);
+    const natJur = cnpjD.natureza_juridica||'';
+    const porte = cnpjD.descricao_porte||cnpjD.porte||'';
+    const situacao = cnpjD.descricao_situacao_cadastral||cnpjD.situacao_cadastral||'';
+    const cnpjFmt = cnpjD.cnpj ? cnpjD.cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,'$1.$2.$3/$4-$5') : '';
+    const endParts = [cnpjD.logradouro,cnpjD.numero,cnpjD.complemento,cnpjD.bairro,cnpjD.municipio,cnpjD.uf,cnpjD.cep?'CEP '+cnpjD.cep:''].filter(Boolean);
+    const enderecoCnpj = endParts.length ? endParts.join(', ') : '';
+    const telFixoCnpj = cnpjD.ddd_telefone_1 ? '('+cnpjD.ddd_telefone_1.substring(0,2)+') '+cnpjD.ddd_telefone_1.substring(2) : '';
+    const telCelCnpj = cnpjD.ddd_telefone_2 ? '('+cnpjD.ddd_telefone_2.substring(0,2)+') '+cnpjD.ddd_telefone_2.substring(2) : '';
+
+    // Endereço final: preferir do formulário, fallback CNPJ
+    const enderecoDisplay = (cl.address ? `${cl.address}${cl.city?', '+cl.city:''}${cl.neighborhood?', '+cl.neighborhood:''}${cl.zip?' — CEP '+cl.zip:''}` : enderecoCnpj);
+
+    return `<div class="client-card" style="background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:18px;position:relative;overflow:hidden">
+      <!-- Linha top -->
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),var(--accent))"></div>
+      <!-- Header -->
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:15px;font-weight:800;margin-bottom:3px;line-height:1.3">${cl.name}</div>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            ${cl.niche?`<span style="font-size:10px;background:var(--accent-bg);color:var(--accent2);padding:2px 8px;border-radius:20px;font-weight:600">${cl.niche}</span>`:''}
+            ${cl.city?`<span style="font-size:10px;color:var(--muted2)">📍 ${cl.city}</span>`:''}
+            ${porte?`<span style="font-size:9px;background:var(--s3);color:var(--muted2);padding:1px 6px;border-radius:8px">${porte}</span>`:''}
+            ${situacao?`<span style="font-size:9px;background:${situacao.toLowerCase().includes('ativa')?'var(--green-bg)':'rgba(255,140,0,.1)'};color:${situacao.toLowerCase().includes('ativa')?'var(--green)':'var(--orange)'};padding:1px 6px;border-radius:8px;border:1px solid ${situacao.toLowerCase().includes('ativa')?'var(--green-b)':'rgba(255,140,0,.25)'}">${situacao}</span>`:''}
+          </div>
         </div>
-        <div style="display:flex;gap:6px">
-          <button onclick="openEditClientModal('${cl.id}')" class="card-btn">✏️ Editar</button>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <button onclick="openEditClientModal('${cl.id}')" class="card-btn">✏️</button>
           <button onclick="deleteClient('${cl.id}')" class="card-btn" style="color:#ff6b6b">🗑</button>
         </div>
       </div>
-      ${cl.owner?`<div style="font-size:11px;color:var(--muted2);margin-bottom:6px">👤 ${cl.owner}</div>`:''}
-      ${cl.phone?`<div style="font-size:11px;color:var(--cold);font-family:monospace;margin-bottom:4px">📞 ${cl.phone}</div>`:''}
-      ${cl.value?`<div style="font-size:11px;color:var(--green);font-family:monospace;margin-bottom:6px">💰 R$ ${cl.value}/mês${cl.dueDay?' · vence dia '+cl.dueDay:''}</div>`:''}
-      <div style="margin-bottom:8px;margin-top:6px">${services}</div>
-      ${branches>0?`<div style="font-size:10px;color:var(--muted2);font-family:monospace">🏪 ${branches} filial(is)</div>`:''}
-      ${cl.workNotes?`<div style="font-size:10px;color:var(--muted2);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px;margin-top:8px;line-height:1.6;white-space:pre-wrap">${cl.workNotes.substring(0,200)}${cl.workNotes.length>200?'...':''}</div>`:''}
-      <div style="font-size:9px;color:var(--muted);font-family:monospace;margin-top:8px">Desde ${cl.startDate||'—'} · Atualizado ${new Date(cl.updatedAt).toLocaleDateString('pt-BR')}</div>
+
+      <!-- Financeiro destaque -->
+      ${cl.value?`<div style="background:var(--green-bg);border:1px solid var(--green-b);border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:18px;font-weight:800;color:var(--green);font-family:'IBM Plex Mono',monospace">R$ ${cl.value}<span style="font-size:11px;color:var(--muted2);font-weight:400">/mês</span></div>
+          ${cl.dueDay?`<div style="font-size:10px;color:var(--muted2);margin-top:2px">📅 Vence dia ${cl.dueDay}${cl.bank?' · '+cl.bank:''}</div>`:''}
+        </div>
+        ${cl.startDate?`<div style="font-size:9px;color:var(--muted2);text-align:right">Contrato<br><strong style="color:var(--text2)">${cl.startDate}</strong></div>`:''}
+      </div>`:''}
+
+      <!-- Contatos -->
+      <div style="font-size:11px;line-height:2;margin-bottom:10px;border-top:1px solid var(--border);padding-top:10px">
+        ${cl.owner?`<div>👤 <strong style="color:var(--text)">${cl.owner}</strong></div>`:''}
+        ${(cl.phone||telFixoCnpj)?`<div>📞 <a href="tel:${cl.phone||telFixoCnpj}" style="color:#4f8eff;font-family:'IBM Plex Mono',monospace;font-weight:700;text-decoration:none;background:rgba(79,142,255,.1);padding:1px 7px;border-radius:5px">${cl.phone||telFixoCnpj}</a> <span style="font-size:9px;color:var(--muted2)">fixo</span></div>`:''}
+        ${telCelCnpj&&telCelCnpj!==(cl.phone||'').replace(/\D/g,'')?`<div>📱 <a href="tel:${telCelCnpj}" style="color:#22c55e;font-family:'IBM Plex Mono',monospace;font-weight:700;text-decoration:none;background:rgba(34,197,94,.1);padding:1px 7px;border-radius:5px">${telCelCnpj}</a> <span style="font-size:9px;color:var(--muted2)">celular</span></div>`:''}
+        ${(cl.email||cnpjD.email)?`<div>✉ <a href="mailto:${cl.email||cnpjD.email}" style="color:var(--accent);text-decoration:none;font-family:'IBM Plex Mono',monospace">${cl.email||cnpjD.email}</a></div>`:''}
+        ${cl.website?`<div>🌐 <a href="${cl.website.startsWith('http')?cl.website:'https://'+cl.website}" target="_blank" style="color:var(--accent2);text-decoration:none">${cl.website}</a></div>`:''}
+        ${enderecoDisplay?`<div style="color:var(--text2)">📍 <span>${enderecoDisplay}</span></div>`:''}
+      </div>
+
+      <!-- Dados CNPJ (se disponível) -->
+      ${(capital||cnae||sociosFmt||cnpjFmt)?`
+      <div style="background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:11px;line-height:1.9;color:var(--text2)">
+        <div style="font-size:9px;color:var(--muted2);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">📋 Dados CNPJ</div>
+        ${cnpjFmt?`<div style="font-family:monospace;color:var(--text2)"><strong>CNPJ:</strong> ${cnpjFmt} ${cnpjFmt?`<a href="https://publica.cnpj.ws/cnpj/${cnpjFmt.replace(/\D/g,'')}" target="_blank" style="color:var(--accent);font-size:9px">ver ↗</a>`:''}</div>`:''}
+        ${capital?`<div>💰 Capital social: <strong style="color:var(--green)">${capital}</strong></div>`:''}
+        ${cnae?`<div>🏷 CNAE: ${cnae}${cnaeCod?` <span style="font-size:9px;color:var(--muted2)">[${cnaeCod}]</span>`:''}</div>`:''}
+        ${natJur?`<div>⚖ ${natJur}</div>`:''}
+        ${sociosFmt?`<div>👥 Sócios: ${sociosFmt}</div>`:''}
+        ${cnaesSecFmt.length?`<div style="margin-top:4px"><span style="color:var(--muted2)">CNAEs sec.:</span> ${cnaesSecFmt.slice(0,2).join(' · ')}</div>`:''}
+      </div>`:''}
+
+      <!-- Serviços -->
+      ${services?`<div style="margin-bottom:8px">${services}</div>`:''}
+      ${branches>0?`<div style="font-size:10px;color:var(--muted2);margin-bottom:6px">🏪 ${branches} filial(is)</div>`:''}
+      ${cl.workNotes?`<div style="font-size:10px;color:var(--muted2);background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px;margin-top:6px;line-height:1.6;white-space:pre-wrap">${cl.workNotes.substring(0,300)}${cl.workNotes.length>300?'…':''}</div>`:''}
+      <div style="font-size:9px;color:var(--muted2);font-family:monospace;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">Desde ${cl.startDate||'—'} · Atualizado ${new Date(cl.updatedAt||Date.now()).toLocaleDateString('pt-BR')}</div>
     </div>`;
   }).join('');
 }
