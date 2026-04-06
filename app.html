@@ -2246,12 +2246,12 @@ function toast(msg, type='info', duration=3500){
   <div class="sb-item" id="sb-relatorio" onclick="showPage('pageRelatorio');setSbActive('sb-relatorio')">
     <span class="sb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span><span class="sb-label">Relatórios</span>
   </div>
-  <div class="sb-item" id="sb-alertas" onclick="showPage('pageAlertas');setSbActive('sb-alertas')">
+  <div class="sb-item" id="sb-alertas" onclick="showPage('pageAlertas');setSbActive('sb-alertas')" title="Novos Negócios em CNPJ">
     <span class="sb-icon" style="position:relative">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/><line x1="12" y1="2" x2="12" y2="4"/></svg>
       <span id="alertasBadge" style="display:none;position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;background:var(--volcano);border-radius:20px;font-size:9px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 3px;border:2px solid var(--s1)"></span>
     </span>
-    <span class="sb-label">Novos Negócios</span>
+    <span class="sb-label">Radar CNPJ</span>
   </div>
   <div class="sb-item" id="sb-favoritos" onclick="showPage('pageFavoritos');setSbActive('sb-favoritos')">
     <span class="sb-icon" style="position:relative">
@@ -2605,8 +2605,8 @@ function toast(msg, type='info', duration=3500){
   <div class="page" id="pageGMB">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
       <div>
-        <div style="font-size:10px;font-family:monospace;color:var(--muted2);text-transform:uppercase;letter-spacing:.1em">// GMB Ranking — Relatórios MKT Local</div>
-        <div style="font-size:11px;color:var(--muted2);margin-top:4px">Importe os PDFs do <a href="https://app.mktlocal.io" target="_blank" style="color:var(--accent2)">MKT Local</a> para acompanhar a evolução do ranking dos seus clientes</div>
+        <div style="font-size:10px;font-family:monospace;color:var(--muted2);text-transform:uppercase;letter-spacing:.1em">// GMB Ranking — Visibilidade Local</div>
+        <div style="font-size:11px;color:var(--muted2);margin-top:4px">Importe os PDFs do <a href="https://app.mktlocal.io" target="_blank" style="color:var(--accent2)">Visibilidade Local</a> para acompanhar a evolução do ranking dos seus clientes</div>
       </div>
       <label class="btn btn-primary" style="font-size:11px;cursor:pointer">
         📄 Importar PDF
@@ -2617,7 +2617,7 @@ function toast(msg, type='info', duration=3500){
     <!-- Upload zone when empty -->
     <div id="gmbUploadZone" class="upload-zone" onclick="document.querySelector('#pageGMB input[type=file]').click()">
       <div style="font-size:32px;margin-bottom:10px">📄</div>
-      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px">Arraste ou clique para importar um PDF do MKT Local</div>
+      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px">Arraste ou clique para importar um PDF do Visibilidade Local</div>
       <div style="font-size:11px;color:var(--muted2)">O sistema lê automaticamente: PGM, PPP, grid, concorrentes e evolução</div>
     </div>
 
@@ -3355,12 +3355,11 @@ function toast(msg, type='info', duration=3500){
 
     <!-- ══ RESULTADOS ══ -->
     <div id="alertasResultados" style="display:none">
-      <!-- Legenda de cores -->
-      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;padding:8px 12px;background:var(--s1);border-radius:10px;border:1px solid var(--border)">
-        <span style="font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;align-self:center">Temperatura:</span>
-        <span style="font-size:11px;display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:var(--volcano);display:inline-block"></span><strong style="color:var(--volcano)">Vulcão</strong> — Score ≥ 80 (aberta ≤7 dias)</span>
-        <span style="font-size:11px;display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:var(--orange);display:inline-block"></span><strong style="color:var(--orange)">Quente</strong> — Score 60–79 (aberta ≤30 dias)</span>
-        <span style="font-size:11px;display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:var(--cold);display:inline-block"></span><strong style="color:var(--cold)">Morno</strong> — Score &lt; 60 (mais de 30 dias)</span>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:10px;padding:8px 14px;background:var(--s1);border-radius:10px;border:1px solid var(--border);font-size:11px">
+        <span style="font-weight:700;color:var(--muted2);text-transform:uppercase;font-size:10px;letter-spacing:.06em">Temperatura:</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:50%;background:var(--volcano);display:inline-block"></span><strong style="color:var(--volcano)">Vulcao</strong> score &ge;80 (aberta &le;7 dias)</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:50%;background:var(--orange);display:inline-block"></span><strong style="color:var(--orange)">Quente</strong> score 60-79 (&le;30 dias)</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:50%;background:var(--cold);display:inline-block"></span><strong style="color:var(--cold)">Morno</strong> score &lt;60 (+30 dias)</span>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
         <div style="display:flex;align-items:center;gap:10px">
@@ -3435,6 +3434,7 @@ function toast(msg, type='info', duration=3500){
   </div>
 
   <!-- ═══ PAGE: RELATÓRIOS ═══ -->
+  <div class="page" id="pageRelatorio">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
       <div>
         <div style="font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px">Relatórios</div>
@@ -3445,9 +3445,7 @@ function toast(msg, type='info', duration=3500){
         <button class="btn btn-primary" onclick="exportRelatorioHTML()" style="border-radius:20px">📄 Relatório HTML</button>
       </div>
     </div>
-    <!-- Resumo geral -->
     <div id="relatorioSummary" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:24px"></div>
-    <!-- Por campanha -->
     <div style="background:var(--s1);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:20px">
       <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-size:14px;font-weight:600">📊 Por Campanha</div>
       <div id="relatorioCampanhas" style="padding:4px 0"></div>
@@ -7997,16 +7995,13 @@ function _renderAlertasResultados(lista, cidade, nicho, dias){
 
     const nomeEscaped = nome.replace(/'/g,"\\'").replace(/"/g,'\\"');
 
-    const socioNomeCard = (emp.qsa||[]).map(s=>s.nome_socio||s.nome||'').filter(Boolean)[0]||'';
-    const situacaoCard = emp.porte||'';
-
-    return `<div class="alerta-card ${info.cardClass}" id="acard-${idx}" style="animation:fadeInCard .3s ease ${idx*0.06}s both;cursor:pointer" onclick="toggleAlertaCard(${idx}, event)">
+    return `<div class="alerta-card ${info.cardClass}" id="acard-${idx}" style="animation:fadeInCard .3s ease ${idx*0.06}s both;cursor:pointer" onclick="toggleAlertaCard(${idx},event)">
       <!-- Score badge -->
       <div class="alerta-score-badge ${info.css}">${score}</div>
 
       <!-- Nome e badges -->
       <div style="padding-right:52px;margin-bottom:10px">
-        <div style="font-size:13px;font-weight:800;line-height:1.3;margin-bottom:4px">${nome}</div>
+        <div style="font-size:13px;font-weight:800;line-height:1.4;margin-bottom:4px;word-break:break-word">${nome}</div>
         <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center">
           ${urgenciaBadge}
           <span style="font-size:10px;color:${info.cor};font-weight:600">${info.label}</span>
@@ -8014,7 +8009,7 @@ function _renderAlertasResultados(lista, cidade, nicho, dias){
       </div>
 
       <!-- Dados -->
-      <div style="font-size:11px;color:var(--muted2);line-height:1.8;margin-bottom:12px;border-top:1px solid var(--border);padding-top:10px">
+      <div style="font-size:11px;color:var(--text2);line-height:1.8;margin-bottom:12px;border-top:1px solid var(--border);padding-top:10px">
         ${dtFmt!=='—' ? `<div>📅 <strong style="color:var(--text2)">${dtFmt}</strong>${emp._apiFonte?` <span style="font-size:9px;background:var(--accent-bg);color:var(--accent);padding:1px 5px;border-radius:8px">${escHtml(emp._apiFonte)}</span>`:''}</div>` : ''}
         ${cnae ? `<div>🏷 ${cnae}</div>` : ''}
         ${telFmt ? `<div>📞 <span style="font-family:'IBM Plex Mono',monospace;color:var(--text2)">${telFmt}</span></div>` : `<div style="opacity:.4">📞 Tel. não encontrado</div>`}
@@ -8024,18 +8019,16 @@ function _renderAlertasResultados(lista, cidade, nicho, dias){
         ${cnpj ? `<div style="font-family:'IBM Plex Mono',monospace;font-size:10px;opacity:.5">${cnpj}</div>` : ''}
       </div>
 
-      <!-- Dados expandidos (visíveis ao clicar no card) -->
-      <div id="acard-extra-${idx}" style="display:none;background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;font-size:11px;line-height:1.9;color:var(--text2);animation:fadeInCard .2s ease">
-        ${emp.razao_social ? `<div>🏢 <strong>Razão Social:</strong> ${escHtml(emp.razao_social)}</div>` : ''}
-        ${emp.nome_fantasia && emp.nome_fantasia !== emp.razao_social ? `<div>🏷 <strong>Nome Fantasia:</strong> ${escHtml(emp.nome_fantasia)}</div>` : ''}
-        ${cnpj ? `<div>📋 <strong>CNPJ:</strong> <span style="font-family:monospace">${cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,'$1.$2.$3/$4-$5')}</span></div>` : ''}
-        ${cnae ? `<div>🏷 <strong>CNAE:</strong> ${cnae}</div>` : ''}
-        ${emp.porte ? `<div>📊 <strong>Porte:</strong> ${escHtml(emp.porte)}</div>` : ''}
-        ${capital ? `<div>💰 <strong>Capital Social:</strong> ${capital}</div>` : ''}
-        ${socios ? `<div>👤 <strong>Sócio(s):</strong> ${socios}</div>` : ''}
-        ${emp.logradouro ? `<div>📍 <strong>Endereço:</strong> ${escHtml([emp.logradouro,emp.numero,emp.bairro,emp.municipio,emp.uf].filter(Boolean).join(', '))}</div>` : ''}
-        ${emp.cep ? `<div>📮 <strong>CEP:</strong> ${escHtml(emp.cep)}</div>` : ''}
-        ${email ? `<div>✉ <strong>E-mail:</strong> ${email}</div>` : ''}
+      <!-- Dados expandidos -->
+      <div id="acard-extra-${idx}" style="display:none;background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;font-size:11px;line-height:1.9;color:var(--text2)">
+        ${emp.razao_social?`<div><strong>Razao Social:</strong> ${escHtml(emp.razao_social)}</div>`:''}
+        ${cnpj?`<div><strong>CNPJ:</strong> <span style="font-family:monospace">${cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,'$1.$2.$3/$4-$5')}</span></div>`:''}
+        ${cnae?`<div><strong>Atividade:</strong> ${cnae}</div>`:''}
+        ${emp.porte?`<div><strong>Porte:</strong> ${escHtml(emp.porte)}</div>`:''}
+        ${capital?`<div><strong>Capital Social:</strong> ${capital}</div>`:''}
+        ${socios?`<div><strong>Socios:</strong> ${socios}</div>`:''}
+        ${emp.logradouro?`<div><strong>Endereco:</strong> ${escHtml([emp.logradouro,emp.numero,emp.bairro,emp.municipio,emp.uf].filter(Boolean).join(', '))}</div>`:''}
+        ${email?`<div><strong>E-mail:</strong> ${email}</div>`:''}
         <div style="margin-top:6px;font-size:10px;color:var(--muted2)">Fonte: ${escHtml(emp._apiFonte||'Google Maps')}</div>
       </div>
       <!-- Área de Pitch IA (expandível) -->
@@ -10020,7 +10013,7 @@ async function importMktLocalPDF(input){
       }
 
       const report = parseMktLocalText(fullText, file.name);
-      if(!report){ alert('Não consegui ler este PDF. Verifique se é um relatório do MKT Local.'); return; }
+      if(!report){ alert('Não consegui ler este PDF. Verifique se é um relatório do Visibilidade Local.'); return; }
 
       report.id = 'gmb-' + Date.now();
       report.importedAt = new Date().toISOString();
@@ -10085,7 +10078,7 @@ function parseMktLocalText(text, filename){
 
     // Competitors — parse rank table
     // Pattern: number followed by company name, address, rating, PPP, PGM
-    const compSection = text.match(/RANK\s+Informações da empresa\s+PPP\s+PGM([\s\S]*?)MKT Local/);
+    const compSection = text.match(/RANK\s+Informações da empresa\s+PPP\s+PGM([\s\S]*?)Visibilidade Local/);
     if(compSection){
       const compText = compSection[1];
       const compRegex = /(\d+)\s+([^\d][^\n]{5,80})\n[^\n]*\n[\d.]+\s*\([\d]+\)\s+([\d,]+)\s+([\d.]+)/g;
@@ -13786,9 +13779,12 @@ window._postAuthInit = function(){
 }
 .alerta-card:hover::before{ opacity:1; }
 
-.alerta-card.score-alto{ border-left:3px solid var(--volcano); }
-.alerta-card.score-med{ border-left:3px solid var(--orange); }
-.alerta-card.score-baixo{ border-left:3px solid var(--cold); }
+.alerta-card.score-alto{ border-left:4px solid var(--volcano); }
+.alerta-card.score-med{ border-left:4px solid var(--orange); }
+.alerta-card.score-baixo{ border-left:4px solid var(--cold); }
+.alerta-card { color: var(--text) !important; }
+.alerta-card * { color: inherit; }
+.alerta-card .alerta-score-badge { color: #fff !important; }
 
 @keyframes fadeInCard{
   from{ opacity:0; transform:translateY(8px); }
@@ -14434,15 +14430,15 @@ Responda APENAS com JSON assim (sem markdown):
 }
 
 
+// ── TOGGLE CARD ALERTA ────────────────────────────────────────
 function toggleAlertaCard(idx, e){
-  // Não expandir se clicou em botão
   if(e && e.target.closest('button,a')) return;
   const extra = document.getElementById('acard-extra-'+idx);
   if(!extra) return;
   extra.style.display = extra.style.display === 'none' ? 'block' : 'none';
 }
 
-// ── PITCH IA: funções completas ───────────────────────────────────────────
+// ── PITCH IA: funções completas ───────────────────────────────
 let _currentPitches = [];
 let _currentPitchIdx = 0;
 let _pitchRodada = 0;
@@ -14453,125 +14449,83 @@ function abrirPitchIA(empresa, telefone, nicho){
   _pitchAtualTelefone = telefone;
   _pitchRodada = 1;
   _pitchEmpresaCtx = { empresa, nicho };
-
   const modal = document.getElementById('modalPitchIA');
-  if(!modal){ toast('Modal de Pitch não encontrado.','error'); return; }
-
+  if(!modal){ toast('Modal não encontrado.','error'); return; }
   const score = calcularScoreAlerta(empresa);
   const info = labelScore(score);
-
   const nomeEl = document.getElementById('pitchLeadNome');
-  if(nomeEl) nomeEl.textContent = empresa.razao_social || empresa.nome_fantasia || empresa.nome || empresa.name || 'Empresa';
-
+  if(nomeEl) nomeEl.textContent = empresa.razao_social||empresa.nome_fantasia||empresa.nome||empresa.name||'Empresa';
   const circle = document.getElementById('pitchScoreCircle');
   const lbl    = document.getElementById('pitchScoreLabel');
   const reason = document.getElementById('pitchScoreReason');
-  if(circle){ circle.textContent = score; circle.style.color = info.cor; circle.style.borderColor = info.cor+'66'; circle.style.background = info.cor+'1a'; }
-  if(lbl)   { lbl.textContent = info.label; lbl.style.color = info.cor; }
-  if(reason){
-    const dias = empresa._diasAberta;
-    reason.textContent = dias ? `Empresa aberta há ${dias} dia${dias===1?'':'s'}` : 'Data de abertura não confirmada';
-  }
-
-  // Mostra pitches estáticos primeiro
-  const cidade = empresa._cidade || empresa.municipio || empresa.city || '';
+  if(circle){ circle.textContent=score; circle.style.color=info.cor; circle.style.borderColor=info.cor+'66'; circle.style.background=info.cor+'1a'; }
+  if(lbl)   { lbl.textContent=info.label; lbl.style.color=info.cor; }
+  if(reason){ const d=empresa._diasAberta; reason.textContent=d?'Aberta há '+d+' dia'+(d===1?'':'s'):'Data não confirmada'; }
+  const cidade = empresa._cidade||empresa.municipio||empresa.city||'';
   _currentPitches = gerarPitchesParaNicho(empresa.razao_social||empresa.nome||empresa.name, nicho, empresa._diasAberta||45, cidade);
   _currentPitchIdx = 0;
   renderPitchContainer();
   modal.style.display = 'flex';
-
-  // Carrega versão IA em segundo plano
-  const nomeEmp = empresa.razao_social || empresa.nome_fantasia || empresa.nome || empresa.name || '';
-  const dias = empresa._diasAberta || 45;
-  gerarPitchesIA(nomeEmp, nicho, dias, cidade, 1, empresa.cnpjData||empresa).then(pitches => {
-    _currentPitches = pitches;
-    _currentPitchIdx = 0;
-    renderPitchContainer();
-  }).catch(()=>{});
+  gerarPitchesIA(empresa.razao_social||empresa.nome||empresa.name, nicho, empresa._diasAberta||45, cidade, 1, empresa.cnpjData||empresa)
+    .then(p=>{ _currentPitches=p; _currentPitchIdx=0; renderPitchContainer(); }).catch(()=>{});
 }
 
 function fecharPitchIA(){
-  const modal = document.getElementById('modalPitchIA');
-  if(modal) modal.style.display = 'none';
+  const m = document.getElementById('modalPitchIA');
+  if(m) m.style.display='none';
 }
 
 function renderPitchContainer(){
   const c = document.getElementById('pitchContainer');
   if(!c) return;
   if(!_currentPitches.length){
-    c.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted2);font-size:13px">⏳ Gerando mensagens personalizadas com IA...</div>';
+    c.innerHTML='<div style="text-align:center;padding:24px;color:var(--muted2);font-size:13px">Gerando mensagens com IA...</div>';
     return;
   }
-  c.innerHTML = _currentPitches.map((p,i)=>`
-    <div onclick="selecionarPitch(${i})" style="position:relative;background:${i===_currentPitchIdx?'var(--accent-bg)':'var(--s1)'};border:1.5px solid ${i===_currentPitchIdx?'var(--accent)':'var(--border)'};border-radius:12px;padding:14px 52px 14px 14px;cursor:pointer;transition:all .15s;margin-bottom:8px">
-      <button onclick="event.stopPropagation();copiarPitch(${i})" style="position:absolute;right:10px;top:10px;font-size:10px;padding:3px 8px;border-radius:6px;background:var(--s2);border:1px solid var(--border);cursor:pointer;color:var(--muted2)">Copiar</button>
-      <div style="font-style:italic;font-size:13px;line-height:1.6;color:var(--text)">"${p}"</div>
-    </div>
-  `).join('');
+  c.innerHTML = _currentPitches.map((p,i)=>
+    '<div onclick="selecionarPitch('+i+')" style="position:relative;background:'+(i===_currentPitchIdx?'var(--accent-bg)':'var(--s1)')+';border:1.5px solid '+(i===_currentPitchIdx?'var(--accent)':'var(--border)')+';border-radius:12px;padding:14px 52px 14px 14px;cursor:pointer;transition:all .15s;margin-bottom:8px">'+
+    '<button onclick="event.stopPropagation();copiarPitch('+i+')" style="position:absolute;right:10px;top:10px;font-size:10px;padding:3px 8px;border-radius:6px;background:var(--s2);border:1px solid var(--border);cursor:pointer;color:var(--muted2)">Copiar</button>'+
+    '<div style="font-style:italic;font-size:13px;line-height:1.6;color:var(--text)">'+p+'</div></div>'
+  ).join('');
   _pitchSelecionado = _currentPitches[_currentPitchIdx];
   const btn = document.getElementById('btnNovoPitch');
   if(btn){
-    if(_pitchRodada < 3) btn.textContent = '🔄 Novo pitch (' + (3-_pitchRodada) + ' restante' + (3-_pitchRodada===1?'':'s') + ')';
-    else { btn.textContent = '✅ Limite atingido'; btn.disabled = true; }
+    if(_pitchRodada < 3){ btn.textContent='Novo pitch ('+(3-_pitchRodada)+' restantes)'; btn.disabled=false; }
+    else { btn.textContent='Limite atingido'; btn.disabled=true; }
   }
 }
 
-function selecionarPitch(idx){
-  _currentPitchIdx = idx;
-  _pitchSelecionado = _currentPitches[idx];
-  renderPitchContainer();
-}
-
-function copiarPitch(idx){
-  const txt = _currentPitches[idx] || _pitchSelecionado;
-  navigator.clipboard.writeText(txt).then(()=> toast('✅ Pitch copiado!','ok',2000));
-}
-
+function selecionarPitch(idx){ _currentPitchIdx=idx; _pitchSelecionado=_currentPitches[idx]; renderPitchContainer(); }
+function copiarPitch(idx){ navigator.clipboard.writeText(_currentPitches[idx]||_pitchSelecionado).then(()=>toast('Copiado!','ok',2000)); }
 async function regenerarPitch(){
-  if(_pitchRodada >= 3){
-    toast('Limite de 9 opções atingido. Escolha uma das mensagens! 😊','warn',3000);
-    return;
-  }
+  if(_pitchRodada>=3){ toast('Limite de 9 opcoes atingido!','warn',3000); return; }
   _pitchRodada++;
-  const btn = document.getElementById('btnNovoPitch');
-  if(btn){ btn.textContent = '⏳ Gerando...'; btn.disabled = true; }
-  const { empresa, nicho } = _pitchEmpresaCtx;
-  const cidade = empresa._cidade || empresa.municipio || empresa.city || '';
-  const novos = await gerarPitchesIA(empresa.razao_social||empresa.nome||empresa.name, nicho, empresa._diasAberta||45, cidade, _pitchRodada, empresa.cnpjData||empresa);
-  _currentPitches = novos;
-  _currentPitchIdx = 0;
-  renderPitchContainer();
-  if(btn) btn.disabled = false;
+  const btn=document.getElementById('btnNovoPitch');
+  if(btn){ btn.textContent='Gerando...'; btn.disabled=true; }
+  const {empresa,nicho}=_pitchEmpresaCtx;
+  const cidade=empresa._cidade||empresa.municipio||empresa.city||'';
+  const p=await gerarPitchesIA(empresa.razao_social||empresa.nome||empresa.name,nicho,empresa._diasAberta||45,cidade,_pitchRodada,empresa.cnpjData||empresa);
+  _currentPitches=p; _currentPitchIdx=0; renderPitchContainer();
 }
-
 function abrirZapComPitch(){
-  const txt = _pitchSelecionado || _currentPitches[0] || '';
-  const tel  = (_pitchAtualTelefone||'').replace(/\D/g,'');
-  if(!txt){ toast('Selecione um pitch primeiro.','warn'); return; }
-  const url = tel
-    ? `https://wa.me/55${tel}?text=${encodeURIComponent(txt)}`
-    : `https://wa.me/?text=${encodeURIComponent(txt)}`;
-  window.open(url,'_blank','noopener');
+  const txt=_pitchSelecionado||_currentPitches[0]||'';
+  const tel=(_pitchAtualTelefone||'').replace(/\D/g,'');
+  if(!txt){ toast('Selecione um pitch.','warn'); return; }
+  window.open(tel?'https://wa.me/55'+tel+'?text='+encodeURIComponent(txt):'https://wa.me/?text='+encodeURIComponent(txt),'_blank','noopener');
   fecharPitchIA();
 }
 
-// ── IMPORTAR: salvar campanha após importar ────────────────────────────────
 function _importarAlertaLeadUnicoFix(idx){
-  const emp = _alertasData[idx];
+  const emp=_alertasData[idx];
   if(!emp) return;
   if(!activeCampaignId){ toast('Selecione uma campanha antes de importar.','warn'); return; }
-  const ok = _importarEmpresaComoLead(emp);
-  if(ok){
-    const c = campaigns.find(x=>x.id===activeCampaignId);
-    if(c){ c.leads = leads; saveCampaigns(); renderAll(); }
-    toast('✅ Lead importado para a campanha!','ok',2500);
-  } else {
-    toast('Lead já existe nesta campanha.','warn',2000);
-  }
+  const ok=_importarEmpresaComoLead(emp);
+  const c=campaigns.find(x=>x.id===activeCampaignId);
+  if(c){ c.leads=leads; saveCampaigns(); renderAll(); }
+  if(ok) toast('Lead importado!','ok',2500);
+  else toast('Lead ja esta na campanha.','warn',2000);
 }
 
-
 </script>
-
 </body>
 </html>
