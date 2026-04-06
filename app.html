@@ -4052,14 +4052,15 @@ function toast(msg, type='info', duration=3500){
     <div class="state-city-row">
       <!-- ESTADO -->
       <div class="cfield" style="margin:0">
-        <label>Estado</label>
-        <!-- Tier quick buttons -->
-        <div class="state-tier-row" id="stateTierRow" style="display:none">
-          <button type="button" id="stateBtnGold"   onclick="selectStateTier('gold')"   class="tier-quick-btn">⭐ Alto Pot.</button>
-          <button type="button" id="stateBtnSilver" onclick="selectStateTier('silver')" class="tier-quick-btn">◈ Médio Pot.</button>
-          <button type="button"                     onclick="selectStateTier('clear')"  class="tier-quick-btn tier-quick-clear">✕</button>
+        <label>Estado <span style="color:var(--muted2);font-weight:400;font-size:10px" id="stateCountLabel"></span></label>
+        <!-- State chip container -->
+        <div id="stateChipContainer">
+          <div class="city-quick-actions" id="stateQuickActions"></div>
+          <div class="city-chip-wrap" id="stateChipsWrap" style="max-height:200px;overflow-y:auto"></div>
+          <input type="text" id="stateFreeText" placeholder="Ou digite outro estado..." style="margin-top:8px;font-size:12px;display:none" oninput="autoFillName()">
         </div>
-        <select id="stateDD" onchange="loadCities();showStateTierRow()"><option value="">Selecione</option></select>
+        <!-- Legacy hidden select kept for JS compat -->
+        <select id="stateDD" style="display:none"><option value="">Selecione</option></select>
       </div>
       <!-- CIDADE — multi-chip selector -->
       <div class="cfield" style="margin:0">
@@ -4891,61 +4892,147 @@ const STATE_TIERS_BR = {
   bronze: ['Pará','Maranhão','Piauí','Alagoas','Paraíba','Amapá','Roraima','Acre']
 };
 
+// ── STATE CHIP SYSTEM ─────────────────────────────────────────
+window._stateChipsData = [];  // [{n, t}]
+window._statesSelected = [];  // ['São Paulo', 'California', ...]
+
 function populateStates(){
-  const dd=$('stateDD');
-  dd.innerHTML='<option value="">Selecione</option>';
+  // Build state data based on market
   if(currentMarket==='nacional'){
     const {gold,silver,bronze}=STATE_TIERS_BR;
-    const gGroup=document.createElement('optgroup');gGroup.label='⭐ Alto potencial (PIB/IDH)';
-    gold.forEach(s=>{
-      const o=document.createElement('option');o.value=s;
-      o.textContent='🥇 '+s;o.style.fontWeight='700';o.style.color='#f5b833';
-      gGroup.appendChild(o);
-    });
-    dd.appendChild(gGroup);
-    const sGroup=document.createElement('optgroup');sGroup.label='Médio potencial';
-    silver.forEach(s=>{
-      const o=document.createElement('option');o.value=s;
-      o.textContent='◈ '+s;o.style.fontWeight='600';
-      sGroup.appendChild(o);
-    });
-    dd.appendChild(sGroup);
-    const bGroup=document.createElement('optgroup');bGroup.label='Demais estados';
-    bronze.forEach(s=>{
-      const o=document.createElement('option');o.value=s;o.textContent=s;
-      bGroup.appendChild(o);
-    });
-    dd.appendChild(bGroup);
+    window._stateChipsData = [
+      ...gold.map(s=>({n:s,t:'gold'})),
+      ...silver.map(s=>({n:s,t:'silver'})),
+      ...(bronze||[]).map(s=>({n:s,t:'bronze'}))
+    ];
   } else {
-    // US states — ordered by wealth tier
-    const goldStates = STATES_US_ORDER.filter(s=>s.tier==='gold');
-    const silverStates = STATES_US_ORDER.filter(s=>s.tier==='silver');
-    const gGroup=document.createElement('optgroup');gGroup.label='⭐ Alto potencial (PIB/Renda)';
-    goldStates.forEach(s=>{
-      const o=document.createElement('option');o.value=s.state;
-      o.textContent='🥇 '+s.state;o.style.fontWeight='700';o.style.color='#f5b833';
-      gGroup.appendChild(o);
-    });
-    dd.appendChild(gGroup);
-    const sGroup=document.createElement('optgroup');sGroup.label='Médio potencial';
-    silverStates.forEach(s=>{
-      const o=document.createElement('option');o.value=s.state;
-      o.textContent='◈ '+s.state;o.style.fontWeight='600';
-      sGroup.appendChild(o);
-    });
-    dd.appendChild(sGroup);
+    window._stateChipsData = STATES_US_ORDER.map(s=>({n:s.state,t:s.tier}));
   }
-  $('cityDD').innerHTML='<option value="">Selecione o estado</option>';
-  const ft=$('cityFreeText');if(ft){ft.style.display='none';ft.value='';}
+  window._statesSelected = [];
+
   // Reset city chips
   window._citiesSelected=[];
   window._cityChipsData=[];
+  const ft=$('cityFreeText');if(ft){ft.style.display='none';ft.value='';}
   const placeholder=$('citySelectPlaceholder');
   const container=$('cityChipContainer');
   if(placeholder) placeholder.style.display='block';
   if(container)   container.style.display='none';
-  // Mostrar sempre os botões de tier (não sumir ao limpar estado)
-  const row=$('stateTierRow');if(row)row.style.display='flex';
+
+  // Update legacy hidden select for compat
+  const dd=$('stateDD');
+  if(dd){
+    dd.innerHTML='<option value="">Selecione</option>';
+    window._stateChipsData.forEach(s=>{
+      const o=document.createElement('option');o.value=s.n;o.textContent=s.n;dd.appendChild(o);
+    });
+  }
+
+  renderStateChips();
+}
+
+function renderStateChips(){
+  const gold   = window._stateChipsData.filter(s=>s.t==='gold');
+  const silver = window._stateChipsData.filter(s=>s.t==='silver');
+  const bronze = window._stateChipsData.filter(s=>s.t==='bronze');
+  const sel    = window._statesSelected;
+
+  // Quick actions
+  const qa=$('stateQuickActions');
+  if(qa){
+    qa.innerHTML=`
+      <button type="button" class="tier-quick-btn ${sel.length>0&&gold.every(s=>sel.includes(s.n))?'active-gold':''}" onclick="selectStateTierChip('gold')">⭐ Alto Pot. (${gold.length})</button>
+      <button type="button" class="tier-quick-btn ${sel.length>0&&silver.every(s=>sel.includes(s.n))?'active-silver':''}" onclick="selectStateTierChip('silver')">◈ Médio Pot. (${silver.length})</button>
+      <button type="button" class="tier-quick-btn ${sel.length===window._stateChipsData.length&&sel.length>0?'active-all':''}" onclick="selectStateTierChip('all')">☑ Todos</button>
+      <button type="button" class="tier-quick-btn tier-quick-clear" onclick="selectStateTierChip('none')">✕ Limpar</button>
+      <span style="font-size:10px;color:var(--accent2);font-family:monospace;margin-left:4px">${sel.length>0?`✓ ${sel.length} estado${sel.length!==1?'s':''} selecionado${sel.length!==1?'s':''}`:'Clique para selecionar'}</span>`;
+  }
+
+  // Chips
+  const wrap=$('stateChipsWrap');
+  if(!wrap) return;
+  const chipHtml=(states,tierKey,icon)=>states.length?`
+    <div class="city-tier-header">
+      <span style="color:${tierKey==='gold'?'#f5b833':tierKey==='silver'?'var(--accent2)':'var(--muted2)'}">${icon} ${tierKey==='gold'?'Alto Potencial':tierKey==='silver'?'Médio Potencial':'Demais Estados'}</span>
+    </div>
+    <div>${states.map(s=>`
+      <span class="city-chip ${sel.includes(s.n)?'selected-'+tierKey:''}" onclick="toggleStateChip('${s.n.replace(/'/g,"\'")}')">
+        ${sel.includes(s.n)?'✓ ':''}<span>${s.n}</span>
+      </span>`).join('')}</div>`:'';
+
+  wrap.innerHTML=[
+    chipHtml(gold,'gold','⭐'),
+    chipHtml(silver,'silver','◈'),
+    chipHtml(bronze,'bronze','◻')
+  ].join('');
+
+  // Label
+  const lbl=$('stateCountLabel');
+  if(lbl) lbl.textContent=sel.length>0?`— ${sel.length} selecionado${sel.length!==1?'s':''}`:'';
+
+  // Sync legacy select
+  const dd=$('stateDD');
+  if(dd&&sel.length>0) dd.value=sel[0];
+
+  // Reload cities when state selection changes
+  _reloadCitiesFromStates();
+  autoFillName();
+}
+
+function toggleStateChip(stateName){
+  const idx=window._statesSelected.indexOf(stateName);
+  if(idx>=0) window._statesSelected.splice(idx,1);
+  else window._statesSelected.push(stateName);
+  renderStateChips();
+}
+
+function selectStateTierChip(tier){
+  const chips=window._stateChipsData;
+  if(tier==='none')       window._statesSelected=[];
+  else if(tier==='all')   window._statesSelected=chips.map(s=>s.n);
+  else if(tier==='gold')  window._statesSelected=chips.filter(s=>s.t==='gold').map(s=>s.n);
+  else if(tier==='silver')window._statesSelected=chips.filter(s=>s.t==='silver').map(s=>s.n);
+  renderStateChips();
+}
+
+function getSelectedStates(){
+  return window._statesSelected.length>0 ? window._statesSelected : ($('stateDD')?.value?[$('stateDD').value]:[]);
+}
+
+function _reloadCitiesFromStates(){
+  // Para compatibilidade: se só 1 estado selecionado, carrega cidades desse estado
+  // Se múltiplos, mostra todas as cidades de todos os estados selecionados
+  const sel=window._statesSelected;
+  window._citiesSelected=[];
+  window._cityChipsData=[];
+  const placeholder=$('citySelectPlaceholder');
+  const container=$('cityChipContainer');
+
+  if(sel.length===0){
+    if(placeholder) placeholder.style.display='block';
+    if(container)   container.style.display='none';
+    // Sync stateDD
+    const dd=$('stateDD');if(dd) dd.value='';
+    autoFillName();return;
+  }
+
+  // Merge cities from all selected states
+  let allCities=[];
+  sel.forEach(stateName=>{
+    const tiers=currentMarket==='nacional'
+      ? (STATES_BR_TIERS[stateName]||[])
+      : (STATES_US_TIERS[stateName]||[]);
+    allCities=[...allCities,...tiers.filter(c=>!allCities.find(x=>x.n===c.n))];
+  });
+
+  window._cityChipsData=allCities;
+  // Sync stateDD to first state for legacy compat
+  const dd=$('stateDD');if(dd) dd.value=sel[0];
+
+  if(placeholder) placeholder.style.display='none';
+  if(container)   container.style.display='block';
+  const ft=$('cityFreeText');if(ft){ft.style.display='block';}
+  renderCityChips();
 }
 // ── CITY MULTI-CHIP SYSTEM ────────────────────────────────────
 window._cityChipsData = [];   // [{n, t}]
@@ -5058,17 +5145,22 @@ function showStateTierRow(){
 }
 
 function selectStateTier(tier){
-  const tiers = STATE_TIERS_BR;
-  let list = [];
-  if(tier==='gold')   list=tiers.gold;
-  else if(tier==='silver') list=tiers.silver;
-  else if(tier==='clear'){
+  if(tier==='clear'){
     $('stateDD').value='';
     loadCities();
-    // Mantém a row visível para o usuário poder re-selecionar pelo tier ou pelo select
     const row=$('stateTierRow');
     if(row) row.style.display='flex';
     return;
+  }
+  // Usa estados do país correto
+  const isIntl = currentMarket === 'internacional';
+  let list = [];
+  if(isIntl){
+    if(tier==='gold')   list = STATES_US_ORDER.filter(s=>s.tier==='gold').map(s=>s.state);
+    else if(tier==='silver') list = STATES_US_ORDER.filter(s=>s.tier==='silver').map(s=>s.state);
+  } else {
+    if(tier==='gold')   list = STATE_TIERS_BR.gold;
+    else if(tier==='silver') list = STATE_TIERS_BR.silver;
   }
   if(!list.length) return;
   showStateTierPicker(list, tier);
@@ -5117,7 +5209,9 @@ function autoFillName(){
 }
 
 function createCampaign(){
-  const nicho=$('nichoDD').value, state=$('stateDD').value;
+  const nicho=$('nichoDD').value;
+  const states = (typeof getSelectedStates==='function') ? getSelectedStates() : ($('stateDD')?.value ? [$('stateDD').value] : []);
+  const state = states[0] || '';
   const cities = (typeof getSelectedCities==='function') ? getSelectedCities() : [];
   const city = cities[0] || '';
   if(!nicho||!state||!city){ alert('Preencha nicho, estado e pelo menos uma cidade!'); return; }
@@ -12176,7 +12270,11 @@ const EF = SUPABASE_URL + '/functions/v1';
 async function efCall(fn, body){
   const r = await fetch(`${EF}/${fn}`, {
     method: 'POST',
-    headers: {'Content-Type':'application/json'},
+    headers: {
+      'Content-Type':'application/json',
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'apikey': SUPABASE_KEY
+    },
     body: JSON.stringify(body)
   });
   if(!r.ok) throw new Error(`Edge Function ${fn} error: ${r.status}`);
@@ -18365,14 +18463,15 @@ function toast(msg, type='info', duration=3500){
     <div class="state-city-row">
       <!-- ESTADO -->
       <div class="cfield" style="margin:0">
-        <label>Estado</label>
-        <!-- Tier quick buttons -->
-        <div class="state-tier-row" id="stateTierRow" style="display:none">
-          <button type="button" id="stateBtnGold"   onclick="selectStateTier('gold')"   class="tier-quick-btn">⭐ Alto Pot.</button>
-          <button type="button" id="stateBtnSilver" onclick="selectStateTier('silver')" class="tier-quick-btn">◈ Médio Pot.</button>
-          <button type="button"                     onclick="selectStateTier('clear')"  class="tier-quick-btn tier-quick-clear">✕</button>
+        <label>Estado <span style="color:var(--muted2);font-weight:400;font-size:10px" id="stateCountLabel"></span></label>
+        <!-- State chip container -->
+        <div id="stateChipContainer">
+          <div class="city-quick-actions" id="stateQuickActions"></div>
+          <div class="city-chip-wrap" id="stateChipsWrap" style="max-height:200px;overflow-y:auto"></div>
+          <input type="text" id="stateFreeText" placeholder="Ou digite outro estado..." style="margin-top:8px;font-size:12px;display:none" oninput="autoFillName()">
         </div>
-        <select id="stateDD" onchange="loadCities();showStateTierRow()"><option value="">Selecione</option></select>
+        <!-- Legacy hidden select kept for JS compat -->
+        <select id="stateDD" style="display:none"><option value="">Selecione</option></select>
       </div>
       <!-- CIDADE — multi-chip selector -->
       <div class="cfield" style="margin:0">
@@ -19204,61 +19303,147 @@ const STATE_TIERS_BR = {
   bronze: ['Pará','Maranhão','Piauí','Alagoas','Paraíba','Amapá','Roraima','Acre']
 };
 
+// ── STATE CHIP SYSTEM ─────────────────────────────────────────
+window._stateChipsData = [];  // [{n, t}]
+window._statesSelected = [];  // ['São Paulo', 'California', ...]
+
 function populateStates(){
-  const dd=$('stateDD');
-  dd.innerHTML='<option value="">Selecione</option>';
+  // Build state data based on market
   if(currentMarket==='nacional'){
     const {gold,silver,bronze}=STATE_TIERS_BR;
-    const gGroup=document.createElement('optgroup');gGroup.label='⭐ Alto potencial (PIB/IDH)';
-    gold.forEach(s=>{
-      const o=document.createElement('option');o.value=s;
-      o.textContent='🥇 '+s;o.style.fontWeight='700';o.style.color='#f5b833';
-      gGroup.appendChild(o);
-    });
-    dd.appendChild(gGroup);
-    const sGroup=document.createElement('optgroup');sGroup.label='Médio potencial';
-    silver.forEach(s=>{
-      const o=document.createElement('option');o.value=s;
-      o.textContent='◈ '+s;o.style.fontWeight='600';
-      sGroup.appendChild(o);
-    });
-    dd.appendChild(sGroup);
-    const bGroup=document.createElement('optgroup');bGroup.label='Demais estados';
-    bronze.forEach(s=>{
-      const o=document.createElement('option');o.value=s;o.textContent=s;
-      bGroup.appendChild(o);
-    });
-    dd.appendChild(bGroup);
+    window._stateChipsData = [
+      ...gold.map(s=>({n:s,t:'gold'})),
+      ...silver.map(s=>({n:s,t:'silver'})),
+      ...(bronze||[]).map(s=>({n:s,t:'bronze'}))
+    ];
   } else {
-    // US states — ordered by wealth tier
-    const goldStates = STATES_US_ORDER.filter(s=>s.tier==='gold');
-    const silverStates = STATES_US_ORDER.filter(s=>s.tier==='silver');
-    const gGroup=document.createElement('optgroup');gGroup.label='⭐ Alto potencial (PIB/Renda)';
-    goldStates.forEach(s=>{
-      const o=document.createElement('option');o.value=s.state;
-      o.textContent='🥇 '+s.state;o.style.fontWeight='700';o.style.color='#f5b833';
-      gGroup.appendChild(o);
-    });
-    dd.appendChild(gGroup);
-    const sGroup=document.createElement('optgroup');sGroup.label='Médio potencial';
-    silverStates.forEach(s=>{
-      const o=document.createElement('option');o.value=s.state;
-      o.textContent='◈ '+s.state;o.style.fontWeight='600';
-      sGroup.appendChild(o);
-    });
-    dd.appendChild(sGroup);
+    window._stateChipsData = STATES_US_ORDER.map(s=>({n:s.state,t:s.tier}));
   }
-  $('cityDD').innerHTML='<option value="">Selecione o estado</option>';
-  const ft=$('cityFreeText');if(ft){ft.style.display='none';ft.value='';}
+  window._statesSelected = [];
+
   // Reset city chips
   window._citiesSelected=[];
   window._cityChipsData=[];
+  const ft=$('cityFreeText');if(ft){ft.style.display='none';ft.value='';}
   const placeholder=$('citySelectPlaceholder');
   const container=$('cityChipContainer');
   if(placeholder) placeholder.style.display='block';
   if(container)   container.style.display='none';
-  // Mostrar sempre os botões de tier (não sumir ao limpar estado)
-  const row=$('stateTierRow');if(row)row.style.display='flex';
+
+  // Update legacy hidden select for compat
+  const dd=$('stateDD');
+  if(dd){
+    dd.innerHTML='<option value="">Selecione</option>';
+    window._stateChipsData.forEach(s=>{
+      const o=document.createElement('option');o.value=s.n;o.textContent=s.n;dd.appendChild(o);
+    });
+  }
+
+  renderStateChips();
+}
+
+function renderStateChips(){
+  const gold   = window._stateChipsData.filter(s=>s.t==='gold');
+  const silver = window._stateChipsData.filter(s=>s.t==='silver');
+  const bronze = window._stateChipsData.filter(s=>s.t==='bronze');
+  const sel    = window._statesSelected;
+
+  // Quick actions
+  const qa=$('stateQuickActions');
+  if(qa){
+    qa.innerHTML=`
+      <button type="button" class="tier-quick-btn ${sel.length>0&&gold.every(s=>sel.includes(s.n))?'active-gold':''}" onclick="selectStateTierChip('gold')">⭐ Alto Pot. (${gold.length})</button>
+      <button type="button" class="tier-quick-btn ${sel.length>0&&silver.every(s=>sel.includes(s.n))?'active-silver':''}" onclick="selectStateTierChip('silver')">◈ Médio Pot. (${silver.length})</button>
+      <button type="button" class="tier-quick-btn ${sel.length===window._stateChipsData.length&&sel.length>0?'active-all':''}" onclick="selectStateTierChip('all')">☑ Todos</button>
+      <button type="button" class="tier-quick-btn tier-quick-clear" onclick="selectStateTierChip('none')">✕ Limpar</button>
+      <span style="font-size:10px;color:var(--accent2);font-family:monospace;margin-left:4px">${sel.length>0?`✓ ${sel.length} estado${sel.length!==1?'s':''} selecionado${sel.length!==1?'s':''}`:'Clique para selecionar'}</span>`;
+  }
+
+  // Chips
+  const wrap=$('stateChipsWrap');
+  if(!wrap) return;
+  const chipHtml=(states,tierKey,icon)=>states.length?`
+    <div class="city-tier-header">
+      <span style="color:${tierKey==='gold'?'#f5b833':tierKey==='silver'?'var(--accent2)':'var(--muted2)'}">${icon} ${tierKey==='gold'?'Alto Potencial':tierKey==='silver'?'Médio Potencial':'Demais Estados'}</span>
+    </div>
+    <div>${states.map(s=>`
+      <span class="city-chip ${sel.includes(s.n)?'selected-'+tierKey:''}" onclick="toggleStateChip('${s.n.replace(/'/g,"\'")}')">
+        ${sel.includes(s.n)?'✓ ':''}<span>${s.n}</span>
+      </span>`).join('')}</div>`:'';
+
+  wrap.innerHTML=[
+    chipHtml(gold,'gold','⭐'),
+    chipHtml(silver,'silver','◈'),
+    chipHtml(bronze,'bronze','◻')
+  ].join('');
+
+  // Label
+  const lbl=$('stateCountLabel');
+  if(lbl) lbl.textContent=sel.length>0?`— ${sel.length} selecionado${sel.length!==1?'s':''}`:'';
+
+  // Sync legacy select
+  const dd=$('stateDD');
+  if(dd&&sel.length>0) dd.value=sel[0];
+
+  // Reload cities when state selection changes
+  _reloadCitiesFromStates();
+  autoFillName();
+}
+
+function toggleStateChip(stateName){
+  const idx=window._statesSelected.indexOf(stateName);
+  if(idx>=0) window._statesSelected.splice(idx,1);
+  else window._statesSelected.push(stateName);
+  renderStateChips();
+}
+
+function selectStateTierChip(tier){
+  const chips=window._stateChipsData;
+  if(tier==='none')       window._statesSelected=[];
+  else if(tier==='all')   window._statesSelected=chips.map(s=>s.n);
+  else if(tier==='gold')  window._statesSelected=chips.filter(s=>s.t==='gold').map(s=>s.n);
+  else if(tier==='silver')window._statesSelected=chips.filter(s=>s.t==='silver').map(s=>s.n);
+  renderStateChips();
+}
+
+function getSelectedStates(){
+  return window._statesSelected.length>0 ? window._statesSelected : ($('stateDD')?.value?[$('stateDD').value]:[]);
+}
+
+function _reloadCitiesFromStates(){
+  // Para compatibilidade: se só 1 estado selecionado, carrega cidades desse estado
+  // Se múltiplos, mostra todas as cidades de todos os estados selecionados
+  const sel=window._statesSelected;
+  window._citiesSelected=[];
+  window._cityChipsData=[];
+  const placeholder=$('citySelectPlaceholder');
+  const container=$('cityChipContainer');
+
+  if(sel.length===0){
+    if(placeholder) placeholder.style.display='block';
+    if(container)   container.style.display='none';
+    // Sync stateDD
+    const dd=$('stateDD');if(dd) dd.value='';
+    autoFillName();return;
+  }
+
+  // Merge cities from all selected states
+  let allCities=[];
+  sel.forEach(stateName=>{
+    const tiers=currentMarket==='nacional'
+      ? (STATES_BR_TIERS[stateName]||[])
+      : (STATES_US_TIERS[stateName]||[]);
+    allCities=[...allCities,...tiers.filter(c=>!allCities.find(x=>x.n===c.n))];
+  });
+
+  window._cityChipsData=allCities;
+  // Sync stateDD to first state for legacy compat
+  const dd=$('stateDD');if(dd) dd.value=sel[0];
+
+  if(placeholder) placeholder.style.display='none';
+  if(container)   container.style.display='block';
+  const ft=$('cityFreeText');if(ft){ft.style.display='block';}
+  renderCityChips();
 }
 // ── CITY MULTI-CHIP SYSTEM ────────────────────────────────────
 window._cityChipsData = [];   // [{n, t}]
@@ -19371,17 +19556,22 @@ function showStateTierRow(){
 }
 
 function selectStateTier(tier){
-  const tiers = STATE_TIERS_BR;
-  let list = [];
-  if(tier==='gold')   list=tiers.gold;
-  else if(tier==='silver') list=tiers.silver;
-  else if(tier==='clear'){
+  if(tier==='clear'){
     $('stateDD').value='';
     loadCities();
-    // Mantém a row visível para o usuário poder re-selecionar pelo tier ou pelo select
     const row=$('stateTierRow');
     if(row) row.style.display='flex';
     return;
+  }
+  // Usa estados do país correto
+  const isIntl = currentMarket === 'internacional';
+  let list = [];
+  if(isIntl){
+    if(tier==='gold')   list = STATES_US_ORDER.filter(s=>s.tier==='gold').map(s=>s.state);
+    else if(tier==='silver') list = STATES_US_ORDER.filter(s=>s.tier==='silver').map(s=>s.state);
+  } else {
+    if(tier==='gold')   list = STATE_TIERS_BR.gold;
+    else if(tier==='silver') list = STATE_TIERS_BR.silver;
   }
   if(!list.length) return;
   showStateTierPicker(list, tier);
@@ -19430,7 +19620,9 @@ function autoFillName(){
 }
 
 function createCampaign(){
-  const nicho=$('nichoDD').value, state=$('stateDD').value;
+  const nicho=$('nichoDD').value;
+  const states = (typeof getSelectedStates==='function') ? getSelectedStates() : ($('stateDD')?.value ? [$('stateDD').value] : []);
+  const state = states[0] || '';
   const cities = (typeof getSelectedCities==='function') ? getSelectedCities() : [];
   const city = cities[0] || '';
   if(!nicho||!state||!city){ alert('Preencha nicho, estado e pelo menos uma cidade!'); return; }
@@ -26401,7 +26593,11 @@ const EF = SUPABASE_URL + '/functions/v1';
 async function efCall(fn, body){
   const r = await fetch(`${EF}/${fn}`, {
     method: 'POST',
-    headers: {'Content-Type':'application/json'},
+    headers: {
+      'Content-Type':'application/json',
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'apikey': SUPABASE_KEY
+    },
     body: JSON.stringify(body)
   });
   if(!r.ok) throw new Error(`Edge Function ${fn} error: ${r.status}`);
