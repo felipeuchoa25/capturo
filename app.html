@@ -3704,7 +3704,7 @@ function toast(msg, type='info', duration=3500){
       <!-- TAB: INTEGRAÇÕES (todas as API keys) -->
       <div id="stab-content-integrações" style="display:none">
         <div style="background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:11px;color:var(--muted2);font-family:monospace;line-height:1.7">
-          🔐 Suas chaves ficam salvas <strong style="color:var(--text)">somente no seu navegador</strong> (localStorage). Nunca são enviadas a terceiros. Clique em <strong style="color:var(--accent2)">Testar</strong> para validar cada chave antes de salvar.
+          🔐 Suas chaves de API ficam salvas <strong style="color:var(--text)">criptografadas no seu navegador</strong> (localStorage). Nunca são enviadas a terceiros nem sincronizadas na nuvem. Clique em <strong style="color:var(--accent2)">Testar</strong> para validar cada chave antes de salvar.
         </div>
 
         <!-- BUSCA PRINCIPAL -->
@@ -4652,6 +4652,26 @@ const BIOLINKS=[
 // ══════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════
+(function _migrateCampaignIds(){
+  // Migra IDs antigos de campanhas (ex: "c1774832001234") para UUID real
+  const _isUUID = id => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id||'');
+  const raw = JSON.parse(localStorage.getItem('pr6')||'[]');
+  let changed = false;
+  raw.forEach(c => {
+    if(!_isUUID(c.id)){
+      const oldId = c.id;
+      c.id = crypto.randomUUID();
+      // Atualiza referências nos leads
+      (c.leads||[]).forEach(l => { if(l.campaign_id === oldId) l.campaign_id = c.id; });
+      changed = true;
+    }
+    // Migra leads com IDs não-UUID dentro de cada campanha
+    (c.leads||[]).forEach(l => {
+      if(!_isUUID(l.id)){ l.id = l._supaId || crypto.randomUUID(); delete l._supaId; changed = true; }
+    });
+  });
+  if(changed){ try{ localStorage.setItem('pr6', JSON.stringify(raw)); }catch(_){} }
+})();
 let campaigns=JSON.parse(localStorage.getItem('pr6')||'[]');
 let activeCampaignId=null;
 let leads=[];
@@ -5137,7 +5157,7 @@ function createCampaign(){
       const nbLabel = neighborhood || (isCidadeInteira ? 'cidade inteira' : '');
       const cName = nbLabel ? `${nicho} — ${nbLabel}, ${ct}` : `${nicho} — ${ct}, ${state}`;
       const camp={
-        id:'c'+Date.now()+'_'+i, name:cName, nicho, nichoEn:nichoData?.en||nicho,
+        id:crypto.randomUUID(), name:cName, nicho, nichoEn:nichoData?.en||nicho,
         state, city:ct, neighborhood, country, market:currentMarket, radius,
         leads:[], isAltoPadrao, altoPadraoList:window._altoPadraoList||[],
         createdAt:new Date().toISOString(), cityList:[ct], cidadeInteira:isCidadeInteira
@@ -5161,7 +5181,7 @@ function createCampaign(){
   }
 
   const c={
-    id:'c'+Date.now(), name, nicho, nichoEn:nichoData?.en||nicho,
+    id:crypto.randomUUID(), name, nicho, nichoEn:nichoData?.en||nicho,
     state, city, cityList:cities, neighborhood, country, market:currentMarket, radius,
     leads:[], isAltoPadrao, altoPadraoList:window._altoPadraoList||[],
     altoPadraoByCity: Object.keys(altoPadraoByCity).length ? altoPadraoByCity : null,
@@ -5825,7 +5845,7 @@ async function startMapsSearch(){
         try{const dd=await gmPlaceDetails(places[i].place_id);det=dd.result||{};}
         catch(e){det={name:places[i].name,formatted_address:places[i].vicinity};}
         const t=classifyBasic(det);
-        const lead={...det,id:'m'+Date.now()+nbIdx+'_'+i,name:det.name||places[i].name,formatted_address:(det.formatted_address||places[i].vicinity||'').replace(', USA',''),t,score:calcScore(det,t),status:'new',notes:'',siteScore:null,siteIssues:[],sitePitch:'',email:'',emailVerified:false,emailConfidence:0,source:'maps',mapsUrl:det.url||'',neighborhood:nb||'',city:searchCity};
+        const lead={...det,id:crypto.randomUUID(),name:det.name||places[i].name,formatted_address:(det.formatted_address||places[i].vicinity||'').replace(', USA',''),t,score:calcScore(det,t),status:'new',notes:'',siteScore:null,siteIssues:[],sitePitch:'',email:'',emailVerified:false,emailConfidence:0,source:'maps',mapsUrl:det.url||'',neighborhood:nb||'',city:searchCity};
         // Aplica filtros avançados ANTES de consumir sinal
         if(!passaFiltros(lead, _filters)){ _filteredCount++; continue; }
         // ── Consome 1 Lead; para se sem saldo ───────────────────
@@ -5963,7 +5983,7 @@ async function startBioSearch(){
           if(countryExclude.length && countryExclude.some(kw=>snippet.includes(kw))){continue;}
           const phoneMatch=(item.snippet||'').match(/[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}/);
           const phone=phoneMatch?phoneMatch[0]:'';
-          const lead={id:'g'+Date.now()+bi+'_'+ii,name,formatted_address:(item.snippet||'').substring(0,120),t:'volcano',score:10,status:'new',notes:'',siteScore:null,siteIssues:[],sitePitch:'',email:'',emailVerified:false,emailConfidence:0,source:'google',bioUrl,bioSite:bioSite.domain,snippet:item.snippet||'',formatted_phone_number:phone,website:bioUrl,mapsUrl:`https://www.google.com/maps/search/${encodeURIComponent(name)}`,country:isBrasil?'BR':c.country||'US'};
+          const lead={id:crypto.randomUUID(),name,formatted_address:(item.snippet||'').substring(0,120),t:'volcano',score:10,status:'new',notes:'',siteScore:null,siteIssues:[],sitePitch:'',email:'',emailVerified:false,emailConfidence:0,source:'google',bioUrl,bioSite:bioSite.domain,snippet:item.snippet||'',formatted_phone_number:phone,website:bioUrl,mapsUrl:`https://www.google.com/maps/search/${encodeURIComponent(name)}`,country:isBrasil?'BR':c.country||'US'};
           leads.push(lead);
           renderAll();
           // ── Auto-save a cada 50 leads ──────────────────────────
@@ -6079,7 +6099,7 @@ async function startMapsSearchInternal(gKey){
       try{const dd=await gmPlaceDetails(places[i].place_id);det=dd.result||{};}
       catch(e){det={name:places[i].name,formatted_address:places[i].vicinity};}
       const t=classifyBasic(det);
-      const lead={...det,id:'m'+Date.now()+nbIdx+'_'+i,name:det.name||places[i].name,formatted_address:(det.formatted_address||places[i].vicinity||'').replace(', USA',''),t,score:calcScore(det,t),status:'new',notes:'',siteScore:null,siteIssues:[],sitePitch:'',email:'',emailVerified:false,emailConfidence:0,source:'maps',mapsUrl:det.url||'',neighborhood:nb||'',city:searchCity};
+      const lead={...det,id:crypto.randomUUID(),name:det.name||places[i].name,formatted_address:(det.formatted_address||places[i].vicinity||'').replace(', USA',''),t,score:calcScore(det,t),status:'new',notes:'',siteScore:null,siteIssues:[],sitePitch:'',email:'',emailVerified:false,emailConfidence:0,source:'maps',mapsUrl:det.url||'',neighborhood:nb||'',city:searchCity};
       // Aplica filtros avançados
       if(!passaFiltros(lead, _filters)){ _filteredCount++; continue; }
       leads.push(lead);setProg(10+Math.round(((nbIdx*places.length+i+1)/(searchListI.length*places.length))*30));renderAll();
@@ -6147,7 +6167,7 @@ async function startBioSearchInternal(gKey,cseId){
         // ── Consome 1 Lead; para se sem saldo ───────────────────
         const okBio = await consumirSinal('bio_search', {lead_name:name, campaign_id:activeCampaignId});
         if(!okBio){ setStat('⚡ Sinais esgotados! Recarregue para continuar.'); if(!_leadsEsgotadosAlertado){_leadsEsgotadosAlertado=true; toast('⚡ Sinais esgotados! Recarregue seus Sinais para continuar.','warn',5000); setTimeout(()=>abrirModalRecarga('Seus Sinais acabaram durante a busca. Escolha um pack para continuar.'),600);} return; }
-        leads.push({id:'g'+Date.now()+bi+'_'+ii,name,formatted_address:(item.snippet||'').substring(0,120),t:'volcano',score:10,status:'new',notes:'',siteScore:null,siteIssues:[],sitePitch:'',email:'',emailVerified:false,emailConfidence:0,source:'google',bioUrl:item.link,bioSite:bioSite.domain,snippet:item.snippet||'',formatted_phone_number:phoneMatch?phoneMatch[0]:'',website:item.link,mapsUrl:`https://www.google.com/maps/search/${encodeURIComponent(name)}`,country:isBrasil?'BR':c.country||'US'});
+        leads.push({id:crypto.randomUUID(),name,formatted_address:(item.snippet||'').substring(0,120),t:'volcano',score:10,status:'new',notes:'',siteScore:null,siteIssues:[],sitePitch:'',email:'',emailVerified:false,emailConfidence:0,source:'google',bioUrl:item.link,bioSite:bioSite.domain,snippet:item.snippet||'',formatted_phone_number:phoneMatch?phoneMatch[0]:'',website:item.link,mapsUrl:`https://www.google.com/maps/search/${encodeURIComponent(name)}`,country:isBrasil?'BR':c.country||'US'});
         renderAll();
         // ── Auto-save a cada 50 leads ──────────────────────────
         if(leads.length>0 && leads.length%50===0){
@@ -7222,7 +7242,10 @@ async function aiQuickAction(type){
 // ══════════════════════════════════════════
 let followups=JSON.parse(localStorage.getItem('capturo-followups')||'[]');
 
-function saveFollowups(){localStorage.setItem('capturo-followups',JSON.stringify(followups));}
+function saveFollowups(){
+  localStorage.setItem('capturo-followups',JSON.stringify(followups));
+  if(typeof currentUser!=='undefined'&&currentUser){ clearTimeout(window._supabaseSyncTimeout); window._supabaseSyncTimeout=setTimeout(saveToSupabase,2000); }
+}
 
 function renderFollowups(){
   const list=$('followupList');if(!list)return;
@@ -7286,7 +7309,7 @@ function openNewFollowup(leadId,leadName){
   if(!note)return;
   const dateInput=prompt('Data (AAAA-MM-DD):',dateStr);
   if(!dateInput)return;
-  const f={id:'fu'+Date.now(),leadId:leadId||'',leadName:leadName||'',note,date:dateInput,done:false,createdAt:new Date().toISOString()};
+  const f={id:crypto.randomUUID(),leadId:leadId||'',leadName:leadName||'',note,date:dateInput,done:false,createdAt:new Date().toISOString()};
   followups.push(f);saveFollowups();renderFollowups();
   toast('✅ Follow-up agendado para '+new Date(dateInput).toLocaleDateString('pt-BR'),'ok');
 }
@@ -7562,7 +7585,7 @@ async function buscarNovosNegocios(){
       // Se não conseguiu verificar CNPJ, inclui mesmo assim (melhor ter mais do que menos)
       if(isNova||cnpjData===null){
         const lead={
-          id:'nn'+Date.now()+'_'+i,
+          id:crypto.randomUUID(),
           // Prefere dados da Receita Federal; Google Places como fallback
           name: cnpjData?.razao_social||cnpjData?.nome_fantasia||det.name||p.name||'',
           nome_fantasia: cnpjData?.nome_fantasia||det.name||p.name||'',
@@ -8932,7 +8955,7 @@ async function loadFromSheets(){
     const idx={};
     headers.forEach((h,i)=>idx[h]=i);
     const loaded=rows.slice(1).map((row,i)=>({
-      id:'s'+Date.now()+i,
+      id:crypto.randomUUID(),
       name:row[idx['Nome']]||'',
       formatted_address:row[idx['Endereco']]||'',
       t:row[idx['Temperatura']]||'frozen',
@@ -9412,7 +9435,7 @@ function addManualLead(){
   }
 
   const lead={
-    id:'manual-'+Date.now(),
+    id:crypto.randomUUID(),
     name,
     formatted_address:address||city||'Endereço não informado',
     formatted_phone_number:phone||whatsapp,
@@ -9583,6 +9606,7 @@ let clients=JSON.parse(localStorage.getItem('capturo-clients')||'[]');
 
 function saveClients(){
   localStorage.setItem('capturo-clients',JSON.stringify(clients));
+  if(typeof currentUser!=='undefined'&&currentUser){ clearTimeout(window._supabaseSyncTimeout); window._supabaseSyncTimeout=setTimeout(saveToSupabase,2000); }
 }
 
 function openNewClientModal(){
@@ -9714,6 +9738,7 @@ let gmbReports = JSON.parse(localStorage.getItem('capturo-gmb') || '[]');
 
 function saveGmbReports(){
   localStorage.setItem('capturo-gmb', JSON.stringify(gmbReports));
+  if(typeof currentUser!=='undefined'&&currentUser){ clearTimeout(window._supabaseSyncTimeout); window._supabaseSyncTimeout=setTimeout(saveToSupabase,2000); }
 }
 
 async function importMktLocalPDF(input){
@@ -11101,7 +11126,7 @@ function saveTemplate(){
   const content=$('templateContent').value.trim();
   if(!content){alert('O conteúdo não pode estar vazio!');return;}
   const tpl={
-    id:'t'+Date.now(),
+    id:crypto.randomUUID(),
     name,
     cenario:$('templateCenario').value,
     step:$('templateEtapa').value,
@@ -11624,7 +11649,7 @@ const FAQ_ITEMS = [
   },
   {
     q: '📊 Os dados ficam salvos onde?',
-    a: 'Todos os dados ficam salvos no <strong>localStorage do seu navegador</strong>. Isso significa que seus leads ficam no computador em que você usa o CAPTURO. Se mudar de navegador ou limpar o cache, perderá os dados. Para backup, use <em>Exportar CSV</em> ou configure o Google Sheets.'
+    a: 'Quando você está logado, <strong>todos os dados são salvos automaticamente na nuvem (Supabase)</strong> — campanhas, leads, follow-ups, clientes, GMB e templates ficam sincronizados e disponíveis em qualquer dispositivo. O localStorage é usado apenas como cache local para acesso offline. Para exportação extra, use <em>Exportar CSV</em> ou configure o Google Sheets.'
   },
   {
     q: '📋 Como integrar com Google Sheets?',
@@ -11750,6 +11775,21 @@ function guiaScroll(sectionId){
     try{localStorage.setItem('pr6',JSON.stringify(campaigns));}catch(e2){}
     if(campaigns.reduce((s,c)=>s+(c.leads||[]).length,0)>0)
       syncAllToSheets(null,true);
+    // ── Flush Supabase se houver sync pendente ──────────────────
+    if(window._supabaseSyncTimeout && typeof currentUser!=='undefined' && currentUser){
+      clearTimeout(window._supabaseSyncTimeout);
+      // Usa sendBeacon-friendly path: salva localStorage já atualizado
+      // e dispara saveToSupabase de forma síncrona (best-effort)
+      try{ saveToSupabase(); }catch(_){}
+    }
+  });
+
+  // Também sincroniza quando o usuário muda de aba / minimiza
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.visibilityState === 'hidden' && typeof currentUser!=='undefined' && currentUser){
+      clearTimeout(window._supabaseSyncTimeout);
+      try{ saveToSupabase(); }catch(_){}
+    }
   });
 
 })();
@@ -11888,6 +11928,11 @@ function selectAllBulkLeads(){
 </div>
 
 <div id="toastContainer"></div>
+<!-- ── INDICADOR DE SYNC NA NUVEM ── -->
+<div id="syncIndicator" style="display:none;position:fixed;bottom:80px;left:16px;z-index:9990;background:var(--s1);border:1px solid var(--border);border-radius:var(--r-pill);padding:6px 12px;font-size:11px;font-weight:600;color:var(--muted2);display:flex;align-items:center;gap:6px;box-shadow:var(--shadow-sm);transition:opacity .3s;pointer-events:none">
+  <span id="syncDot" style="width:7px;height:7px;border-radius:50%;background:var(--muted2);flex-shrink:0;transition:background .3s"></span>
+  <span id="syncText">Sincronizando...</span>
+</div>
 
 <!-- Bulk Actions Bar -->
 <div id="bulkActionsBar" class="bulk-bar">
@@ -11938,6 +11983,31 @@ function selectAllBulkLeads(){
   </div>
 </div>
 
+<!-- ══ SYNC INDICATOR ════════════════════════════════════════ -->
+<script>
+let _syncHideTimer = null;
+function _syncShow(state){
+  const el = document.getElementById('syncIndicator');
+  const dot = document.getElementById('syncDot');
+  const txt = document.getElementById('syncText');
+  if(!el) return;
+  clearTimeout(_syncHideTimer);
+  el.style.display = 'flex';
+  el.style.opacity = '1';
+  if(state === 'saving'){
+    dot.style.background = 'var(--orange)';
+    txt.textContent = 'Salvando na nuvem...';
+  } else if(state === 'ok'){
+    dot.style.background = 'var(--green)';
+    txt.textContent = '✓ Salvo na nuvem';
+    _syncHideTimer = setTimeout(()=>{ el.style.opacity='0'; setTimeout(()=>{ el.style.display='none'; },400); }, 3000);
+  } else if(state === 'error'){
+    dot.style.background = 'var(--red)';
+    txt.textContent = '✗ Erro ao salvar';
+    _syncHideTimer = setTimeout(()=>{ el.style.opacity='0'; setTimeout(()=>{ el.style.display='none'; },400); }, 5000);
+  }
+}
+</script>
 <!-- ══ SUPABASE AUTH + SYNC ══════════════════════════════════ -->
 <script>
 // ── Configuração ──────────────────────────────────────────────
@@ -12313,6 +12383,7 @@ async function doSignOut(){
 async function saveToSupabase(){
   const sb = getSupabase();
   if(!sb || !currentUser) return;
+  _syncShow('saving');
   try{
     const snap = JSON.parse(JSON.stringify(campaigns));
     if(typeof activeCampaignId!=='undefined' && activeCampaignId){
@@ -12349,20 +12420,19 @@ async function saveToSupabase(){
         }
         continue;
       }
-      // ── Garante UUID válido para o Supabase ───────────────────
-      // IDs locais como "m177...", "g...", "nn...", "csv_..." não
-      // são aceitos pelo Supabase (coluna tipo uuid).
-      // Gera e persiste um UUID v4 real em l._supaId.
+      // ── Migração: leads antigos com IDs não-UUID recebem UUID real ─
       const _isUUID = id => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id||'');
+
+      // campaigns.id e leads.campaign_id são ambos TEXT no Supabase — sem restrição de UUID
+      let _needsSave = false;
       (camp.leads||[]).forEach(l => {
-        if(!_isUUID(l.id)) l._supaId = l._supaId || crypto.randomUUID();
-        else l._supaId = l.id;
+        if(!_isUUID(l.id)){ l.id = l._supaId || crypto.randomUUID(); _needsSave = true; }
+        delete l._supaId;
       });
-      // Persiste os _supaId no localStorage para consistência
-      try{ saveCampaigns(); }catch(_){}
+      if(_needsSave){ try{ saveCampaigns(); }catch(_){} }
 
       const campLeads = (camp.leads||[]).map(l=>({
-        id:                  l._supaId || l.id,
+        id:                  l.id,
         campaign_id:         camp.id,
         user_id:             currentUser.id,
         name:                l.name                    || '',
@@ -12420,10 +12490,26 @@ async function saveToSupabase(){
       }).eq('id', currentUser.id);
       if(chatErr) console.warn('[CAPTURO] Erro chat IA:', chatErr);
     }
+    // ── Dados secundários: followups, clients, GMB, feedbacks, pinned ──
+    const extraPayload = {};
+    if(typeof followups!=='undefined') extraPayload.followups = followups;
+    if(typeof clients!=='undefined') extraPayload.clients = clients;
+    if(typeof gmbReports!=='undefined') extraPayload.gmb_reports = gmbReports;
+    const _feedbacks = JSON.parse(localStorage.getItem('capturo-feedbacks')||'[]');
+    if(_feedbacks.length) extraPayload.feedbacks = _feedbacks;
+    const _pinned = JSON.parse(localStorage.getItem('capturo-pinned')||'[]');
+    if(_pinned.length) extraPayload.pinned_ids = _pinned;
+    if(Object.keys(extraPayload).length > 0){
+      extraPayload.updated_at = new Date().toISOString();
+      const { error: extErr } = await sb.from('profiles').update(extraPayload).eq('id', currentUser.id);
+      if(extErr) console.warn('[CAPTURO] Erro dados secundários:', extErr);
+    }
     if(totalLeadsSaved > 0)
       console.log('[CAPTURO] Salvo no Supabase: '+snap.length+' campanha(s), '+totalLeadsSaved+' lead(s)');
+    _syncShow('ok');
   }catch(e){
     console.error('[CAPTURO] saveToSupabase error:',e);
+    _syncShow('error');
     toast('Falha ao salvar na nuvem: '+(e.message||'erro desconhecido'),'error',5000);
   }
 }
@@ -12530,7 +12616,7 @@ async function loadFromSupabase(){
     // 4. Templates e chat — em bloco separado, erro aqui não trava nada
     try{
       const { data:profileData } = await sb.from('profiles')
-        .select('custom_templates, ai_chat_history')
+        .select('custom_templates, ai_chat_history, followups, clients, gmb_reports, feedbacks, pinned_ids')
         .eq('id', currentUser.id).single();
       if(profileData?.custom_templates?.length){
         customTemplates = profileData.custom_templates;
@@ -12550,6 +12636,28 @@ async function loadFromSupabase(){
           });
           msgs.scrollTop=msgs.scrollHeight;
         }
+      }
+      // ── Dados secundários da nuvem ──────────────────────────────
+      if(profileData?.followups?.length){
+        followups = profileData.followups;
+        try{ localStorage.setItem('capturo-followups', JSON.stringify(followups)); }catch(e){}
+        if(typeof renderFollowups==='function') renderFollowups();
+      }
+      if(profileData?.clients?.length){
+        clients = profileData.clients;
+        try{ localStorage.setItem('capturo-clients', JSON.stringify(clients)); }catch(e){}
+        if(typeof renderClients==='function') renderClients();
+      }
+      if(profileData?.gmb_reports?.length){
+        gmbReports = profileData.gmb_reports;
+        try{ localStorage.setItem('capturo-gmb', JSON.stringify(gmbReports)); }catch(e){}
+        if(typeof renderGmbReports==='function') renderGmbReports();
+      }
+      if(profileData?.feedbacks?.length){
+        try{ localStorage.setItem('capturo-feedbacks', JSON.stringify(profileData.feedbacks)); }catch(e){}
+      }
+      if(profileData?.pinned_ids?.length){
+        try{ localStorage.setItem('capturo-pinned', JSON.stringify(profileData.pinned_ids)); }catch(e){}
       }
     }catch(profileErr){
       console.warn('[CAPTURO] load profile (non-critical):',profileErr);
