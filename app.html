@@ -13408,6 +13408,10 @@ async function saveToSupabase(){
     if(typeof followups!=='undefined') extraPayload.followups = followups;
     if(typeof clients!=='undefined') extraPayload.clients = clients;
     if(typeof gmbReports!=='undefined') extraPayload.gmb_reports = gmbReports;
+    const _cnpjHist  = JSON.parse(localStorage.getItem('capturo_cnpj_historico')||'[]');
+    const _cnpjSalvas= JSON.parse(localStorage.getItem('capturo_cnpj_salvas')||'[]');
+    if(_cnpjHist.length)  extraPayload.cnpj_historico = _cnpjHist.slice(0,30);
+    if(_cnpjSalvas.length) extraPayload.cnpj_salvas   = _cnpjSalvas.slice(0,500);
     const _feedbacks = JSON.parse(localStorage.getItem('capturo-feedbacks')||'[]');
     if(_feedbacks.length) extraPayload.feedbacks = _feedbacks;
     const _pinned = JSON.parse(localStorage.getItem('capturo-pinned')||'[]');
@@ -13529,7 +13533,7 @@ async function loadFromSupabase(){
     // 4. Templates e chat — em bloco separado, erro aqui não trava nada
     try{
       const { data:profileData } = await sb.from('profiles')
-        .select('custom_templates, ai_chat_history, followups, clients, gmb_reports, feedbacks, pinned_ids')
+        .select('custom_templates, ai_chat_history, followups, clients, gmb_reports, feedbacks, pinned_ids, cnpj_historico, cnpj_salvas')
         .eq('id', currentUser.id).single();
       if(profileData?.custom_templates?.length){
         customTemplates = profileData.custom_templates;
@@ -13571,6 +13575,12 @@ async function loadFromSupabase(){
       }
       if(profileData?.pinned_ids?.length){
         try{ localStorage.setItem('capturo-pinned', JSON.stringify(profileData.pinned_ids)); }catch(e){}
+      }
+      if(profileData?.cnpj_historico?.length){
+        try{ localStorage.setItem('capturo_cnpj_historico', JSON.stringify(profileData.cnpj_historico)); }catch(e){}
+      }
+      if(profileData?.cnpj_salvas?.length){
+        try{ localStorage.setItem('capturo_cnpj_salvas', JSON.stringify(profileData.cnpj_salvas)); }catch(e){}
       }
     }catch(profileErr){
       console.warn('[CAPTURO] load profile (non-critical):',profileErr);
