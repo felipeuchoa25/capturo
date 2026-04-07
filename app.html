@@ -2336,6 +2336,17 @@ function toast(msg, type='info', duration=3500){
     <span class="sb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
     <span class="sb-label">FAQ</span>
   </div>
+
+  <!-- ── BLOCO 4: AUTOMAÇÕES ── -->
+  <div class="sb-divider"></div>
+  <div class="sb-section-label" style="--sl-color:#bf5af2"><span class="sb-label" style="color:#bf5af288">AUTOMAÇÕES</span></div>
+  <div class="sb-item sb-item-automacoes" id="sb-automacoes" onclick="showPage('pageAutomacoes');setSbActive('sb-automacoes');autoRenderPage()" title="Automações Programadas">
+    <span class="sb-icon" style="position:relative">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>
+      <span id="autoBadge" style="display:none;position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;background:var(--purple);border-radius:20px;font-size:9px;font-weight:700;color:#fff;align-items:center;justify-content:center;padding:0 3px;border:2px solid var(--s1)"></span>
+    </span>
+    <span class="sb-label">Automações</span>
+  </div>
 </div>
 
 <div class="topnav">
@@ -3874,6 +3885,186 @@ function toast(msg, type='info', duration=3500){
       </div>
     </div>
     <div id="templatesContainer"></div>
+  </div>
+
+
+  <!-- ══ AUTOMAÇÕES PROGRAMADAS ══════════════════════════════════ -->
+  <div class="page" id="pageAutomacoes">
+    <!-- Notif bar -->
+    <div id="autoNotifBar" style="display:none;position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--s1);border:1px solid rgba(191,90,242,.35);border-radius:20px;padding:14px 22px;z-index:9000;align-items:center;gap:14px;box-shadow:var(--shadow-lg);min-width:340px;max-width:94vw;animation:toastIn .25s var(--ease-spring)">
+      <span style="font-size:16px">🔔</span>
+      <span id="autoNotifMsg" style="font-size:13px;font-weight:600;flex:1;color:var(--text)"></span>
+      <button onclick="autoConfirmarNotif()" style="padding:7px 16px;border-radius:20px;background:var(--purple);color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer">Enviar</button>
+      <button onclick="autoFecharNotif()" style="padding:7px 14px;border-radius:20px;background:var(--s2);color:var(--muted2);border:1px solid var(--border);font-size:12px;cursor:pointer">Fechar</button>
+    </div>
+
+    <!-- Header -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:14px">
+      <div>
+        <div style="font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.02em">Automações <span style="font-size:13px;font-weight:500;color:var(--muted2);font-family:'IBM Plex Mono',monospace">// Assistente ativo 24/7</span></div>
+        <div style="font-size:12px;color:var(--muted2);margin-top:6px;line-height:1.6;max-width:560px">Configure análises automáticas, alertas de leads e relatórios — o CAPTURO roda tudo no horário certo e te avisa via WhatsApp ou e-mail.</div>
+      </div>
+      <button onclick="autoNova()" style="padding:10px 22px;background:linear-gradient(135deg,var(--purple),#7c3aed);color:#fff;border:none;border-radius:var(--r-pill);font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 18px rgba(191,90,242,.35);display:flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nova Automação
+      </button>
+    </div>
+
+    <!-- Status strip -->
+    <div id="autoStatusStrip" style="background:linear-gradient(135deg,rgba(191,90,242,.08),rgba(94,156,255,.06));border:1px solid rgba(191,90,242,.2);border-radius:14px;padding:14px 20px;margin-bottom:22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);display:inline-block;animation:statusPulse 2s ease-in-out infinite"></span>
+        <span style="font-size:12px;font-weight:700;color:var(--text)">Scheduler ativo</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted2)">Verificação a cada 30 segundos · Baseado no relógio local do seu dispositivo</div>
+      <div style="margin-left:auto;font-size:11px;color:var(--muted2);font-family:monospace" id="autoHoraAtual"></div>
+    </div>
+
+    <!-- Layout 2 colunas -->
+    <div style="display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start">
+
+      <!-- Coluna principal: lista de automações -->
+      <div>
+        <div style="font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px">⚡ SUAS AUTOMAÇÕES</div>
+        <div id="autoLista"></div>
+      </div>
+
+      <!-- Coluna lateral -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+
+        <!-- Próximas execuções -->
+        <div style="background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:18px 20px">
+          <div style="font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px">🕐 PRÓXIMAS EXECUÇÕES</div>
+          <div id="autoProximas"></div>
+        </div>
+
+        <!-- Como funciona -->
+        <div style="background:linear-gradient(135deg,rgba(191,90,242,.06),rgba(94,156,255,.04));border:1px solid rgba(191,90,242,.18);border-radius:16px;padding:18px 20px">
+          <div style="font-size:12px;font-weight:700;color:var(--purple);margin-bottom:12px;display:flex;align-items:center;gap:8px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Como funciona
+          </div>
+          <div style="font-size:11px;color:var(--muted2);line-height:1.8">
+            <div style="margin-bottom:8px">📱 <strong style="color:var(--text2)">WhatsApp</strong> — Coloque o número com DDD (ex: 34998887766). Ao disparar, o CAPTURO abre o WhatsApp com a mensagem pronta.</div>
+            <div style="margin-bottom:8px">✉️ <strong style="color:var(--text2)">Email</strong> — Coloque seu email. O CAPTURO abre o cliente de email com a mensagem preenchida.</div>
+            <div style="margin-bottom:8px">🕐 <strong style="color:var(--text2)">Horário</strong> — A aba do CAPTURO precisa estar aberta no dispositivo para o scheduler funcionar.</div>
+            <div>⚡ <strong style="color:var(--text2)">Rodar agora</strong> — Executa a automação imediatamente, independente do horário.</div>
+          </div>
+        </div>
+
+        <!-- Tipos disponíveis -->
+        <div style="background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:18px 20px">
+          <div style="font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">📋 TIPOS DE AUTOMAÇÃO</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="font-size:11px;color:var(--text2)">📊 Relatório Diário</div>
+            <div style="font-size:11px;color:var(--text2)">🔔 Alerta Novos Leads</div>
+            <div style="font-size:11px;color:var(--text2)">💬 Lembrete Follow-up</div>
+            <div style="font-size:11px;color:var(--text2)">🏢 Radar CNPJ Auto</div>
+            <div style="font-size:11px;color:var(--text2)">🗑 Limpeza de Leads</div>
+            <div style="font-size:11px;color:var(--text2)">📥 Exportar CSV</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Log de execuções -->
+    <div style="margin-top:28px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em">📋 HISTÓRICO DE EXECUÇÕES</div>
+        <button onclick="_autoLog=[];autoLogSave();autoRenderPage();toast('Log limpo.','info',2000)" style="font-size:10px;padding:4px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted2);cursor:pointer">Limpar log</button>
+      </div>
+      <div style="background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:16px 20px;max-height:320px;overflow-y:auto">
+        <div id="autoLogLista"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Nova / Editar Automação -->
+  <div id="autoModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:3000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px)">
+    <div style="background:var(--s1);border:1px solid rgba(191,90,242,.3);border-radius:20px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg)">
+      <!-- Header modal -->
+      <div style="padding:22px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:16px;font-weight:800;color:var(--text)">⚙️ Configurar Automação</div>
+          <div style="font-size:11px;color:var(--muted2);margin-top:2px">Defina quando e como o CAPTURO vai trabalhar por você</div>
+        </div>
+        <button onclick="autoModalClose()" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:20px;padding:4px 8px;border-radius:8px;line-height:1">✕</button>
+      </div>
+      <!-- Body modal -->
+      <div style="padding:22px 24px">
+        <input type="hidden" id="autoFormId">
+
+        <!-- Nome -->
+        <div style="margin-bottom:16px">
+          <label style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;font-weight:700;display:block;margin-bottom:6px">Nome da Automação</label>
+          <input type="text" id="autoFormNome" placeholder="Ex: Relatório Diário 8h" style="width:100%;padding:11px 14px;background:var(--s2);border:1.5px solid var(--border2);border-radius:10px;color:var(--text);font-size:13px;outline:none;font-family:'Plus Jakarta Sans',sans-serif">
+        </div>
+
+        <!-- Tipo -->
+        <div style="margin-bottom:6px">
+          <label style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;font-weight:700;display:block;margin-bottom:6px">Tipo de Automação</label>
+          <select id="autoFormTipo" onchange="autoModalTipoChange()" style="width:100%;padding:11px 14px;background:var(--s2);border:1.5px solid var(--border2);border-radius:10px;color:var(--text);font-size:13px;outline:none">
+            <option value="relatorio_diario">📊 Relatório Diário</option>
+            <option value="alerta_novos_leads">🔔 Alerta Novos Leads (Vulcão)</option>
+            <option value="followup_lembrete">💬 Lembrete de Follow-up</option>
+            <option value="radar_cnpj_auto">🏢 Radar CNPJ Automático</option>
+            <option value="limpeza_leads">🗑 Limpeza de Leads Gelados</option>
+            <option value="exportar_csv">📥 Exportar CSV Automático</option>
+          </select>
+        </div>
+        <div id="autoFormTipoDesc" style="font-size:11px;color:var(--muted2);background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;margin-bottom:16px;line-height:1.6"></div>
+
+        <!-- Horário + Dias -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+          <div>
+            <label style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;font-weight:700;display:block;margin-bottom:6px">Horário</label>
+            <input type="time" id="autoFormHora" style="width:100%;padding:11px 14px;background:var(--s2);border:1.5px solid var(--border2);border-radius:10px;color:var(--text);font-size:13px;outline:none">
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;font-weight:700;display:block;margin-bottom:6px">Campanha</label>
+            <select id="autoFormCamp" style="width:100%;padding:11px 14px;background:var(--s2);border:1.5px solid var(--border2);border-radius:10px;color:var(--text);font-size:13px;outline:none">
+              <option value="">— Qualquer campanha —</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Dias da semana -->
+        <div style="margin-bottom:16px">
+          <label style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;font-weight:700;display:block;margin-bottom:8px">Dias da Semana</label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="ad_seg" onchange="autoSyncDias()" style="accent-color:var(--purple)"><span style="font-size:12px">Seg</span></label>
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="ad_ter" onchange="autoSyncDias()" style="accent-color:var(--purple)"><span style="font-size:12px">Ter</span></label>
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="ad_qua" onchange="autoSyncDias()" style="accent-color:var(--purple)"><span style="font-size:12px">Qua</span></label>
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="ad_qui" onchange="autoSyncDias()" style="accent-color:var(--purple)"><span style="font-size:12px">Qui</span></label>
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="ad_sex" onchange="autoSyncDias()" style="accent-color:var(--purple)"><span style="font-size:12px">Sex</span></label>
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="ad_sab" onchange="autoSyncDias()" style="accent-color:var(--purple)"><span style="font-size:12px">Sáb</span></label>
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="ad_dom" onchange="autoSyncDias()" style="accent-color:var(--purple)"><span style="font-size:12px">Dom</span></label>
+            <button type="button" onclick="autoSelecionarUteis()" style="font-size:10px;padding:3px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted2);cursor:pointer">Úteis</button>
+            <button type="button" onclick="autoSelecionarTodos()" style="font-size:10px;padding:3px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted2);cursor:pointer">Todos</button>
+          </div>
+          <input type="hidden" id="autoFormDias" value="seg,ter,qua,qui,sex">
+        </div>
+
+        <!-- Notificações -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:20px">
+          <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:12px">🔔 Notificações (opcional)</div>
+          <div style="margin-bottom:10px">
+            <label style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;font-weight:700;display:block;margin-bottom:5px">📱 WhatsApp (DDD + número)</label>
+            <input type="tel" id="autoFormWa" placeholder="Ex: 34999887766" style="width:100%;padding:9px 12px;background:var(--s2);border:1.5px solid var(--border2);border-radius:8px;color:var(--text);font-size:12px;outline:none;font-family:monospace">
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;font-weight:700;display:block;margin-bottom:5px">✉️ E-mail</label>
+            <input type="email" id="autoFormEmail" placeholder="Ex: seu@email.com" style="width:100%;padding:9px 12px;background:var(--s2);border:1.5px solid var(--border2);border-radius:8px;color:var(--text);font-size:12px;outline:none">
+          </div>
+        </div>
+
+        <!-- Botões -->
+        <div style="display:flex;gap:10px;justify-content:flex-end">
+          <button onclick="autoModalClose()" style="padding:10px 20px;border-radius:10px;border:1px solid var(--border);background:var(--s2);color:var(--muted2);font-size:13px;cursor:pointer">Cancelar</button>
+          <button onclick="autoSalvar()" style="padding:10px 24px;border-radius:10px;background:linear-gradient(135deg,var(--purple),#7c3aed);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(191,90,242,.35)">💾 Salvar Automação</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- TEMPLATE EDIT MODAL -->
@@ -15683,6 +15874,427 @@ function _importarAlertaLeadUnicoFix(idx){
   if(ok) toast('Lead importado!','ok',2500);
   else toast('Lead ja esta na campanha.','warn',2000);
 }
+
+
+// ════════════════════════════════════════════════════════════════
+// AUTOMAÇÕES PROGRAMADAS — CAPTURO v5.0
+// Engine 100% client-side: scheduler via setInterval + localStorage
+// ════════════════════════════════════════════════════════════════
+
+const AUTO_KEY     = 'capturo_automacoes_v1';
+const AUTO_LOG_KEY = 'capturo_auto_log_v1';
+
+let _autoList    = [];
+let _autoLog     = [];
+let _autoFilaNotif    = [];
+let _autoNotifShowing = false;
+
+// ── Persistência ──────────────────────────────────────────────
+function autoSave(){ localStorage.setItem(AUTO_KEY, JSON.stringify(_autoList)); }
+function autoLoad(){
+  try{ _autoList = JSON.parse(localStorage.getItem(AUTO_KEY)||'[]'); }
+  catch(e){ _autoList = []; }
+}
+function autoLogSave(){
+  if(_autoLog.length > 200) _autoLog = _autoLog.slice(-200);
+  localStorage.setItem(AUTO_LOG_KEY, JSON.stringify(_autoLog));
+}
+function autoLogLoad(){
+  try{ _autoLog = JSON.parse(localStorage.getItem(AUTO_LOG_KEY)||'[]'); }
+  catch(e){ _autoLog = []; }
+}
+
+// ── Sincroniza checkboxes → hidden input ──────────────────────
+function autoSyncDias(){
+  const map = {seg:'ad_seg',ter:'ad_ter',qua:'ad_qua',qui:'ad_qui',sex:'ad_sex',sab:'ad_sab',dom:'ad_dom'};
+  const selecionados = Object.entries(map).filter(([d,id])=>document.getElementById(id)?.checked).map(([d])=>d);
+  const inp = document.getElementById('autoFormDias');
+  if(inp) inp.value = selecionados.join(',');
+}
+function autoSelecionarUteis(){
+  ['ad_seg','ad_ter','ad_qua','ad_qui','ad_sex'].forEach(id=>{ const el=document.getElementById(id); if(el)el.checked=true; });
+  ['ad_sab','ad_dom'].forEach(id=>{ const el=document.getElementById(id); if(el)el.checked=false; });
+  autoSyncDias();
+}
+function autoSelecionarTodos(){
+  ['ad_seg','ad_ter','ad_qua','ad_qui','ad_sex','ad_sab','ad_dom'].forEach(id=>{ const el=document.getElementById(id); if(el)el.checked=true; });
+  autoSyncDias();
+}
+function _autoPreencherCheckboxes(diasStr){
+  const dias = (diasStr||'').split(',').map(d=>d.trim());
+  const map = {seg:'ad_seg',ter:'ad_ter',qua:'ad_qua',qui:'ad_qui',sex:'ad_sex',sab:'ad_sab',dom:'ad_dom'};
+  Object.entries(map).forEach(([d,id])=>{ const el=document.getElementById(id); if(el) el.checked=dias.includes(d); });
+}
+
+// ── Modal: abrir nova / editar ────────────────────────────────
+function autoNova(){
+  const sel = document.getElementById('autoFormCamp');
+  if(sel) sel.innerHTML = '<option value="">\u2014 Qualquer campanha \u2014</option>' +
+    (campaigns||[]).map(c=>`<option value="${c.id}">${escHtml(c.name||'Campanha')}</option>`).join('');
+  document.getElementById('autoFormId').value   = '';
+  document.getElementById('autoFormNome').value = '';
+  document.getElementById('autoFormTipo').value = 'relatorio_diario';
+  document.getElementById('autoFormHora').value = '08:00';
+  document.getElementById('autoFormDias').value = 'seg,ter,qua,qui,sex';
+  if(document.getElementById('autoFormEmail')) document.getElementById('autoFormEmail').value = '';
+  if(document.getElementById('autoFormWa'))    document.getElementById('autoFormWa').value    = '';
+  _autoPreencherCheckboxes('seg,ter,qua,qui,sex');
+  autoModalTipoChange();
+  document.getElementById('autoModal').style.display = 'flex';
+}
+
+function autoEditar(id){
+  const a = _autoList.find(x=>x.id===id);
+  if(!a) return;
+  const sel = document.getElementById('autoFormCamp');
+  if(sel) sel.innerHTML = '<option value="">\u2014 Qualquer campanha \u2014</option>' +
+    (campaigns||[]).map(c=>`<option value="${c.id}">${escHtml(c.name||'Campanha')}</option>`).join('');
+  document.getElementById('autoFormId').value   = a.id;
+  document.getElementById('autoFormNome').value = a.nome||'';
+  document.getElementById('autoFormTipo').value = a.tipo||'relatorio_diario';
+  document.getElementById('autoFormHora').value = a.hora||'08:00';
+  document.getElementById('autoFormDias').value = (a.dias||[]).join(',');
+  document.getElementById('autoFormCamp').value = a.campId||'';
+  if(document.getElementById('autoFormWa'))    document.getElementById('autoFormWa').value    = a.waNum||'';
+  if(document.getElementById('autoFormEmail')) document.getElementById('autoFormEmail').value = a.email||'';
+  _autoPreencherCheckboxes((a.dias||[]).join(','));
+  autoModalTipoChange();
+  document.getElementById('autoModal').style.display = 'flex';
+}
+
+function autoModalClose(){ document.getElementById('autoModal').style.display = 'none'; }
+
+function autoModalTipoChange(){
+  const tipo = document.getElementById('autoFormTipo').value;
+  const descMap = {
+    relatorio_diario:   'Gera um resumo com total de leads, temperaturas e taxa de convers\u00e3o da campanha escolhida.',
+    alerta_novos_leads: 'Notifica via WhatsApp/email quando existirem leads Vulc\u00e3o com score \u2265 8.',
+    followup_lembrete:  'Lembrete de follow-up: leads sem status de contatado/fechado aguardando a\u00e7\u00e3o.',
+    radar_cnpj_auto:    'Confere o hist\u00f3rico do Radar CNPJ e notifica sobre empresas novas das \u00faltimas 24h.',
+    limpeza_leads:      'Remove leads gelados sem intera\u00e7\u00e3o h\u00e1 30+ dias das campanhas selecionadas.',
+    exportar_csv:       'Exporta automaticamente todos os leads em CSV e baixa o arquivo.',
+  };
+  const desc = document.getElementById('autoFormTipoDesc');
+  if(desc) desc.textContent = descMap[tipo]||'';
+}
+
+function autoSalvar(){
+  const id     = document.getElementById('autoFormId').value || crypto.randomUUID();
+  const nome   = document.getElementById('autoFormNome').value.trim() || 'Automa\u00e7\u00e3o';
+  const tipo   = document.getElementById('autoFormTipo').value;
+  const hora   = document.getElementById('autoFormHora').value;
+  const diasStr= document.getElementById('autoFormDias').value;
+  const campId = document.getElementById('autoFormCamp').value;
+  const waNum  = (document.getElementById('autoFormWa')?.value||'').replace(/\D/g,'');
+  const email  = document.getElementById('autoFormEmail')?.value.trim()||'';
+  const dias   = diasStr.split(',').map(d=>d.trim()).filter(Boolean);
+  if(!hora){ toast('Defina um hor\u00e1rio.','warn'); return; }
+  if(!dias.length){ toast('Selecione ao menos um dia.','warn'); return; }
+  const idx = _autoList.findIndex(x=>x.id===id);
+  const obj = { id, nome, tipo, hora, dias, campId, waNum, email, ativo:true, criadoEm:Date.now(), ultimaExec:null };
+  if(idx>=0) _autoList[idx] = obj;
+  else _autoList.push(obj);
+  autoSave();
+  autoModalClose();
+  autoRenderPage();
+  autoReiniciarScheduler();
+  toast('\u2705 Automa\u00e7\u00e3o "'+nome+'" salva!', 'ok', 3000);
+}
+
+function autoDeletar(id){
+  if(!confirm('Deletar esta automa\u00e7\u00e3o?')) return;
+  _autoList = _autoList.filter(x=>x.id!==id);
+  autoSave(); autoRenderPage(); autoReiniciarScheduler();
+  toast('Automa\u00e7\u00e3o removida.','warn',2500);
+}
+
+function autoToggle(id){
+  const a = _autoList.find(x=>x.id===id);
+  if(!a) return;
+  a.ativo = !a.ativo;
+  autoSave(); autoRenderPage(); autoReiniciarScheduler();
+  toast(a.ativo ? '\u25b6 Automa\u00e7\u00e3o ativada' : '\u23f8 Automa\u00e7\u00e3o pausada','info',2000);
+}
+
+// ── Renderiza página ──────────────────────────────────────────
+function autoRenderPage(){
+  autoLoad(); autoLogLoad();
+  const ativas = _autoList.filter(x=>x.ativo).length;
+  const badge = document.getElementById('autoBadge');
+  if(badge){ if(ativas>0){badge.style.display='flex';badge.textContent=ativas;}else badge.style.display='none'; }
+  _autoRenderLista();
+  _autoRenderLog();
+  _autoRenderProximas();
+  // Relógio
+  const hEl = document.getElementById('autoHoraAtual');
+  if(hEl) hEl.textContent = new Date().toLocaleTimeString('pt-BR');
+}
+
+function _autoRenderLista(){
+  const el = document.getElementById('autoLista');
+  if(!el) return;
+  if(!_autoList.length){
+    el.innerHTML = '<div style="text-align:center;padding:64px 20px;color:var(--muted2);background:var(--s1);border:1px dashed var(--border2);border-radius:16px"><div style="font-size:48px;margin-bottom:14px">\u26a1</div><div style="font-size:15px;font-weight:700;color:var(--text2);margin-bottom:8px">Nenhuma automa\u00e7\u00e3o criada</div><div style="font-size:12px;line-height:1.7;max-width:360px;margin:0 auto">Clique em <strong style=\"color:var(--purple)\">+ Nova Automa\u00e7\u00e3o</strong> para o CAPTURO come\u00e7ar a trabalhar por voc\u00ea.</div></div>';
+    return;
+  }
+  const tipoLabel = {
+    relatorio_diario:'\ud83d\udcca Relat\u00f3rio Di\u00e1rio', alerta_novos_leads:'\ud83d\udd14 Alerta Leads',
+    followup_lembrete:'\ud83d\udcac Follow-up', radar_cnpj_auto:'\ud83c\udfe2 Radar CNPJ',
+    limpeza_leads:'\ud83d\uddd1 Limpeza', exportar_csv:'\ud83d\udce5 CSV',
+  };
+  const diasLabel = {seg:'Seg',ter:'Ter',qua:'Qua',qui:'Qui',sex:'Sex',sab:'S\u00e1b',dom:'Dom'};
+  el.innerHTML = _autoList.map(a=>{
+    const camp = (campaigns||[]).find(c=>c.id===a.campId);
+    const diasHtml = (a.dias||[]).map(d=>`<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:${a.ativo?'rgba(94,156,255,.15)':'var(--s2)'};color:${a.ativo?'var(--accent2)':'var(--muted2)'};border:1px solid ${a.ativo?'rgba(94,156,255,.2)':'var(--border)'}">${diasLabel[d]||d}</span>`).join('');
+    const notifH = [];
+    if(a.waNum) notifH.push(`<span style="font-size:10px;color:#25D366;font-family:monospace">\ud83d\udcf1 +55${a.waNum}</span>`);
+    if(a.email) notifH.push(`<span style="font-size:10px;color:var(--accent2);font-family:monospace">\u2709\ufe0f ${escHtml(a.email)}</span>`);
+    const ultimaStr = a.ultimaExec ? new Date(a.ultimaExec).toLocaleString('pt-BR') : '\u2014';
+    return `<div style="background:var(--s1);border:1px solid ${a.ativo?'rgba(191,90,242,.25)':'var(--border)'};border-radius:16px;padding:18px 20px;margin-bottom:10px;transition:border-color .2s">
+      <div style="display:flex;align-items:flex-start;gap:14px">
+        <div style="width:44px;height:44px;border-radius:12px;background:${a.ativo?'rgba(191,90,242,.12)':'var(--s2)'};border:1px solid ${a.ativo?'rgba(191,90,242,.25)':'var(--border)'};display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${a.ativo?'\u26a1':'\u23f8'}</div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+            <div style="font-size:14px;font-weight:700;color:var(--text)">${escHtml(a.nome)}</div>
+            <div style="font-size:10px;padding:2px 10px;border-radius:20px;background:var(--purple-bg);color:var(--purple);border:1px solid rgba(191,90,242,.2)">${tipoLabel[a.tipo]||a.tipo}</div>
+            ${a.ativo?'<div style="font-size:9px;padding:1px 8px;border-radius:20px;background:rgba(52,199,89,.1);color:var(--green);border:1px solid rgba(52,199,89,.2)">\u25cf ATIVO</div>':'<div style="font-size:9px;padding:1px 8px;border-radius:20px;background:var(--s2);color:var(--muted2);border:1px solid var(--border)">PAUSADO</div>'}
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px">
+            <span style="font-size:12px;color:var(--text2);font-family:monospace;font-weight:600">\ud83d\udd50 ${a.hora}</span>
+            <div style="display:flex;gap:4px;flex-wrap:wrap">${diasHtml}</div>
+            ${camp?`<span style="font-size:10px;color:var(--muted2)">\ud83d\udcc1 ${escHtml(camp.name||'Campanha')}</span>`:'<span style="font-size:10px;color:var(--muted2)">\ud83d\udcc1 Todas campanhas</span>'}
+          </div>
+          ${notifH.length?`<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:6px">${notifH.join('')}</div>`:'<div style="font-size:10px;color:var(--muted2);margin-bottom:6px">Sem notifica\u00e7\u00e3o configurada</div>'}
+          <div style="font-size:10px;color:var(--muted2);font-family:monospace">\u00daltima exec: ${ultimaStr}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
+          <button onclick="autoToggle('${a.id}')" style="font-size:10px;padding:5px 12px;border-radius:8px;border:1px solid ${a.ativo?'rgba(255,214,10,.25)':'rgba(52,199,89,.25)'};background:${a.ativo?'rgba(255,214,10,.08)':'rgba(52,199,89,.08)'};color:${a.ativo?'var(--warm)':'var(--green)'};cursor:pointer;font-weight:600;white-space:nowrap">${a.ativo?'\u23f8 Pausar':'\u25b6 Ativar'}</button>
+          <button onclick="autoEditar('${a.id}')" style="font-size:10px;padding:5px 12px;border-radius:8px;border:1px solid var(--border);background:var(--s2);color:var(--muted2);cursor:pointer">\u270f\ufe0f Editar</button>
+          <button onclick="autoExecutarAgora('${a.id}')" style="font-size:10px;padding:5px 12px;border-radius:8px;border:1px solid rgba(94,156,255,.25);background:rgba(94,156,255,.08);color:var(--accent2);cursor:pointer;font-weight:600">\u25b7 Rodar agora</button>
+          <button onclick="autoDeletar('${a.id}')" style="font-size:10px;padding:5px 12px;border-radius:8px;border:1px solid rgba(255,69,58,.2);background:rgba(255,69,58,.06);color:var(--volcano);cursor:pointer">\ud83d\uddd1 Deletar</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function _autoRenderLog(){
+  const el = document.getElementById('autoLogLista');
+  if(!el) return;
+  if(!_autoLog.length){ el.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted2);font-size:12px">\ud83d\udccb Nenhuma execu\u00e7\u00e3o registrada ainda.</div>'; return; }
+  el.innerHTML = [..._autoLog].reverse().slice(0,50).map(l=>{
+    const d = new Date(l.ts).toLocaleString('pt-BR');
+    return `<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:14px;flex-shrink:0">${l.ok?'\u2705':'\u274c'}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px">${escHtml(l.nome||'\u2014')}</div>
+        <div style="font-size:11px;color:var(--muted2)">${escHtml(l.msg||'')}</div>
+      </div>
+      <div style="font-size:10px;color:var(--muted2);font-family:monospace;flex-shrink:0;white-space:nowrap">${d}</div>
+    </div>`;
+  }).join('');
+}
+
+function _autoRenderProximas(){
+  const el = document.getElementById('autoProximas');
+  if(!el) return;
+  const ativas = _autoList.filter(x=>x.ativo);
+  if(!ativas.length){ el.innerHTML='<div style="font-size:11px;color:var(--muted2);text-align:center;padding:20px">Nenhuma automa\u00e7\u00e3o ativa.</div>'; return; }
+  const diasOrd = ['dom','seg','ter','qua','qui','sex','sab'];
+  const now = new Date();
+  const proximas = ativas.map(a=>{
+    const [h,m] = (a.hora||'08:00').split(':').map(Number);
+    let minDelta = Infinity;
+    for(let d=0;d<7;d++){
+      const dow = diasOrd[(now.getDay()+d)%7];
+      if(!(a.dias||[]).includes(dow)) continue;
+      const c = new Date(now); c.setDate(c.getDate()+d); c.setHours(h,m,0,0);
+      const delta = c - now;
+      if(delta>0 && delta<minDelta){ minDelta=delta; break; }
+    }
+    return {a, minDelta, horas: Math.floor(minDelta/3600000), mins: Math.floor((minDelta%3600000)/60000)};
+  }).sort((a,b)=>a.minDelta-b.minDelta);
+  el.innerHTML = proximas.slice(0,5).map(({a,horas,mins,minDelta})=>{
+    const tempo = minDelta===Infinity?'\u2014':horas>0?`em ${horas}h ${mins}min`:`em ${mins}min`;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <span style="width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;box-shadow:0 0 6px var(--green)"></span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(a.nome)}</div>
+        <div style="font-size:10px;color:var(--muted2);font-family:monospace">${a.hora} \u00b7 ${(a.dias||[]).join(', ')}</div>
+      </div>
+      <div style="font-size:11px;color:var(--accent2);font-family:monospace;white-space:nowrap">${tempo}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Scheduler ─────────────────────────────────────────────────
+let _autoSchedulerInterval = null;
+function autoReiniciarScheduler(){
+  if(_autoSchedulerInterval) clearInterval(_autoSchedulerInterval);
+  _autoSchedulerInterval = setInterval(_autoTick, 30000);
+}
+function _autoTick(){
+  autoLoad();
+  const now = new Date();
+  const diasOrd = ['dom','seg','ter','qua','qui','sex','sab'];
+  const dowStr  = diasOrd[now.getDay()];
+  const horaStr = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  _autoList.forEach(a=>{
+    if(!a.ativo || !(a.dias||[]).includes(dowStr) || a.hora!==horaStr) return;
+    const last = a.ultimaExec ? new Date(a.ultimaExec) : null;
+    if(last && (now-last)<59000) return;
+    autoExecutarAgora(a.id, true);
+  });
+  // Atualiza relógio na página se aberta
+  const hEl = document.getElementById('autoHoraAtual');
+  if(hEl) hEl.textContent = now.toLocaleTimeString('pt-BR');
+}
+
+// ── Execução ──────────────────────────────────────────────────
+async function autoExecutarAgora(id, scheduled=false){
+  const a = _autoList.find(x=>x.id===id);
+  if(!a){ toast('Automa\u00e7\u00e3o n\u00e3o encontrada.','error'); return; }
+  if(!scheduled) toast('\u25b7 Rodando: '+a.nome+'...','info',2000);
+  let ok=true, msg='';
+  try{
+    switch(a.tipo){
+      case 'relatorio_diario':   msg = await _autoRelatorio(a);  break;
+      case 'alerta_novos_leads': msg = await _autoAlertaLeads(a); break;
+      case 'followup_lembrete':  msg = await _autoFollowup(a);   break;
+      case 'radar_cnpj_auto':    msg = await _autoRadarCnpj(a);  break;
+      case 'limpeza_leads':      msg = await _autoLimpeza(a);    break;
+      case 'exportar_csv':       msg = await _autoExportCSV(a);  break;
+      default: msg='Tipo desconhecido.'; ok=false;
+    }
+  }catch(e){ ok=false; msg='Erro: '+e.message; }
+  const idx = _autoList.findIndex(x=>x.id===id);
+  if(idx>=0) _autoList[idx].ultimaExec = Date.now();
+  autoSave();
+  autoLogLoad();
+  _autoLog.push({ts:Date.now(), nome:a.nome, tipo:a.tipo, ok, msg});
+  autoLogSave();
+  if(a.waNum||a.email) _autoNotificar(a, msg, ok);
+  if(document.getElementById('pageAutomacoes')?.classList.contains('active')) autoRenderPage();
+  if(!scheduled) toast(ok?'\u2705 '+a.nome+': '+msg:'\u274c '+a.nome+': '+msg, ok?'ok':'error', 5000);
+}
+
+// ── Executores ────────────────────────────────────────────────
+async function _autoRelatorio(a){
+  const camp = a.campId?(campaigns||[]).find(c=>c.id===a.campId):null;
+  const leads2 = camp?(camp.leads||[]):(campaigns||[]).flatMap(c=>c.leads||[]);
+  const total=leads2.length, vol=leads2.filter(l=>l.t==='volcano').length,
+    hot=leads2.filter(l=>l.t==='hot').length, warm=leads2.filter(l=>l.t==='warm').length,
+    cold=leads2.filter(l=>l.t==='cold').length, froz=leads2.filter(l=>l.t==='frozen').length,
+    fech=leads2.filter(l=>l.status==='closed').length, cont=leads2.filter(l=>l.status==='contacted').length;
+  const msg = `\ud83d\udcca Relat\u00f3rio CAPTURO \u2014 ${new Date().toLocaleDateString('pt-BR')}\n`+
+    `Campanha: ${camp?.name||'Todas'}\n\nTotal: ${total} leads\n`+
+    `\ud83c\udf0b Vulc\u00e3o: ${vol} | \ud83d\udd25 Quente: ${hot} | \ud83c\udf21 Morno: ${warm} | \u2744 Frio: ${cold} | \ud83e\uddca Gelado: ${froz}\n\n`+
+    `\ud83d\udcac Contatados: ${cont} | \ud83d\udcb0 Fechados: ${fech}\n`+
+    `Taxa de convers\u00e3o: ${total?Math.round(fech/total*100):0}%`;
+  window._autoLastMsg = msg;
+  return `${total} leads analisados \u2022 ${fech} fechados \u2022 Taxa ${total?Math.round(fech/total*100):0}%`;
+}
+async function _autoAlertaLeads(a){
+  const camp = a.campId?(campaigns||[]).find(c=>c.id===a.campId):null;
+  const leads2 = camp?(camp.leads||[]):(campaigns||[]).flatMap(c=>c.leads||[]);
+  const novos = leads2.filter(l=>l.t==='volcano'&&(l.score||0)>=8);
+  window._autoLastMsg = `\ud83d\udd14 CAPTURO \u2014 Alerta de Leads\n${novos.length} lead(s) Vulc\u00e3o com score \u2265 8${camp?' em "'+camp.name+'"':''}. Acesse o CAPTURO para contatar agora!`;
+  return `${novos.length} lead(s) vulc\u00e3o score \u22658${camp?' em "'+camp.name+'"':''}`;
+}
+async function _autoFollowup(a){
+  const camp = a.campId?(campaigns||[]).find(c=>c.id===a.campId):null;
+  const leads2 = camp?(camp.leads||[]):(campaigns||[]).flatMap(c=>c.leads||[]);
+  const atrasados = leads2.filter(l=>l.status!=='closed'&&l.status!=='contacted');
+  window._autoLastMsg = `\ud83d\udcac CAPTURO \u2014 Follow-up\n${atrasados.length} lead(s) aguardando contato${camp?' em "'+camp.name+'"':''}.`;
+  return `${atrasados.length} lead(s) aguardando follow-up`;
+}
+async function _autoRadarCnpj(a){
+  const hist = JSON.parse(localStorage.getItem('capturo_cnpj_historico')||'[]');
+  const rec = hist.filter(h=>h.ts&&(Date.now()-h.ts)<86400000);
+  window._autoLastMsg = `\ud83c\udfe2 CAPTURO \u2014 Radar CNPJ\n${rec.length} empresa(s) nova(s) encontrada(s) nas \u00faltimas 24h.`;
+  return `${rec.length} empresa(s) nova(s) no Radar CNPJ`;
+}
+async function _autoLimpeza(a){
+  let removidos=0;
+  const lim = Date.now()-(30*86400000);
+  (campaigns||[]).forEach(c=>{
+    if(a.campId&&c.id!==a.campId) return;
+    const antes=(c.leads||[]).length;
+    c.leads=(c.leads||[]).filter(l=>!(l.t==='frozen'&&l.status==='new'&&(!l._addedAt||l._addedAt<lim)));
+    removidos+=antes-(c.leads||[]).length;
+  });
+  if(removidos>0){saveCampaigns();if(typeof renderAll==='function')renderAll();}
+  window._autoLastMsg = `\ud83d\uddd1 CAPTURO \u2014 Limpeza\n${removidos} lead(s) gelado(s) removido(s).`;
+  return `${removidos} lead(s) gelado(s) removido(s)`;
+}
+async function _autoExportCSV(a){
+  const camp = a.campId?(campaigns||[]).find(c=>c.id===a.campId):null;
+  const leads2 = camp?(camp.leads||[]):(campaigns||[]).flatMap(c=>c.leads||[]);
+  if(!leads2.length) return 'Nenhum lead para exportar.';
+  const headers=['Nome','Telefone','Email','Temperatura','Score','Status','Endere\u00e7o','Website'];
+  const rows=leads2.map(l=>[l.name||'',l.formatted_phone_number||'',l.email||'',l.t||'',l.score||'',l.status||'',l.formatted_address||'',l.website||'']
+    .map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(','));
+  const csv=[headers.join(','),...rows].join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const url2=URL.createObjectURL(blob);
+  const a2=document.createElement('a');
+  a2.href=url2; a2.download=`capturo_${(camp?.name||'leads').replace(/\s+/g,'_')}_${new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')}.csv`;
+  document.body.appendChild(a2);a2.click();setTimeout(()=>{a2.remove();URL.revokeObjectURL(url2);},1000);
+  return `${leads2.length} leads exportados em CSV`;
+}
+
+// ── Notificações ──────────────────────────────────────────────
+function _autoNotificar(a, msg, ok){
+  const texto = window._autoLastMsg || ('\ud83e\udd16 CAPTURO \u2014 '+a.nome+'\n'+msg);
+  if(a.waNum){
+    _autoFilaNotif.push({tipo:'wa', num:a.waNum, texto});
+    _autoMostrarNotifPendente();
+  }
+  if(a.email){
+    const subj=encodeURIComponent('CAPTURO \u2014 '+a.nome);
+    const body=encodeURIComponent('Automa\u00e7\u00e3o: '+a.nome+'\n\n'+texto+'\n\n---\nEnviado pelo CAPTURO');
+    _autoFilaNotif.push({tipo:'email', email:a.email, subj, body});
+    _autoMostrarNotifPendente();
+  }
+}
+function _autoMostrarNotifPendente(){
+  if(_autoNotifShowing||!_autoFilaNotif.length) return;
+  const n=_autoFilaNotif.shift();
+  _autoNotifShowing=true;
+  const container=document.getElementById('autoNotifBar');
+  if(!container){_autoNotifShowing=false;return;}
+  container.style.display='flex';
+  const msgEl=document.getElementById('autoNotifMsg');
+  if(msgEl) msgEl.textContent=n.tipo==='wa'?`\ud83d\udcf1 Enviar WhatsApp para +55${n.num}?`:`\u2709\ufe0f Enviar email para ${n.email}?`;
+  window._autoPendingNotif=n;
+}
+function autoConfirmarNotif(){
+  const n=window._autoPendingNotif;
+  if(!n){autoFecharNotif();return;}
+  if(n.tipo==='wa') window.open('https://wa.me/55'+n.num+'?text='+encodeURIComponent(n.texto),'_blank','noopener');
+  else if(n.tipo==='email') window.open('mailto:'+n.email+'?subject='+n.subj+'&body='+n.body,'_blank','noopener');
+  autoFecharNotif();
+}
+function autoFecharNotif(){
+  const c=document.getElementById('autoNotifBar');
+  if(c) c.style.display='none';
+  _autoNotifShowing=false; window._autoPendingNotif=null;
+  setTimeout(()=>{if(_autoFilaNotif.length)_autoMostrarNotifPendente();},800);
+}
+
+// ── Init ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  autoLoad(); autoLogLoad();
+  autoReiniciarScheduler();
+  setTimeout(()=>{
+    const at=_autoList.filter(x=>x.ativo).length;
+    const b=document.getElementById('autoBadge');
+    if(b&&at>0){b.style.display='flex';b.textContent=at;}
+  },600);
+});
+
+// ── FIM AUTOMAÇÕES ────────────────────────────────────────────
+
 
 </script>
 </body>
