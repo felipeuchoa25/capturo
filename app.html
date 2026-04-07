@@ -15890,10 +15890,35 @@ let _autoFilaNotif    = [];
 let _autoNotifShowing = false;
 
 // ── Persistência ──────────────────────────────────────────────
-function autoSave(){ localStorage.setItem(AUTO_KEY, JSON.stringify(_autoList)); }
+function autoSave(){
+  localStorage.setItem(AUTO_KEY, JSON.stringify(_autoList));
+  // Persiste junto ao perfil no Supabase se logado
+  try{
+    if(typeof currentUser!=='undefined' && currentUser && typeof supabase!=='undefined'){
+      supabase.from('profiles').update({automacoes: _autoList})
+        .eq('id', currentUser.id).then(()=>{});
+    }
+  }catch(e){}
+}
 function autoLoad(){
   try{ _autoList = JSON.parse(localStorage.getItem(AUTO_KEY)||'[]'); }
   catch(e){ _autoList = []; }
+  // Mescla com Supabase se logado e perfil tiver automacoes salvas
+  try{
+    if(typeof currentUser!=='undefined' && currentUser && typeof supabase!=='undefined'){
+      supabase.from('profiles').select('automacoes').eq('id', currentUser.id).single()
+        .then(({data})=>{
+          if(data?.automacoes?.length){
+            _autoList = data.automacoes;
+            localStorage.setItem(AUTO_KEY, JSON.stringify(_autoList));
+            autoReiniciarScheduler();
+            const b=document.getElementById('autoBadge');
+            const at=_autoList.filter(x=>x.ativo).length;
+            if(b&&at>0){b.style.display='flex';b.textContent=at;}
+          }
+        }).catch(()=>{});
+    }
+  }catch(e){}
 }
 function autoLogSave(){
   if(_autoLog.length > 200) _autoLog = _autoLog.slice(-200);
@@ -16132,6 +16157,7 @@ let _autoSchedulerInterval = null;
 function autoReiniciarScheduler(){
   if(_autoSchedulerInterval) clearInterval(_autoSchedulerInterval);
   _autoSchedulerInterval = setInterval(_autoTick, 30000);
+  _autoTick(); // verifica imediatamente
 }
 function _autoTick(){
   autoLoad();
@@ -16286,6 +16312,11 @@ function autoFecharNotif(){
 document.addEventListener('DOMContentLoaded',()=>{
   autoLoad(); autoLogLoad();
   autoReiniciarScheduler();
+  // Relógio em tempo real na status strip
+  setInterval(()=>{
+    const hEl=document.getElementById('autoHoraAtual');
+    if(hEl) hEl.textContent=new Date().toLocaleTimeString('pt-BR');
+  }, 1000);
   setTimeout(()=>{
     const at=_autoList.filter(x=>x.ativo).length;
     const b=document.getElementById('autoBadge');
