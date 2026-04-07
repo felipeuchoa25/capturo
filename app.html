@@ -1396,6 +1396,7 @@ select:focus {
 </style>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230a0a0f'/><circle cx='50' cy='50' r='32' fill='none' stroke='%235e9cff' stroke-width='3' opacity='0.6'/><circle cx='50' cy='50' r='22' fill='none' stroke='%235e9cff' stroke-width='2' opacity='0.7'/><circle cx='50' cy='50' r='12' fill='none' stroke='%235e9cff' stroke-width='2' opacity='0.8'/><circle cx='50' cy='50' r='4' fill='%235e9cff'/><line x1='50' y1='50' x2='74' y2='50' stroke='%235e9cff' stroke-width='2' opacity='0.7' stroke-dasharray='3 2'/><circle cx='68' cy='34' r='5' fill='%23ff443a' opacity='0.9'/><circle cx='32' cy='62' r='4' fill='%23ffd60a' opacity='0.9'/></svg>">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body class="theme-blue">
 <!-- CAPTURO authorship watermark — do not remove -->
@@ -3696,6 +3697,7 @@ function toast(msg, type='info', duration=3500){
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button onclick="importarAlertasParaCampanha()" class="btn btn-primary" style="font-size:11px">📥 Importar para Campanha</button>
           <button onclick="exportarAlertasCSV()" class="btn btn-ghost" style="font-size:11px">⬇ CSV</button>
+          <button onclick="exportarAlertasXLSX()" class="btn btn-ghost" style="font-size:11px;color:#1d6f42;border-color:rgba(29,111,66,.4);background:rgba(29,111,66,.08)">📊 Excel</button>
         </div>
       </div>
       <!-- Aviso: leads temporários -->
@@ -3820,6 +3822,7 @@ function toast(msg, type='info', duration=3500){
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
         <button onclick="exportAllLeadsCSV()" class="btn btn-ghost" style="font-size:11px">⬇ Exportar CSV</button>
+        <button onclick="exportAllLeadsXLSX()" class="btn btn-ghost" style="font-size:11px;color:#1d6f42;border-color:rgba(29,111,66,.4);background:rgba(29,111,66,.08)">📊 Excel</button>
       </div>
     </div>
     <!-- Filters -->
@@ -8928,6 +8931,167 @@ function exportarAlertasCSV(){
   toast(`✅ ${_alertasData.length} registros exportados.`,'ok',3000);
 }
 
+
+// E3 — EXPORTAÇÃO EXCEL (.xlsx) via SheetJS
+// ══════════════════════════════════════════
+
+function _xlsxLeadRow(l, campName, campNicho, campCity, campState, campCountry){
+  const addr = l.formatted_address||'';
+  const parts = addr.split(',').map(s=>s.trim());
+  const bairro = l.bairro||l.neighborhood||parts[1]||'';
+  const cep = (addr.match(/\d{5}-?\d{3}/)||[''])[0];
+  const waNum = (l.whatsapp||l.manualWa||l.formatted_phone_number||'').replace(/\D/g,'');
+  const waLink = waNum ? `wa.me/${waNum}` : '';
+  const insta = l.instagram||l.socialLinks?.instagram||'';
+  const fb = l.facebook||l.socialLinks?.facebook||'';
+  const pitchIA = (l.pitch||l.aiPitch||'').replace(/\n/g,' ');
+  const capDate = l.createdAt ? new Date(l.createdAt).toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR');
+  const tempMap = {volcano:'🌋 Vulcão',hot:'🔥 Quente',warm:'🌡 Morno',cold:'❄ Frio',frozen:'🧊 Gelado'};
+  const statusMap = {new:'Novo',contacted:'Contatado',closed:'Fechado'};
+  return {
+    'Campanha': campName||'',
+    'Nicho/Segmento': campNicho||l.nicho||'',
+    'Nome': l.name||'',
+    'Bairro': bairro,
+    'Cidade': campCity||l.city||'',
+    'Estado': campState||l.state||'',
+    'País': campCountry||l.country||'BR',
+    'Endereço': addr,
+    'CEP': cep,
+    'Telefone': l.formatted_phone_number||'',
+    'WhatsApp': waLink,
+    'E-mail': l.email||'',
+    'E-mail Verificado': l.emailVerified?'Sim':'',
+    'Confiança E-mail': l.emailConfidence||'',
+    'Website': l.website||'',
+    'Bio Link': l.bioUrl||'',
+    'Instagram': insta,
+    'Facebook': fb,
+    'Temperatura': tempMap[l.t]||l.t||'',
+    'Score': l.score||'',
+    'Score Site': l.siteScore||'',
+    'Avaliação Google': l.rating||'',
+    'Nº Avaliações': l.user_ratings_total||'',
+    'Problemas Site': (l.siteIssues||[]).join(' | '),
+    'Fonte': l.source||'',
+    'Status': statusMap[l.status]||l.status||'Novo',
+    'Pitch IA': pitchIA,
+    'Notas': (l.notes||'').replace(/\n/g,' '),
+    'Data Captura': capDate
+  };
+}
+
+function _xlsxBuild(rows, sheetName, fileName){
+  if(!window.XLSX){ toast('SheetJS ainda carregando, aguarde...','warn'); return; }
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const cols = Object.keys(rows[0]||{}).map(k=>({wch: Math.max(k.length, 14)}));
+  ws['!cols'] = cols;
+  const range = XLSX.utils.decode_range(ws['!ref']||'A1');
+  for(let C=range.s.c; C<=range.e.c; C++){
+    const cell = ws[XLSX.utils.encode_cell({r:0,c:C})];
+    if(cell) cell.s = {font:{bold:true},fill:{fgColor:{rgb:'1D6F42'}},font:{color:{rgb:'FFFFFF'},bold:true}};
+  }
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, sheetName);
+  XLSX.writeFile(wb, fileName);
+}
+
+function exportXLSX(){
+  if(!leads.length){ toast('Nenhum lead para exportar','error'); return; }
+  const camp = campaigns.find(c=>c.id===activeCampaignId)||{};
+  const rows = leads.map(l=>_xlsxLeadRow(l, camp.name, camp.nicho, camp.city, camp.state, camp.country));
+  _xlsxBuild(rows, 'Leads', `CAPTURO_leads_${camp.name||'campanha'}_${new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')}.xlsx`);
+  toast(`✅ ${rows.length} leads exportados para Excel!`,'success',3000);
+}
+
+function exportAllLeadsXLSX(){
+  const allLeads = campaigns.flatMap(c=>(c.leads||[]).map(l=>_xlsxLeadRow(l,c.name,c.nicho,c.city,c.state,c.country)));
+  if(!allLeads.length){ toast('Nenhum lead para exportar','error'); return; }
+  const wb = window.XLSX ? XLSX.utils.book_new() : null;
+  if(!wb){ toast('SheetJS ainda carregando, aguarde...','warn'); return; }
+  const wsAll = XLSX.utils.json_to_sheet(allLeads);
+  wsAll['!cols'] = Object.keys(allLeads[0]).map(()=>({wch:16}));
+  XLSX.utils.book_append_sheet(wb, wsAll, 'Todos os Leads');
+  const resumo = campaigns.map(c=>({
+    'Campanha': c.name||'',
+    'Nicho': c.nicho||'',
+    'Cidade': c.city||'',
+    'Total Leads': (c.leads||[]).length,
+    'Vulcão 🌋': (c.leads||[]).filter(l=>l.t==='volcano').length,
+    'Quente 🔥': (c.leads||[]).filter(l=>l.t==='hot').length,
+    'Morno 🌡': (c.leads||[]).filter(l=>l.t==='warm').length,
+    'Frio ❄': (c.leads||[]).filter(l=>l.t==='cold').length,
+    'Gelado 🧊': (c.leads||[]).filter(l=>l.t==='frozen').length,
+    'Contatados': (c.leads||[]).filter(l=>l.status==='contacted').length,
+    'Fechados': (c.leads||[]).filter(l=>l.status==='closed').length,
+  }));
+  if(resumo.length){
+    const wsRes = XLSX.utils.json_to_sheet(resumo);
+    wsRes['!cols'] = Object.keys(resumo[0]).map(()=>({wch:16}));
+    XLSX.utils.book_append_sheet(wb, wsRes, 'Resumo por Campanha');
+  }
+  XLSX.writeFile(wb, `CAPTURO_todos_leads_${new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')}.xlsx`);
+  toast(`✅ ${allLeads.length} leads exportados em Excel multi-aba!`,'success',3500);
+}
+
+function exportarAlertasXLSX(){
+  if(!_alertasData.length){ toast('Nenhum dado para exportar.','warn'); return; }
+  if(!window.XLSX){ toast('SheetJS ainda carregando, aguarde...','warn'); return; }
+  const rows = _alertasData.map(emp=>({
+    'Razão Social': emp.razao_social||emp.nome||'',
+    'CNPJ': emp.cnpj||'',
+    'Data de Abertura': emp.data_inicio_atividade||emp.abertura||'',
+    'CNAE': emp.cnae_fiscal_descricao||(emp.atividade_principal&&emp.atividade_principal[0]?.text)||'',
+    'Telefone': emp.telefone||emp.ddd_telefone_1||'',
+    'E-mail': emp.email||'',
+    'Sócio Principal': (emp.qsa||[]).map(s=>s.nome_socio||s.nome||'').join(' / '),
+    'Porte': emp.porte||emp.descricao_porte||'',
+    'Capital Social': emp.capital_social||'',
+    'Município': emp.municipio||'',
+    'UF': emp.uf||'',
+    'Score Oportunidade': emp._scoreOport||''
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  ws['!cols'] = Object.keys(rows[0]).map(k=>({wch:Math.max(k.length+2,16)}));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Radar CNPJ');
+  XLSX.writeFile(wb, `CAPTURO_RadarCNPJ_${new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')}.xlsx`);
+  toast(`✅ ${rows.length} empresas exportadas para Excel!`,'ok',3000);
+}
+
+function exportSelecionadosXLSX(){
+  if(selectedLeads.size===0){ toast('Nenhum lead selecionado','warn'); return; }
+  if(!window.XLSX){ toast('SheetJS ainda carregando, aguarde...','warn'); return; }
+  const rows = [];
+  campaigns.forEach(c=>{
+    (c.leads||[]).forEach(l=>{
+      if(selectedLeads.has(l.id)) rows.push(_xlsxLeadRow(l,c.name,c.nicho,c.city,c.state,c.country));
+    });
+  });
+  if(!rows.length){ toast('Nenhum lead encontrado','error'); return; }
+  _xlsxBuild(rows, 'Selecionados', `CAPTURO_selecionados_${new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')}.xlsx`);
+  toast(`✅ ${rows.length} leads selecionados exportados!`,'success',3000);
+}
+
+function exportSelecionadosCSV(){
+  if(selectedLeads.size===0){ toast('Nenhum lead selecionado','warn'); return; }
+  const rows = [['Campanha','Nome','Telefone','WhatsApp','E-mail','Website','Temperatura','Status','Cidade','Notas']];
+  campaigns.forEach(c=>{
+    (c.leads||[]).forEach(l=>{
+      if(!selectedLeads.has(l.id)) return;
+      const waNum=(l.whatsapp||l.manualWa||l.formatted_phone_number||'').replace(/\D/g,'');
+      const tempMap={volcano:'🌋 Vulcão',hot:'🔥 Quente',warm:'🌡 Morno',cold:'❄ Frio',frozen:'🧊 Gelado'};
+      rows.push([c.name||'',l.name||'',l.formatted_phone_number||'',waNum?`wa.me/${waNum}`:'',l.email||'',l.website||l.bioUrl||'',tempMap[l.t]||l.t||'',l.status||'new',l.city||c.city||'',(l.notes||'').replace(/\n/g,' ')]);
+    });
+  });
+  const csv=rows.map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download=`CAPTURO_selecionados_${new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')}.csv`;
+  a.click();
+  toast(`✅ ${selectedLeads.size} leads exportados!`,'success',3000);
+}
+
 function renderRelatorio(){
   const allLeads=campaigns.flatMap(c=>c.leads||[]);
   const precoNum=parseInt((appSettings.precoAvista||'3000').replace(/\D/g,''))||3000;
@@ -13063,6 +13227,8 @@ function selectAllBulkLeads(){
   <button onclick="deleteBulkLeads()" style="padding:7px 14px;border-radius:10px;border:none;background:rgba(255,59,48,.25);color:#ff3b30;font-size:12px;font-weight:600;cursor:pointer">🗑 Deletar</button>
   <button onclick="moveBulkLeads('contacted')" style="padding:7px 14px;border-radius:10px;border:none;background:rgba(0,122,255,.2);color:var(--accent);font-size:12px;font-weight:600;cursor:pointer">→ Contactado</button>
   <button onclick="moveBulkLeads('closed')" style="padding:7px 14px;border-radius:10px;border:none;background:rgba(52,199,89,.2);color:var(--green);font-size:12px;font-weight:600;cursor:pointer">✓ Fechado</button>
+  <button onclick="exportSelecionadosXLSX()" style="padding:7px 14px;border-radius:10px;border:none;background:rgba(29,111,66,.25);color:#34c759;font-size:12px;font-weight:600;cursor:pointer">📊 Excel</button>
+  <button onclick="exportSelecionadosCSV()" style="padding:7px 14px;border-radius:10px;border:none;background:rgba(255,255,255,.08);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer">⬇ CSV</button>
   <button onclick="selectedLeads.clear();updateBulkUI()" style="padding:7px 14px;border-radius:10px;border:none;background:rgba(255,255,255,.1);color:var(--muted2);font-size:12px;cursor:pointer">✕ Cancelar</button>
 </div>
 
