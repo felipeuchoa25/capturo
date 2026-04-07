@@ -265,7 +265,7 @@ body::before{
 }
 .btn-new:active{transform:scale(.96);}
 /* LAYOUT */
-.main{padding:24px 28px;width:100%;max-width:100%}
+.main{padding:24px 28px;width:100%;max-width:1400px;box-sizing:border-box}
 .main-wrap{margin-left:64px;min-height:100vh;width:calc(100% - 64px);box-sizing:border-box;transition:margin-left .2s ease,width .2s ease}
 .page{display:none}
 .page.active{display:block}
@@ -2281,9 +2281,17 @@ function toast(msg, type='info', duration=3500){
   <div class="sb-item sb-item-radar-cnpj" id="sb-alertas" onclick="showPage('pageAlertas');setSbActive('sb-alertas')" title="Radar CNPJ — Novos Negócios">
     <span class="sb-icon" style="position:relative">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/><line x1="12" y1="2" x2="12" y2="4"/></svg>
-      <span id="alertasBadge" style="display:none;position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;background:var(--volcano);border-radius:20px;font-size:9px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 3px;border:2px solid var(--s1)"></span>
+      <span id="alertasBadge" style="display:none;position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;background:var(--volcano);border-radius:20px;font-size:9px;font-weight:700;color:#fff;align-items:center;justify-content:center;padding:0 3px;border:2px solid var(--s1)"></span>
     </span>
     <span class="sb-label">Radar CNPJ</span>
+  </div>
+  <div class="sb-item sb-item-radar-cnpj" id="sb-cnpjhistorico" onclick="showPage('pageCnpjHistorico');setSbActive('sb-cnpjhistorico');cnpjRenderHistorico()" title="Histórico de Buscas CNPJ" style="padding-left:20px;font-size:12px;opacity:.85">
+    <span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+    <span class="sb-label">Histórico</span>
+  </div>
+  <div class="sb-item sb-item-radar-cnpj" id="sb-cnpjsalvas" onclick="showPage('pageCnpjSalvas');setSbActive('sb-cnpjsalvas');cnpjRenderSalvas()" title="Empresas Salvas do CNPJ" style="padding-left:20px;font-size:12px;opacity:.85">
+    <span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></span>
+    <span class="sb-label">Salvas</span>
   </div>
 
   <!-- ── BLOCO 3: RADAR LOCAL ── -->
@@ -2647,6 +2655,44 @@ function toast(msg, type='info', duration=3500){
     </div>
     <!-- PIPELINE BOARD (renderizado via JS) -->
     <div id="pipelineBoard" style="display:none"></div>
+  </div>
+
+
+  </div>
+
+
+  <!-- ══ CNPJ — HISTÓRICO DE BUSCAS ══ -->
+  <div class="page" id="pageCnpjHistorico">
+    <div class="main">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px">
+        <div style="width:44px;height:44px;border-radius:12px;background:rgba(255,82,82,.12);display:flex;align-items:center;justify-content:center;font-size:22px">🕐</div>
+        <div>
+          <div style="font-size:22px;font-weight:800;letter-spacing:-.03em">Histórico de Buscas CNPJ</div>
+          <div style="font-size:12px;color:var(--muted2);font-family:'IBM Plex Mono',monospace">Últimas 30 buscas salvas automaticamente</div>
+        </div>
+        <button onclick="if(confirm('Limpar todo o histórico?')){localStorage.removeItem('capturo_cnpj_historico');cnpjRenderHistorico();}" class="btn btn-ghost" style="margin-left:auto;font-size:11px;color:var(--red)">🗑 Limpar tudo</button>
+      </div>
+      <div id="cnpjHistoricoLista" style="display:flex;flex-direction:column;gap:10px">
+        <div style="text-align:center;padding:40px;color:var(--muted2)">Carregando...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CNPJ — EMPRESAS SALVAS ══ -->
+  <div class="page" id="pageCnpjSalvas">
+    <div class="main">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px">
+        <div style="width:44px;height:44px;border-radius:12px;background:rgba(255,82,82,.12);display:flex;align-items:center;justify-content:middle;font-size:22px;padding-left:10px">💾</div>
+        <div>
+          <div style="font-size:22px;font-weight:800;letter-spacing:-.03em">Empresas Salvas — CNPJ</div>
+          <div style="font-size:12px;color:var(--muted2);font-family:'IBM Plex Mono',monospace">Empresas marcadas com 💾 no Radar CNPJ</div>
+        </div>
+        <button onclick="if(confirm('Remover todas as empresas salvas?')){localStorage.removeItem('capturo_cnpj_salvas');cnpjRenderSalvas();}" class="btn btn-ghost" style="margin-left:auto;font-size:11px;color:var(--red)">🗑 Limpar tudo</button>
+      </div>
+      <div id="cnpjSalvasLista" style="display:flex;flex-direction:column;gap:10px">
+        <div style="text-align:center;padding:40px;color:var(--muted2)">Carregando...</div>
+      </div>
+    </div>
   </div>
 
 
@@ -7961,6 +8007,7 @@ async function buscarNovosNegocios(){
       });
       _alertasData = novasDireto;
       _renderAlertasResultados(novasDireto, cidade, nicho, dias);
+      cnpjSalvarHistorico(novasDireto, cidade, nicho, dias);
       const badge=document.getElementById('alertasBadge');
       if(badge){ if(novasDireto.length>0){badge.style.display='flex';badge.textContent=novasDireto.length>99?'99+':novasDireto.length;}else badge.style.display='none'; }
       return; // Sucesso via CNPJ direto — não precisa do Maps
@@ -8172,6 +8219,7 @@ async function buscarNovosNegocios(){
 
     _alertasData=novas;
     _renderAlertasResultados(novas,cidade,nicho,dias);
+    cnpjSalvarHistorico(novas,cidade,nicho,dias);
 
     const badge=document.getElementById('alertasBadge');
     if(badge){
@@ -8442,6 +8490,7 @@ function _renderAlertasResultados(lista, cidade, nicho, dias){
         <!-- Importar + WA + CNPJ -->
         <div style="display:flex;gap:6px">
           <button onclick="event.stopPropagation();_importarAlertaLeadUnicoFix(${idx})" class="btn btn-primary" style="font-size:10px;padding:6px 10px;flex:1" title="Importar para campanha ativa">📥 Importar</button>
+          <button onclick="event.stopPropagation();cnpjSalvarEmpresa(_alertasData[${idx}])" class="btn btn-ghost" style="font-size:10px;padding:6px 10px;" title="Salvar empresa no histórico CNPJ">💾 Salvar</button>
           ${waNum ? `<a href="https://wa.me/55${waNum}" target="_blank" class="btn" onclick="event.stopPropagation()" style="font-size:10px;padding:6px 10px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;text-decoration:none;display:flex;align-items:center;gap:4px;flex:1;justify-content:center">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
             WA</a>` : ''}
@@ -8466,6 +8515,129 @@ function _importarAlertaLeadUnico(idx){
     }
   }
 }
+
+// ── CNPJ Histórico de Buscas ─────────────────────────────────────────────────
+const CNPJ_HIST_KEY   = 'capturo_cnpj_historico';
+const CNPJ_SAVED_KEY  = 'capturo_cnpj_salvas';
+
+function cnpjSalvarHistorico(lista, cidade, nicho, dias){
+  if(!lista||!lista.length) return;
+  try{
+    const hist = JSON.parse(localStorage.getItem(CNPJ_HIST_KEY)||'[]');
+    hist.unshift({ ts: Date.now(), cidade, nicho, dias, total: lista.length, lista: lista.slice(0,100) });
+    localStorage.setItem(CNPJ_HIST_KEY, JSON.stringify(hist.slice(0,30)));
+  }catch(e){ console.warn('[CNPJ] Erro ao salvar histórico:', e); }
+}
+
+function cnpjSalvarEmpresa(emp){
+  if(!emp) return;
+  try{
+    const salvas = JSON.parse(localStorage.getItem(CNPJ_SAVED_KEY)||'[]');
+    const cnpj = (emp.cnpj||'').replace(/\D/g,'');
+    if(cnpj && salvas.find(s=>(s.cnpj||'').replace(/\D/g,'')=== cnpj)){
+      toast('Empresa já salva no histórico CNPJ.','warn'); return;
+    }
+    salvas.unshift({ ...emp, _savedAt: Date.now() });
+    localStorage.setItem(CNPJ_SAVED_KEY, JSON.stringify(salvas.slice(0,500)));
+    toast('💾 Empresa salva no histórico CNPJ!','ok',2500);
+  }catch(e){ console.warn('[CNPJ] Erro ao salvar empresa:', e); }
+}
+
+function cnpjRenderHistorico(){
+  const el = document.getElementById('cnpjHistoricoLista');
+  if(!el) return;
+  try{
+    const hist = JSON.parse(localStorage.getItem(CNPJ_HIST_KEY)||'[]');
+    if(!hist.length){ el.innerHTML=`<div style="text-align:center;padding:40px;color:var(--muted2)">📭 Nenhuma busca salva ainda.<br><span style="font-size:12px">Faça uma busca no Radar CNPJ para começar.</span></div>`; return; }
+    el.innerHTML = hist.map((h,i)=>{
+      const dt = new Date(h.ts).toLocaleString('pt-BR');
+      return `<div style="background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer" onclick="cnpjRestaurarBusca(${i})" title="Clique para ver os resultados desta busca">
+        <div style="font-size:24px">🕐</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:var(--text)">${escHtml(h.nicho||'—')} em ${escHtml(h.cidade||'—')}</div>
+          <div style="font-size:11px;color:var(--muted2)">${dt} · ${h.total} empresa(s) · Últimos ${h.dias}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button onclick="event.stopPropagation();cnpjRestaurarBusca(${i})" class="btn btn-primary" style="font-size:10px;padding:5px 10px">👁 Ver</button>
+          <button onclick="event.stopPropagation();cnpjDeletarHistorico(${i})" class="btn btn-ghost" style="font-size:10px;padding:5px 10px;color:var(--red)">🗑</button>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){ el.innerHTML='<div style="color:var(--red)">Erro ao carregar histórico.</div>'; }
+}
+
+function cnpjDeletarHistorico(i){
+  try{
+    const hist = JSON.parse(localStorage.getItem(CNPJ_HIST_KEY)||'[]');
+    hist.splice(i,1);
+    localStorage.setItem(CNPJ_HIST_KEY, JSON.stringify(hist));
+    cnpjRenderHistorico();
+    toast('Busca removida.','ok',1500);
+  }catch(e){}
+}
+
+function cnpjRestaurarBusca(i){
+  try{
+    const hist = JSON.parse(localStorage.getItem(CNPJ_HIST_KEY)||'[]');
+    const h = hist[i];
+    if(!h||!h.lista) return;
+    _alertasData = h.lista;
+    _renderAlertasResultados(h.lista, h.cidade, h.nicho, h.dias);
+    showPage('pageAlertas'); setSbActive('sb-alertas');
+    toast(`🕐 Busca restaurada: ${h.total} empresa(s)`,'ok',2500);
+  }catch(e){}
+}
+
+function cnpjRenderSalvas(){
+  const el = document.getElementById('cnpjSalvasLista');
+  if(!el) return;
+  try{
+    const salvas = JSON.parse(localStorage.getItem(CNPJ_SAVED_KEY)||'[]');
+    if(!salvas.length){ el.innerHTML=`<div style="text-align:center;padding:40px;color:var(--muted2)">⭐ Nenhuma empresa salva ainda.<br><span style="font-size:12px">Clique em 💾 Salvar em qualquer card do Radar CNPJ.</span></div>`; return; }
+    el.innerHTML = salvas.map((emp,i)=>{
+      const nome = escHtml(emp.razao_social||emp.nome_fantasia||emp.nome||'Sem nome');
+      const cnpjFmt = (emp.cnpj||'').replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,'$1.$2.$3/$4-$5');
+      const tel = escHtml(emp.ddd_telefone_1||emp.telefone||'');
+      const dt = emp._savedAt ? new Date(emp._savedAt).toLocaleDateString('pt-BR') : '—';
+      const waNum = (emp.ddd_telefone_1||emp.telefone||'').replace(/\D/g,'');
+      return `<div style="background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px">
+        <div style="font-size:22px">🏢</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${nome}</div>
+          <div style="font-size:11px;color:var(--muted2)">${cnpjFmt||'CNPJ não disponível'} · Salvo em ${dt}</div>
+          ${tel?`<div style="font-size:11px;color:var(--accent);font-family:'IBM Plex Mono',monospace">${tel}</div>`:''}
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          ${waNum?`<a href="https://wa.me/55${waNum}" target="_blank" class="btn" style="font-size:10px;padding:5px 10px;background:#25D366;color:#fff;border:none;text-decoration:none">WA</a>`:''}
+          <button onclick="cnpjImportarSalva(${i})" class="btn btn-primary" style="font-size:10px;padding:5px 10px">📥</button>
+          <button onclick="cnpjDeletarSalva(${i})" class="btn btn-ghost" style="font-size:10px;padding:5px 10px;color:var(--red)">🗑</button>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){ el.innerHTML='<div style="color:var(--red)">Erro ao carregar empresas salvas.</div>'; }
+}
+
+function cnpjDeletarSalva(i){
+  try{
+    const salvas = JSON.parse(localStorage.getItem(CNPJ_SAVED_KEY)||'[]');
+    salvas.splice(i,1);
+    localStorage.setItem(CNPJ_SAVED_KEY, JSON.stringify(salvas));
+    cnpjRenderSalvas();
+    toast('Empresa removida.','ok',1500);
+  }catch(e){}
+}
+
+function cnpjImportarSalva(i){
+  try{
+    const salvas = JSON.parse(localStorage.getItem(CNPJ_SAVED_KEY)||'[]');
+    const emp = salvas[i];
+    if(!emp) return;
+    if(!activeCampaignId){ toast('Abra uma campanha primeiro.','warn'); return; }
+    if(_importarEmpresaComoLead(emp)){ saveCampaigns(); renderAll(); toast(`✅ "${emp.razao_social||'Lead'}" importado!`,'ok',2500); }
+    else toast('Lead já existe nesta campanha.','warn');
+  }catch(e){}
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 function importarAlertasParaCampanha(){
   if(!_alertasData.length){ toast('Nenhum resultado para importar.','warn'); return; }
@@ -13957,7 +14129,7 @@ function renderVisualFunnel(stages){
         </div>
         <div style="flex:1;min-width:0">
           <div style="font-size:11px;font-weight:600;color:var(--text)">${s.label}</div>
-          <div style="font-size:9px;color:var(--muted2);font-family:'IBM Plex Mono',monospace">${i===0?'base':convPct+'% conversão'}</div>
+          <div style="font-size:9px;color:var(--muted2);font-family:'IBM Plex Mono',monospace">${i===0?'100% — todos':convPct+'% conversão'}</div>
         </div>
       </div>`;
     }).join('') + `</div>`;
