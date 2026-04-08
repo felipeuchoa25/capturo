@@ -2408,6 +2408,18 @@ h4, h5, h6, label {
    THEME OVERRIDES — keep theming working
 ══════════════════════════════════════════ */
 .theme-blue { --bg:#07070d; --s1:#0f0f1c; --s2:#161626; }
+.theme-teal {
+  --bg:#06141a; --s1:#0a1f28; --s2:#0f2a35; --s3:#143845;
+  --border:rgba(56,217,192,.18); --border2:rgba(56,217,192,.28);
+  --text:#eafffb; --text2:#c8efe6; --muted:#7fb3aa; --muted2:#9fcfc4;
+  --accent:#38d9c0; --accent2:#7af2dd; --accent-bg:rgba(56,217,192,.10);
+}
+.theme-teal .sidebar { background:rgba(6,20,26,.96)!important; border-right:1px solid rgba(56,217,192,.15)!important; }
+.theme-teal .topnav  { background:rgba(6,20,26,.92)!important; border-bottom:1px solid rgba(56,217,192,.12)!important; }
+/* Divisórias da sidebar mais visíveis em todos os temas */
+.sb-divider { height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent)!important; margin:10px 12px!important; }
+[data-theme="white"] .sb-divider { background:linear-gradient(90deg,transparent,rgba(0,0,0,.14),transparent)!important; }
+[data-theme="teal"]  .sb-divider { background:linear-gradient(90deg,transparent,rgba(56,217,192,.35),transparent)!important; }
 .theme-gray {
   --font-display: 'Syne', system-ui, sans-serif;
   --font-body:    'DM Sans', system-ui, sans-serif;
@@ -2469,7 +2481,7 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
-<body class="theme-blue">
+<body class="theme-blue" data-theme="blue">
 <!-- CAPTURO authorship watermark — do not remove -->
 <span aria-hidden="true" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;pointer-events:none;opacity:0" data-cap="CAP-7B3E92A1F0C84D56" data-author="Felipe Uchoa" data-year="2025">CAPTURO v5.0 © 2024-2025 Felipe Uchoa <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="593f3c3530293c35383b382d1931362d34383035773a3634">[email&#160;protected]</a></span>
 
@@ -3432,6 +3444,7 @@ function toast(msg, type='info', duration=3500){
     </span>
     <span style="display:flex;gap:8px;align-items:center;pointer-events:auto">
       <span style="width:18px;height:18px;border-radius:50%;background:#0f1117;border:2px solid rgba(255,255,255,.4);cursor:pointer;display:inline-block;transition:transform .15s" onclick="applyTheme('blue')" title="Noturno" onmouseover="this.style.transform='scale(1.3)'" onmouseout="this.style.transform='scale(1)'"></span>
+      <span style="width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,#0a3d4a,#38d9c0);border:2px solid rgba(255,255,255,.4);cursor:pointer;display:inline-block;transition:transform .15s" onclick="applyTheme('teal')" title="Verde Água" onmouseover="this.style.transform='scale(1.3)'" onmouseout="this.style.transform='scale(1)'"></span>
       <span style="width:18px;height:18px;border-radius:50%;background:#f2f2f7;border:2px solid #ccc;cursor:pointer;display:inline-block;transition:transform .15s" onclick="applyTheme('white')" title="Claro" onmouseover="this.style.transform='scale(1.3)'" onmouseout="this.style.transform='scale(1)'"></span>
     </span>
   </div>
@@ -5517,8 +5530,7 @@ function toast(msg, type='info', duration=3500){
         <p style="font-size:12px">Quando fechar um lead, clique em "💰 Fechar" no card e depois mova para cá.</p>
       </div>
     </div>
-    </div><!-- fecha clients-inner -->
-  </div>
+  </div><!-- /pageClients -->
 
   <!-- CLIENT MODAL -->
   <div class="modal-overlay" id="clientModal" style="z-index:700">
@@ -12937,17 +12949,41 @@ function calcParcelas(vista, juros){
 function applyTheme(t){
   document.body.classList.remove('theme-blue','theme-gray','theme-white','theme-teal');
   document.body.classList.add('theme-'+t);
+  document.body.setAttribute('data-theme', t);
   appSettings.theme=t;
   // settings modal highlight
   ['themeBlue','themeGray','themeWhite','themeTeal'].forEach(id=>{const el=$(id);if(el)el.style.border='2px solid transparent';});
-  const modalMap={blue:'themeBlue',gray:'themeGray',white:'themeWhite'};
+  const modalMap={blue:'themeBlue',gray:'themeGray',white:'themeWhite',teal:'themeTeal'};
   if($(modalMap[t]))$(modalMap[t]).style.border='2px solid var(--accent)';
   // topnav swatches highlight
-  ['swBlue','swGray','swWhite'].forEach(id=>{const el=$(id);if(el)el.classList.remove('active-swatch');});
-  const swMap={blue:'swBlue',gray:'swGray',white:'swWhite'};
+  ['swBlue','swGray','swWhite','swTeal'].forEach(id=>{const el=$(id);if(el)el.classList.remove('active-swatch');});
+  const swMap={blue:'swBlue',gray:'swGray',white:'swWhite',teal:'swTeal'};
   if($(swMap[t]))$(swMap[t]).classList.add('active-swatch');
   localStorage.setItem('capturo-theme',t);
 }
+
+// ── Hook foto do perfil na sidebar ──
+function atualizarSidebarPerfil(){
+  try{
+    const photo = (typeof appSettings!=='undefined' && appSettings.avatar) || localStorage.getItem('capturo_user_photo') || '';
+    const nome  = (typeof appSettings!=='undefined' && (appSettings.vendedor||appSettings.nome)) || (currentUser&&(currentUser.user_metadata?.full_name||currentUser.email)) || 'Você';
+    const inicial = (nome||'?').trim().charAt(0).toUpperCase();
+    const imgEl = document.getElementById('sbAvatarImg');
+    const letEl = document.getElementById('sbAvatarLetter');
+    const nameEl= document.getElementById('sbUserName');
+    if(nameEl) nameEl.textContent = nome.length>14 ? nome.slice(0,14)+'…' : nome;
+    if(photo && imgEl){
+      imgEl.style.display='inline-block';
+      imgEl.style.background = `center/cover no-repeat url("${photo}")`;
+      if(letEl) letEl.style.display='none';
+    } else {
+      if(imgEl) imgEl.style.display='none';
+      if(letEl){ letEl.style.display='flex'; letEl.textContent = inicial; }
+    }
+  }catch(e){ console.warn('atualizarSidebarPerfil:',e); }
+}
+// Tenta atualizar quando a página carrega e quando muda tema
+document.addEventListener('DOMContentLoaded', ()=>{ try{ atualizarSidebarPerfil(); }catch(_){} });
 
 // Settings tabs
 function setSettingsTab(tab){
@@ -16586,7 +16622,7 @@ function renderMissoes(){
           ? `<span style="font-size:10px;color:var(--green);font-weight:700">✅ Feito</span>`
           : m.id==='indicar_amigo'
             ? `<button onclick="copiarLinkConvite()" style="background:var(--accent-bg);border:1px solid rgba(79,142,255,.3);color:var(--accent);padding:5px 10px;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer">Copiar Link</button>`
-            : `<button onclick="completarMissao('${m.id}',${m.recompensa})" style="background:var(--green-bg);border:1px solid var(--green-b);color:var(--green);padding:5px 10px;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer">Coletar</button>`
+            : `<span style="font-size:10px;color:var(--muted2);font-weight:600;font-family:monospace">⏳ Pendente</span>`
         }
       </div>
     </div>`;
@@ -16626,13 +16662,8 @@ function copiarLinkConvite(){
   });
 }
 
-// Registra missão de check-in automaticamente quando o perfil é aberto
-function _registrarCheckinMissao(){
-  const hoje = new Date().toDateString();
-  if(localStorage.getItem('capturo_missao_daily_checkin') !== hoje){
-    completarMissao('daily_checkin', 2);
-  }
-}
+// Check-in diário desativado: missões só completam pela ação real do usuário
+function _registrarCheckinMissao(){ /* no-op intencional — anti-cheat */ }
 
 // ── AI PITCH GENERATOR ────────────────────────────────────────────────────
 let _pitchAtualEmpresa = null;
