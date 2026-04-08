@@ -17867,6 +17867,10 @@ function aiRenderConvList(){
     return `<div style="font-size:10px;color:var(--muted2);padding:8px 8px 2px;font-weight:700;letter-spacing:.06em">${titulo}</div>${itens}`;
   }
 
+  list.innerHTML = renderGrupo('HOJE', grupos.hoje) + renderGrupo('ESTA SEMANA', grupos.semana) + renderGrupo('MAIS ANTIGAS', grupos.antigas);
+}
+
+
 
 function aiCarregarConversa(convId){
   const conv = _aiConversas.find(c=>c.id===convId);
