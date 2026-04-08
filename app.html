@@ -1589,7 +1589,10 @@ select:focus {
 .topnav {
   position: fixed !important;
   top: 0 !important;
-  z-index: 100 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  z-index: 200 !important;
 }
 
 .login-input { color: #f0f0fa !important; caret-color: #f0f0fa !important; }
@@ -3423,13 +3426,13 @@ function toast(msg, type='info', duration=3500){
   <div class="sb-divider" style="margin-top:auto"></div>
 
   <!-- Temas de cor -->
-  <div class="sb-item" style="cursor:default" title="Tema de cores">
-    <span class="sb-icon">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/></svg>
+  <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:default" title="Tema de cores">
+    <span style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--muted2)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/></svg>
     </span>
-    <span class="sb-label" style="display:flex;gap:7px;align-items:center">
-      <span class="tn-swatch-sb" style="width:14px;height:14px;border-radius:50%;background:#0f1117;border:2px solid rgba(255,255,255,.3);cursor:pointer" onclick="applyTheme('blue')" title="Noturno"></span>
-      <span class="tn-swatch-sb" style="width:14px;height:14px;border-radius:50%;background:#f2f2f7;border:2px solid #ccc;cursor:pointer" onclick="applyTheme('white')" title="Claro"></span>
+    <span style="display:flex;gap:8px;align-items:center;pointer-events:auto">
+      <span style="width:18px;height:18px;border-radius:50%;background:#0f1117;border:2px solid rgba(255,255,255,.4);cursor:pointer;display:inline-block;transition:transform .15s" onclick="applyTheme('blue')" title="Noturno" onmouseover="this.style.transform='scale(1.3)'" onmouseout="this.style.transform='scale(1)'"></span>
+      <span style="width:18px;height:18px;border-radius:50%;background:#f2f2f7;border:2px solid #ccc;cursor:pointer;display:inline-block;transition:transform .15s" onclick="applyTheme('white')" title="Claro" onmouseover="this.style.transform='scale(1.3)'" onmouseout="this.style.transform='scale(1)'"></span>
     </span>
   </div>
 
@@ -16114,6 +16117,40 @@ window._postAuthInit = function(){
   transition:all .15s;font-family:'IBM Plex Mono',monospace;
 }
 .pitch-copy-btn:hover{ border-color:var(--accent);color:var(--accent); }
+
+/* ══ FIXES DEFINITIVOS ══ */
+/* Sidebar - garantir cliques em todos os itens */
+.sb-item {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+.sb-item * {
+  pointer-events: auto !important;
+}
+/* Sidebar z-index */
+.sidebar {
+  z-index: 150 !important;
+}
+/* Topnav - garantir fixed correto */
+.topnav {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  z-index: 200 !important;
+  box-sizing: border-box !important;
+}
+/* main-wrap - padding para não ficar sob topnav */
+.main-wrap {
+  padding-top: 56px !important;
+}
+/* Bolinhas de tema - sempre clicáveis */
+.tn-swatch-sb {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  display: inline-block !important;
+}
 </style>
 
 <!-- ── MODAL RECARGA DE RAIOS ── -->
