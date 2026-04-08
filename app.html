@@ -1601,11 +1601,14 @@ select:focus {
   caret-color: #f0f0fa !important;
 }
 
-/* Topnav limpo - lupa ocupa espaço disponível */
-.gs-btn {
-  flex: 1 !important;
-  max-width: 400px !important;
-  justify-content: flex-start !important;
+
+#tourFloatBtn {
+  box-shadow: none !important;
+  border: none !important;
+  outline: none !important;
+}
+#tourFloatBtn:hover {
+  opacity: 1 !important;
 }
 </style>
 <style id="capturo-premium-v6">
@@ -3497,11 +3500,21 @@ function toast(msg, type='info', duration=3500){
     <div style="width:1px;height:22px;background:var(--border);flex-shrink:0;margin:0 6px"></div>
     <!-- Prospecções inline -->
     <div class="nav-tabs" id="navTabs" style="flex:1;flex-wrap:wrap;overflow:visible;max-height:none;"></div>
-    <!-- Global Search Button -->
-    <button class="gs-btn" onclick="openGlobalSearch()" title="Busca global (Ctrl+K)">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      Buscar... <span style="font-size:9px;opacity:.5;margin-left:4px">Ctrl+K</span>
-    </button>
+    <!-- Global Search - ícone + campo expansível -->
+    <div style="display:flex;align-items:center;gap:0;position:relative">
+      <button id="searchToggleBtn" onclick="toggleSearchBar()" title="Busca global (Ctrl+K)"
+        style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 10px;cursor:pointer;color:var(--muted2);display:flex;align-items:center;gap:0;transition:all .2s">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <div id="searchBarExpanded" style="display:none;position:absolute;left:40px;top:50%;transform:translateY(-50%);z-index:200;background:var(--s1);border:1px solid var(--accent);border-radius:8px;padding:6px 12px;display:none;align-items:center;gap:8px;min-width:280px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--muted2)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="searchBarInput" type="text" placeholder="Buscar leads, empresas..." 
+          style="background:none;border:none;outline:none;color:var(--text);font-size:13px;width:100%;font-family:inherit"
+          onkeydown="if(event.key==='Escape'){toggleSearchBar();}else if(event.key==='Enter'){openGlobalSearch(this.value);}"
+          oninput="if(typeof globalSearchFilter==='function')globalSearchFilter(this.value)">
+        <span style="font-size:9px;color:var(--muted2);flex-shrink:0">Esc</span>
+      </div>
+    </div>
 
 
     <!-- Botão + Campanha — único no sistema -->
@@ -3571,12 +3584,7 @@ function toast(msg, type='info', duration=3500){
       <div id="dashMissoesList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px"></div>
     </div>
 
-    <!-- Widget Missões Diárias -->
-    <div id="dashMissoesWidget" style="background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:18px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <div style="font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace">🎯 MISSÕES DIÁRIAS</div>
-        <div style="font-size:11px;color:var(--muted2)">Complete e ganhe Raios grátis</div>
-      </div>
+    
       <div id="dashMissoesList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px"></div>
     </div>
 
@@ -13150,7 +13158,7 @@ function renderDashboard(){
   const h = new Date().getHours();
   const greetF = h<12?'☀️ Bom dia, ':h<18?'🌤 Boa tarde, ':'🌙 Boa noite, ';
   const dashGr = $('dashGreeting');
-  if(dashGr) dashGr.textContent = greetF+(appSettings.vendedor||'Felipe')+'!';
+  if(dashGr) dashGr.textContent = greetF+(appSettings.vendedor||'Noxvy')+'!';
 
   // Widget missões diárias
   if(typeof renderDashMissoes==='function') renderDashMissoes();
@@ -15294,7 +15302,7 @@ async function loadFromSupabase(){
   </div>
 </div>
 <!-- Botão flutuante sempre visível -->
-<button id="tourFloatBtn" title="Tour / Ajuda" style="position:fixed;bottom:24px;right:16px;z-index:99100;width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;border:none;cursor:grab;font-size:15px;box-shadow:0 1px 4px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;transition:opacity .15s;user-select:none;opacity:.75" onclick="if(typeof restartTourFromFloat==='function')restartTourFromFloat();else{localStorage.removeItem('capturo-tour-done');location.reload();}">🧭</button>
+<button id="tourFloatBtn" title="Tour / Ajuda" style="position:fixed;bottom:24px;right:16px;z-index:99100;width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;border:none;cursor:grab;font-size:15px;box-shadow:none;display:flex;align-items:center;justify-content:center;transition:opacity .15s;user-select:none;opacity:.75" onclick="if(typeof restartTourFromFloat==='function')restartTourFromFloat();else{localStorage.removeItem('capturo-tour-done');location.reload();}">🧭</button>
 <script>
 (function(){
   const btn = document.getElementById('tourFloatBtn');
@@ -16500,15 +16508,15 @@ function renderDashMissoes(){
   if(typeof MISSOES === 'undefined') return;
   container.innerHTML = MISSOES.slice(0,4).map(m=>{
     const feita = localStorage.getItem(`capturo_missao_${m.id}`) === hoje;
-    return `<div style="display:flex;align-items:center;gap:10px;background:var(--s2);border:1px solid ${feita?'var(--green-b)':'var(--border)'};border-radius:10px;padding:10px 12px">
+    return `<div style="display:flex;align-items:center;gap:10px;background:var(--s2);border:1px solid ${feita?'var(--green-b)':'var(--border)'};border-radius:10px;padding:10px 12px;opacity:${feita?'0.7':'1'}">
       <span style="font-size:16px">${m.icon}</span>
       <div style="flex:1;min-width:0">
         <div style="font-size:11px;font-weight:600;color:${feita?'var(--muted2)':'var(--text)'};${feita?'text-decoration:line-through':''};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.titulo}</div>
-        <div style="font-size:10px;color:var(--muted2)">+${m.recompensa} Raios</div>
+        <div style="font-size:10px;color:var(--muted2)">${feita?'Concluída hoje':'Faça a ação para ganhar'} · +${m.recompensa} Raios</div>
       </div>
       ${feita
-        ? `<span style="font-size:11px;color:var(--green);font-weight:700">✅</span>`
-        : `<button onclick="completarMissao('${m.id}',${m.recompensa})" style="flex-shrink:0;background:var(--green-bg);border:1px solid var(--green-b);color:var(--green);padding:4px 8px;border-radius:7px;font-size:9px;font-weight:700;cursor:pointer">Coletar</button>`
+        ? `<span style="font-size:14px">✅</span>`
+        : `<span style="font-size:11px;color:var(--muted2);font-family:monospace">⏳</span>`
       }
     </div>`;
   }).join('');
@@ -17302,6 +17310,33 @@ function _importarAlertaLeadUnicoFix(idx){
 // ════════════════════════════════════════════════════════════════
 // AUTOMAÇÕES PROGRAMADAS — CAPTURO v5.0
 // Engine 100% client-side: scheduler via setInterval + localStorage
+
+function toggleSearchBar(){
+  const bar = document.getElementById('searchBarExpanded');
+  const btn = document.getElementById('searchToggleBtn');
+  if(!bar) return;
+  const isOpen = bar.style.display === 'flex';
+  bar.style.display = isOpen ? 'none' : 'flex';
+  if(!isOpen){
+    const inp = document.getElementById('searchBarInput');
+    if(inp) setTimeout(()=>inp.focus(), 50);
+    btn.style.borderColor = 'var(--accent)';
+    btn.style.color = 'var(--accent)';
+  } else {
+    btn.style.borderColor = 'var(--border)';
+    btn.style.color = 'var(--muted2)';
+  }
+}
+// Fechar ao clicar fora
+document.addEventListener('click', function(e){
+  const bar = document.getElementById('searchBarExpanded');
+  const btn = document.getElementById('searchToggleBtn');
+  if(bar && bar.style.display==='flex' && !bar.contains(e.target) && e.target!==btn && !btn?.contains(e.target)){
+    bar.style.display='none';
+    if(btn){btn.style.borderColor='var(--border)';btn.style.color='var(--muted2)';}
+  }
+});
+
 // ════════════════════════════════════════════════════════════════
 
 const AUTO_KEY     = 'capturo_automacoes_v1';
