@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   ╔══════════════════════════════════════════════════════════════════╗
-  ║  CAPTURO v6.0 — Sistema de Prospecção Inteligente de Leads       ║
+  ║  CAPTURO v5.0 — Sistema de Prospecção Inteligente de Leads       ║
   ║  Desenvolvido por Felipe Uchoa — Todos os direitos reservados    ║
   ║  © 2024–2025 Felipe Uchoa | felipelabat@hotmail.com              ║
   ║  Código-fonte protegido. Reprodução não autorizada é proibida.   ║
@@ -269,7 +269,7 @@ body::before{
 .main{padding:24px 28px;width:100%;max-width:1400px;box-sizing:border-box;margin:0 auto;}
 .main-wrap{margin-left:64px;min-height:100vh;width:calc(100% - 64px);box-sizing:border-box;transition:margin-left .2s ease,width .2s ease;display:flex;flex-direction:column;align-items:stretch;}
 .page{display:none}
-.page.active{display:block}.page.active#pageAI{display:flex!important}
+.page.active{display:block}
 /* HOME */
 .campaigns-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:32px}
 .campaign-card{
@@ -348,6 +348,8 @@ body::before{
 .empty-campaigns p{font-size:14px;line-height:1.6}
 /* SEARCH AREA */
 .search-area{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+#pageAlertas .search-area,#pageAlertas .alertas-search-panel{overflow:visible!important}
+#pageAlertas .search-area,#pageAlertas .alertas-search-panel{overflow:visible!important}
 .area-title{font-size:10px;font-family:'SF Mono',ui-monospace,monospace;color:var(--muted2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px}
 .keys-grid{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:14px}
 .field{display:flex;flex-direction:column;gap:5px}
@@ -1395,6 +1397,13 @@ select:focus {
   border-radius: 14px !important;
 }
 
+
+#pageAI.active { display: flex !important; }
+@media(max-width:768px){ #aiConvSidebar { display:none!important; } }
+#aiConvList::-webkit-scrollbar { width:4px; }
+#aiConvList::-webkit-scrollbar-thumb { background:var(--border2); border-radius:4px; }
+#aiChatMessages::-webkit-scrollbar { width:5px; }
+#aiChatMessages::-webkit-scrollbar-thumb { background:var(--border2); border-radius:4px; }
 </style>
 <style id="capturo-premium-v6">
 /* ═══════════════════════════════════════════════════════════
@@ -1711,21 +1720,11 @@ body::before {
 .main {
   padding: 28px 32px !important;
   max-width: 1440px !important;
-  margin: 0 auto !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
 }
 
 /* Page transition */
 .page.active {
   animation: capturoPageIn .32s var(--ease-spring) both !important;
-}
-#pageFavoritos.active, #pageClients.active, #pageLeads.active {
-  display: flex !important;
-  flex-direction: column !important;
-}
-#pageAI.active {
-  display: flex !important;
 }
 @keyframes capturoPageIn {
   from { opacity:0; transform: translateY(12px); }
@@ -1745,26 +1744,6 @@ body::before {
   position: relative !important;
   overflow: hidden !important;
 }
-/* Radar CNPJ: dropdown de nicho não pode ser cortado */
-#pageAlertas .search-area,
-#pageAlertas .alertas-search-panel {
-  overflow: visible !important;
-}
-/* AI page: sem padding padrão do .main */
-#pageAI {
-  margin: -24px -28px !important;
-  width: calc(100% + 56px) !important;
-  max-width: none !important;
-  height: calc(100vh - 56px) !important;
-}
-@media (max-width: 768px) {
-  #pageAI { margin: -18px -16px !important; width: calc(100% + 32px) !important; }
-  #aiConvSidebar { display: none !important; }
-}
-#aiConvList::-webkit-scrollbar { width: 4px; }
-#aiConvList::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
-#aiChatMessages::-webkit-scrollbar { width: 5px; }
-#aiChatMessages::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
 .search-area::before {
   content: '' !important;
   position: absolute !important;
@@ -3340,22 +3319,22 @@ function toast(msg, type='info', duration=3500){
       </div>
     </div>
 
-    <!-- ── Widget Missões Diárias no Dashboard ── -->
-    <div id="dashMissoesWidget" style="background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:18px;display:none">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <div style="font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace">🎯 MISSÕES DIÁRIAS</div>
-        <div style="font-size:11px;color:var(--muted2)">Ganhe Raios grátis</div>
-      </div>
-      <div id="dashMissoesList" style="display:flex;flex-direction:column;gap:7px"></div>
-    </div>
-
-    <!-- ── Widget Missões Diárias ── -->
+    <!-- Widget Missões Diárias -->
     <div id="dashMissoesWidget" style="background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:18px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
         <div style="font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace">🎯 MISSÕES DIÁRIAS</div>
         <div style="font-size:11px;color:var(--muted2)">Complete e ganhe Raios grátis</div>
       </div>
       <div id="dashMissoesList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px"></div>
+    </div>
+
+    <!-- Widget Missões Diárias -->
+    <div id="dashMissoesWidget" style="background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:18px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace">🎯 MISSÕES DIÁRIAS</div>
+        <div style="font-size:11px;color:var(--muted2)">Complete e ganhe Raios grátis</div>
+      </div>
+      <div id="dashMissoesList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px"></div>
     </div>
 
     <!-- Campaigns section -->
@@ -4070,7 +4049,7 @@ function toast(msg, type='info', duration=3500){
           </div>
           <div style="background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:18px 20px">
             <div style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)">3. Organize e Contate</div>
-            <div style="font-size:13px;color:var(--muted2);line-height:1.7">Na aba <strong style="color:var(--text)">Raios</strong>, revise cada card. Classifique por temperatura, mova no Kanban conforme o andamento e use os botões de contato para enviar mensagem pelo WhatsApp ou e-mail diretamente pelo CAPTURO.</div>
+            <div style="font-size:13px;color:var(--muted2);line-height:1.7">Na aba <strong style="color:var(--text)">Leads</strong>, revise cada card. Classifique por temperatura, mova no Kanban conforme o andamento e use os botões de contato para enviar mensagem pelo WhatsApp ou e-mail diretamente pelo CAPTURO.</div>
           </div>
           <div style="background:linear-gradient(135deg,rgba(52,199,89,.05),rgba(52,199,89,.02));border:1px solid var(--green-b);border-radius:12px;padding:16px 20px;display:flex;gap:12px">
             <span style="font-size:20px;flex-shrink:0">💡</span>
@@ -4129,7 +4108,7 @@ function toast(msg, type='info', duration=3500){
       <div id="guia-leads" style="margin-bottom:36px">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--border)">
           <span style="font-size:22px">👥</span>
-          <div style="font-size:20px;font-weight:800;letter-spacing:-.02em">Raios</div>
+          <div style="font-size:20px;font-weight:800;letter-spacing:-.02em">Leads</div>
         </div>
         <div style="display:grid;gap:12px">
           <div style="background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:18px 20px">
@@ -4374,51 +4353,42 @@ function toast(msg, type='info', duration=3500){
   </div>
 
   <!-- ══ ASSISTENTE IA ══ -->
-  <div class="page" id="pageAI" style="padding:0!important;height:calc(100vh - 56px);display:none;flex-direction:row;overflow:hidden">
-    <!-- ── Sidebar de conversas (estilo ChatGPT) ── -->
-    <div id="aiConvSidebar" style="width:240px;min-width:200px;max-width:260px;background:var(--s1);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100%;flex-shrink:0">
-      <div style="padding:14px 12px;border-bottom:1px solid var(--border)">
-        <button onclick="aiNovaConversa()" style="width:100%;padding:10px 14px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;justify-content:center">
-          <span style="font-size:16px">✏️</span> Nova conversa
-        </button>
+  <div class="page" id="pageAI" style="display:none;flex-direction:row;height:calc(100vh - 56px);margin:-24px -28px;width:calc(100% + 56px);max-width:none;overflow:hidden">
+    <!-- Sidebar de conversas -->
+    <div id="aiConvSidebar" style="width:230px;min-width:180px;background:var(--s1);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100%;flex-shrink:0;overflow:hidden">
+      <div style="padding:12px 10px;border-bottom:1px solid var(--border)">
+        <button onclick="aiNovaConversa()" style="width:100%;padding:9px 12px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">✏️ Nova conversa</button>
       </div>
-      <div id="aiConvList" style="flex:1;overflow-y:auto;padding:8px 6px;display:flex;flex-direction:column;gap:2px">
-        <div style="font-size:11px;color:var(--muted2);padding:8px 8px 4px;font-weight:600;letter-spacing:.04em">CONVERSAS</div>
-      </div>
-      <div style="padding:10px 12px;border-top:1px solid var(--border)">
-        <div style="font-size:10px;color:var(--muted2);text-align:center">Assistente IA • CAPTURO</div>
+      <div id="aiConvList" style="flex:1;overflow-y:auto;padding:8px 6px">
+        <div style="font-size:11px;color:var(--muted2);padding:8px 8px 4px;font-weight:700;letter-spacing:.04em">CONVERSAS</div>
       </div>
     </div>
-    <!-- ── Área principal do chat ── -->
-    <div style="flex:1;display:flex;flex-direction:column;height:100%;overflow:hidden">
-      <!-- Topo do chat -->
-      <div style="padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2);flex-shrink:0">
-        <div style="font-size:14px;font-weight:600" id="aiConvTitle">Nova Conversa</div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <div style="display:flex;gap:6px" id="aiQuickBtns">
-            <button onclick="aiQuickAction('analisar_leads')" title="Analisar leads" style="padding:6px 10px;background:var(--s2);border:1px solid var(--border);border-radius:8px;font-size:11px;color:var(--text2);cursor:pointer">🔍 Analisar</button>
-            <button onclick="aiQuickAction('gerar_pitch')" title="Gerar pitch" style="padding:6px 10px;background:var(--s2);border:1px solid var(--border);border-radius:8px;font-size:11px;color:var(--text2);cursor:pointer">💬 Pitch</button>
-            <button onclick="aiQuickAction('insights_campanha')" title="Insights" style="padding:6px 10px;background:var(--s2);border:1px solid var(--border);border-radius:8px;font-size:11px;color:var(--text2);cursor:pointer">📊 Insights</button>
-            <button onclick="aiQuickAction('script_objecoes')" title="Objeções" style="padding:6px 10px;background:var(--s2);border:1px solid var(--border);border-radius:8px;font-size:11px;color:var(--text2);cursor:pointer">🛡 Objeções</button>
-          </div>
-          <button onclick="aiNovaConversa()" title="Nova conversa" style="padding:6px 10px;background:none;border:1px solid var(--border);border-radius:8px;font-size:11px;color:var(--muted2);cursor:pointer">+ Nova</button>
+    <!-- Área de chat -->
+    <div style="flex:1;display:flex;flex-direction:column;height:100%;overflow:hidden;background:var(--bg)">
+      <!-- Header -->
+      <div style="padding:12px 18px;border-bottom:1px solid var(--border);background:var(--bg2);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+        <div style="font-size:14px;font-weight:600" id="aiConvTitle">Assistente IA</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button onclick="aiQuickAction('analisar_leads')" style="padding:5px 9px;background:var(--s2);border:1px solid var(--border);border-radius:7px;font-size:11px;color:var(--text2);cursor:pointer">🔍 Analisar</button>
+          <button onclick="aiQuickAction('gerar_pitch')" style="padding:5px 9px;background:var(--s2);border:1px solid var(--border);border-radius:7px;font-size:11px;color:var(--text2);cursor:pointer">💬 Pitch</button>
+          <button onclick="aiQuickAction('insights_campanha')" style="padding:5px 9px;background:var(--s2);border:1px solid var(--border);border-radius:7px;font-size:11px;color:var(--text2);cursor:pointer">📊 Insights</button>
+          <button onclick="aiQuickAction('script_objecoes')" style="padding:5px 9px;background:var(--s2);border:1px solid var(--border);border-radius:7px;font-size:11px;color:var(--text2);cursor:pointer">🛡 Objeções</button>
         </div>
       </div>
       <!-- Mensagens -->
-      <div id="aiChatMessages" style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px;background:var(--bg)">
-        <div id="aiEmptyState" style="margin:auto;text-align:center;color:var(--muted2);max-width:360px">
-          <div style="font-size:52px;margin-bottom:16px">🤖</div>
-          <div style="font-size:18px;font-weight:700;margin-bottom:8px;color:var(--text)">Assistente IA</div>
-          <div style="font-size:13px;line-height:1.6">Analise leads, gere pitches, descubra insights e tire dúvidas sobre prospecção. Use os atalhos acima para começar.</div>
+      <div id="aiChatMessages" style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px">
+        <div style="margin:auto;text-align:center;color:var(--muted2);max-width:340px">
+          <div style="font-size:46px;margin-bottom:14px">🤖</div>
+          <div style="font-size:17px;font-weight:700;margin-bottom:8px;color:var(--text)">Assistente IA</div>
+          <div style="font-size:13px;line-height:1.6">Analise leads, gere pitches e descubra insights. Use os atalhos no topo ou escreva abaixo.</div>
         </div>
       </div>
       <!-- Input -->
-      <div style="padding:14px 20px;border-top:1px solid var(--border);background:var(--bg2);flex-shrink:0">
-        <div style="display:flex;gap:10px;align-items:flex-end;background:var(--s1);border:1px solid var(--border2);border-radius:14px;padding:10px 14px">
-          <textarea id="aiChatInput" placeholder="Pergunte sobre seus leads, pitches, estratégia..." rows="1" style="flex:1;background:none;border:none;color:var(--text);font-size:13px;line-height:1.5;resize:none;outline:none;max-height:120px;font-family:inherit" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAIMessage()}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
-          <button onclick="sendAIMessage()" id="aiSendBtn" style="padding:8px 16px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;flex-shrink:0;transition:opacity .2s">Enviar</button>
+      <div style="padding:12px 16px;border-top:1px solid var(--border);background:var(--bg2);flex-shrink:0">
+        <div style="display:flex;gap:8px;align-items:center;background:var(--s1);border:1px solid var(--border2);border-radius:12px;padding:8px 12px">
+          <input type="text" id="aiChatInput" placeholder="Pergunte sobre seus leads, pitches, estratégia..." style="flex:1;background:none;border:none;color:var(--text);font-size:13px;outline:none" onkeydown="if(event.key==='Enter')sendAIMessage()">
+          <button onclick="sendAIMessage()" id="aiSendBtn" class="btn btn-primary" style="padding:7px 16px;border-radius:8px;font-size:13px;flex-shrink:0">Enviar</button>
         </div>
-        <div style="margin-top:6px;font-size:10px;color:var(--muted2);text-align:center">Enter para enviar • Shift+Enter para nova linha</div>
       </div>
     </div>
   </div>
@@ -7396,7 +7366,7 @@ async function startMapsSearch(){
   const useHunter=$('enableHunter').checked&&('via-edge-function');
   // ── Verifica saldo de Leads ───────────────────────────────────
   if(leadsRestantes() < 1){
-    toast('⚡ Você não tem Raios disponíveis. Recarregue para continuar prospectando.','warn',6000);
+    toast('⚡ Você não tem Sinais disponíveis. Recarregue para continuar prospectando.','warn',6000);
     return;
   }
   _leadsEsgotadosAlertado = false;
@@ -7468,7 +7438,7 @@ async function startMapsSearch(){
         if(!passaFiltros(lead, _filters)){ _filteredCount++; continue; }
         // ── Consome 1 Lead; para se sem saldo ───────────────────
         const ok = await consumirSinal('maps_search', {lead_name:lead.name, campaign_id:activeCampaignId});
-        if(!ok){ setStat('⚡ Raios esgotados! Recarregue para continuar.'); if(!_leadsEsgotadosAlertado){_leadsEsgotadosAlertado=true; toast('⚡ Raios esgotados! Recarregue seus Raios para continuar.','warn',5000); setTimeout(()=>abrirModalRecarga('Seus Raios acabaram durante a busca. Escolha um pack para continuar.'),600);} break; }
+        if(!ok){ setStat('⚡ Sinais esgotados! Recarregue para continuar.'); if(!_leadsEsgotadosAlertado){_leadsEsgotadosAlertado=true; toast('⚡ Sinais esgotados! Recarregue seus Sinais para continuar.','warn',5000); setTimeout(()=>abrirModalRecarga('Seus Sinais acabaram durante a busca. Escolha um pack para continuar.'),600);} break; }
         leads.push(lead);
         setProg(5+Math.round(((nbIdx+(i+1)/places.length)/searchList.length)*25));
         setStat(`<span class="spinner"></span>[${nb||searchCity}] ${i+1}/${places.length}: ${lead.name}`);
@@ -7544,7 +7514,7 @@ async function startBioSearch(){
   if(!activeBio.length){alert('Ative pelo menos um site de bio link!');return;}
   // ── Verifica saldo de Leads ───────────────────────────────────
   if(leadsRestantes() < 1){
-    toast('⚡ Você não tem Raios disponíveis. Recarregue para continuar prospectando.','warn',6000);
+    toast('⚡ Você não tem Sinais disponíveis. Recarregue para continuar prospectando.','warn',6000);
     return;
   }
   _leadsEsgotadosAlertado = false;
@@ -7638,7 +7608,7 @@ async function startFullSearch(){
   const gKey='via-edge-function';
   if(!activeCampaignId){alert('Selecione uma campanha!');return;}
   if(leadsRestantes() < 1){
-    toast('⚡ Você não tem Raios disponíveis. Recarregue para continuar prospectando.','warn',6000);
+    toast('⚡ Você não tem Sinais disponíveis. Recarregue para continuar prospectando.','warn',6000);
     return;
   }
   _leadsEsgotadosAlertado = false;
@@ -7784,7 +7754,7 @@ async function startBioSearchInternal(gKey,cseId){
         const phoneMatch=(item.snippet||'').match(/[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}/);
         // ── Consome 1 Lead; para se sem saldo ───────────────────
         const okBio = await consumirSinal('bio_search', {lead_name:name, campaign_id:activeCampaignId});
-        if(!okBio){ setStat('⚡ Raios esgotados! Recarregue para continuar.'); if(!_leadsEsgotadosAlertado){_leadsEsgotadosAlertado=true; toast('⚡ Raios esgotados! Recarregue seus Raios para continuar.','warn',5000); setTimeout(()=>abrirModalRecarga('Seus Raios acabaram durante a busca. Escolha um pack para continuar.'),600);} return; }
+        if(!okBio){ setStat('⚡ Sinais esgotados! Recarregue para continuar.'); if(!_leadsEsgotadosAlertado){_leadsEsgotadosAlertado=true; toast('⚡ Sinais esgotados! Recarregue seus Sinais para continuar.','warn',5000); setTimeout(()=>abrirModalRecarga('Seus Sinais acabaram durante a busca. Escolha um pack para continuar.'),600);} return; }
         leads.push({id:crypto.randomUUID(),name,formatted_address:(item.snippet||'').substring(0,120),t:'volcano',score:10,status:'new',notes:'',siteScore:null,siteIssues:[],sitePitch:'',email:'',emailVerified:false,emailConfidence:0,source:'google',bioUrl:item.link,bioSite:bioSite.domain,snippet:item.snippet||'',formatted_phone_number:phoneMatch?phoneMatch[0]:'',website:item.link,mapsUrl:`https://www.google.com/maps/search/${encodeURIComponent(name)}`,country:isBrasil?'BR':c.country||'US'});
         renderAll();
         // ── Auto-save a cada 50 leads ──────────────────────────
@@ -9554,7 +9524,7 @@ function _renderAlertasResultados(lista, cidade, nicho, dias){
       <!-- Nome + Fantasia + badges -->
       <div style="padding-right:56px;margin-bottom:10px">
         <div style="font-size:13px;font-weight:800;line-height:1.4;margin-bottom:2px;word-break:break-word">${nome}</div>
-        ${fantasia ? `<div style="font-size:10px;color:var(--muted2);margin-bottom:4px">${fantasia}</div>` : ''}
+        ${(fantasia && fantasia.trim().toLowerCase()!==nome.trim().toLowerCase()) ? `<div style="font-size:10px;color:var(--muted2);margin-bottom:4px">${fantasia}</div>` : ''}
         <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center">
           ${urgenciaBadge}
           <span style="font-size:10px;color:${info.cor};font-weight:600">${info.label}</span>
@@ -10323,20 +10293,16 @@ function exportRelatorioHTML(){
   </tr>`).join('')}</tbody></table>
   
 <script>
-// ══════════════════════════════════════════
-// AI HISTÓRICO DE CONVERSAS (estilo ChatGPT)
-// ══════════════════════════════════════════
-let _aiConversas = []; // [{id, titulo, ts, mensagens:[{role,content}]}]
+// ══ AI HISTÓRICO DE CONVERSAS (estilo ChatGPT) ══════════════
+let _aiConversas = [];
 let _aiConvAtualId = null;
 
 function aiInitHistorico(){
-  // Carregar conversas salvas
   try {
     const saved = localStorage.getItem('capturo_ai_conversas');
     if(saved) _aiConversas = JSON.parse(saved);
-  } catch(e) { _aiConversas = []; }
+  } catch(e){ _aiConversas = []; }
   aiRenderConvList();
-  // Se não há conversa ativa, começa nova
   if(!_aiConvAtualId || !_aiConversas.find(c=>c.id===_aiConvAtualId)){
     aiNovaConversa();
   } else {
@@ -10345,25 +10311,18 @@ function aiInitHistorico(){
 }
 
 function aiSalvarConversas(){
-  try {
-    localStorage.setItem('capturo_ai_conversas', JSON.stringify(_aiConversas.slice(-30)));
-  } catch(e) {}
+  try { localStorage.setItem('capturo_ai_conversas', JSON.stringify(_aiConversas.slice(-30))); } catch(e){}
 }
 
 function aiNovaConversa(){
-  const id = 'conv_' + Date.now();
-  const nova = { id, titulo: 'Nova conversa', ts: Date.now(), mensagens: [] };
+  const convId = 'conv_' + Date.now();
+  const nova = { id: convId, titulo: 'Nova conversa', ts: Date.now(), mensagens: [] };
   _aiConversas.unshift(nova);
-  _aiConvAtualId = id;
-  aiChatHistory = [];
-  // Limpar área de mensagens
+  _aiConvAtualId = convId;
+  if(typeof aiChatHistory !== 'undefined') aiChatHistory = [];
   const msgs = document.getElementById('aiChatMessages');
   if(msgs){
-    msgs.innerHTML = `<div id="aiEmptyState" style="margin:auto;text-align:center;color:var(--muted2);max-width:360px">
-      <div style="font-size:52px;margin-bottom:16px">🤖</div>
-      <div style="font-size:18px;font-weight:700;margin-bottom:8px;color:var(--text)">Assistente IA</div>
-      <div style="font-size:13px;line-height:1.6">Analise leads, gere pitches, descubra insights e tire dúvidas sobre prospecção. Use os atalhos acima para começar.</div>
-    </div>`;
+    msgs.innerHTML = '<div style="margin:auto;text-align:center;color:var(--muted2);max-width:360px"><div style="font-size:52px;margin-bottom:16px">🤖</div><div style="font-size:18px;font-weight:700;margin-bottom:8px;color:var(--text)">Assistente IA</div><div style="font-size:13px;line-height:1.6">Analise leads, gere pitches e tire dúvidas sobre prospecção.</div></div>';
   }
   const titulo = document.getElementById('aiConvTitle');
   if(titulo) titulo.textContent = 'Nova conversa';
@@ -10375,93 +10334,82 @@ function aiRenderConvList(){
   const list = document.getElementById('aiConvList');
   if(!list) return;
   if(!_aiConversas.length){
-    list.innerHTML = '<div style="font-size:11px;color:var(--muted2);padding:8px 8px 4px;font-weight:600;letter-spacing:.04em">CONVERSAS</div><div style="font-size:12px;color:var(--muted2);padding:12px 10px">Nenhuma conversa ainda.</div>';
+    list.innerHTML = '<div style="font-size:11px;color:var(--muted2);padding:12px 10px">Nenhuma conversa ainda.</div>';
     return;
   }
   const agora = Date.now();
-  const hoje = new Set();
-  const semana = new Set();
-  const antigas = new Set();
+  const grupos = { hoje: [], semana: [], antigas: [] };
   _aiConversas.forEach(c => {
     const diff = agora - c.ts;
-    if(diff < 86400000) hoje.add(c.id);
-    else if(diff < 7*86400000) semana.add(c.id);
-    else antigas.add(c.id);
+    if(diff < 86400000) grupos.hoje.push(c);
+    else if(diff < 7*86400000) grupos.semana.push(c);
+    else grupos.antigas.push(c);
   });
 
-  function renderGrupo(titulo, ids){
-    if(!ids.size) return '';
-    const itens = _aiConversas.filter(c=>ids.has(c.id)).map(c=>{
+  function renderGrupo(titulo, lista){
+    if(!lista.length) return '';
+    const itens = lista.map(c => {
       const ativo = c.id === _aiConvAtualId;
-      return `<div onclick="aiCarregarConversa('${c.id}')" style="padding:8px 10px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:${ativo?'600':'400'};color:${ativo?'var(--text)':'var(--text2)'};background:${ativo?'var(--accent-bg)':'none'};border:${ativo?'1px solid var(--accent-mid)':'1px solid transparent'};transition:all .15s;display:flex;align-items:center;justify-content:space-between;gap:6px" onmouseover="if('${c.id}'!=='${_aiConvAtualId}')this.style.background='var(--s2)'" onmouseout="if('${c.id}'!=='${_aiConvAtualId}')this.style.background='none'">
-        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${escHtml(c.titulo||'Sem título')}</span>
-        <span onclick="event.stopPropagation();aiDeletarConversa('${c.id}')" style="opacity:0;font-size:10px;color:var(--muted2);cursor:pointer;flex-shrink:0;padding:2px 4px;border-radius:4px" onmouseover="this.style.opacity='1';this.style.color='var(--red)'" onmouseout="this.style.opacity='0'">✕</span>
-      </div>`;
+      const tit = (c.titulo||'Conversa').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      return '<div onclick="aiCarregarConversa('' + c.id + '')" style="padding:8px 10px;border-radius:8px;cursor:pointer;font-size:12px;color:' + (ativo?'var(--text)':'var(--text2)') + ';font-weight:' + (ativo?'600':'400') + ';background:' + (ativo?'var(--accent-bg)':'none') + ';border:1px solid ' + (ativo?'var(--accent-mid)':'transparent') + ';margin-bottom:2px;display:flex;align-items:center;justify-content:space-between;gap:4px" onmouseover="if(this.style.background==='none')this.style.background='var(--s2)'" onmouseout="if(this.style.background==='var(--s2)')this.style.background='none'">'
+        + '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">' + tit + '</span>'
+        + '<span onclick="event.stopPropagation();aiDeletarConversa('' + c.id + '')" style="font-size:10px;color:var(--muted2);cursor:pointer;flex-shrink:0;padding:1px 4px;border-radius:3px;opacity:.5" onmouseover="this.style.opacity='1';this.style.color='var(--red)'" onmouseout="this.style.opacity='.5';this.style.color='var(--muted2)'">✕</span>'
+        + '</div>';
     }).join('');
-    return `<div style="font-size:10px;color:var(--muted2);padding:8px 8px 2px;font-weight:700;letter-spacing:.06em;text-transform:uppercase">${titulo}</div>${itens}`;
+    return '<div style="font-size:10px;color:var(--muted2);padding:8px 8px 2px;font-weight:700;letter-spacing:.06em">' + titulo + '</div>' + itens;
   }
 
-  list.innerHTML = renderGrupo('Hoje', hoje) + renderGrupo('Esta semana', semana) + renderGrupo('Mais antigas', antigas);
+  list.innerHTML = renderGrupo('HOJE', grupos.hoje) + renderGrupo('ESTA SEMANA', grupos.semana) + renderGrupo('MAIS ANTIGAS', grupos.antigas);
 }
 
-function aiCarregarConversa(id){
-  const conv = _aiConversas.find(c=>c.id===id);
+function aiCarregarConversa(convId){
+  const conv = _aiConversas.find(c=>c.id===convId);
   if(!conv) return;
-  _aiConvAtualId = id;
-  aiChatHistory = [...(conv.mensagens||[])];
-  // Renderizar mensagens
+  _aiConvAtualId = convId;
+  if(typeof aiChatHistory !== 'undefined') aiChatHistory = [...(conv.mensagens||[])];
   const msgs = document.getElementById('aiChatMessages');
   if(!msgs) return;
   msgs.innerHTML = '';
-  if(!aiChatHistory.length){
-    msgs.innerHTML = `<div id="aiEmptyState" style="margin:auto;text-align:center;color:var(--muted2);max-width:360px">
-      <div style="font-size:52px;margin-bottom:16px">🤖</div>
-      <div style="font-size:18px;font-weight:700;margin-bottom:8px;color:var(--text)">Assistente IA</div>
-      <div style="font-size:13px;line-height:1.6">Analise leads, gere pitches, descubra insights e tire dúvidas sobre prospecção.</div>
-    </div>`;
+  if(!(conv.mensagens||[]).length){
+    msgs.innerHTML = '<div style="margin:auto;text-align:center;color:var(--muted2)"><div style="font-size:40px;margin-bottom:12px">🤖</div><div>Assistente IA — comece uma conversa</div></div>';
   } else {
-    aiChatHistory.forEach(m => appendAIMsg(m.role, m.content));
+    conv.mensagens.forEach(m => { if(typeof appendAIMsg==='function') appendAIMsg(m.role, m.content); });
   }
   const titulo = document.getElementById('aiConvTitle');
   if(titulo) titulo.textContent = conv.titulo || 'Conversa';
   aiRenderConvList();
 }
 
-function aiDeletarConversa(id){
-  _aiConversas = _aiConversas.filter(c=>c.id!==id);
-  if(_aiConvAtualId === id) aiNovaConversa();
-  else aiRenderConvList();
-  aiSalvarConversas();
+function aiDeletarConversa(convId){
+  _aiConversas = _aiConversas.filter(c=>c.id!==convId);
+  if(_aiConvAtualId === convId) aiNovaConversa();
+  else { aiSalvarConversas(); aiRenderConvList(); }
 }
 
-// Interceptar sendAIMessage para salvar no histórico
-const _origSendAI = typeof sendAIMessage !== 'undefined' ? null : null;
-
-// Override appendAIMsg para também salvar
-const _origAppendAIMsg = window.appendAIMsg;
-window.appendAIMsg = function(role, text){
-  if(_origAppendAIMsg) _origAppendAIMsg.call(this, role, text);
-  // Salvar na conversa atual
-  const conv = _aiConversas.find(c=>c.id===_aiConvAtualId);
-  if(conv){
-    if(!conv.mensagens) conv.mensagens = [];
-    // Evitar duplicatas seguidas
-    const last = conv.mensagens[conv.mensagens.length-1];
-    if(!last || last.role !== role || last.content !== text){
-      conv.mensagens.push({role, content: text});
+// Override appendAIMsg para salvar no histórico
+(function(){
+  const _orig = window.appendAIMsg;
+  if(!_orig) return;
+  window.appendAIMsg = function(role, text){
+    _orig.call(this, role, text);
+    const conv = _aiConversas.find(c=>c.id===_aiConvAtualId);
+    if(conv){
+      if(!conv.mensagens) conv.mensagens = [];
+      const last = conv.mensagens[conv.mensagens.length-1];
+      if(!last || last.role!==role || last.content!==text){
+        conv.mensagens.push({role, content: text});
+      }
+      if(role==='user' && conv.mensagens.filter(m=>m.role==='user').length===1){
+        conv.titulo = text.length>42 ? text.substring(0,42)+'…' : text;
+        const t = document.getElementById('aiConvTitle');
+        if(t) t.textContent = conv.titulo;
+      }
+      _aiConversas = [conv, ..._aiConversas.filter(c=>c.id!==conv.id)];
+      aiSalvarConversas();
+      aiRenderConvList();
     }
-    // Auto-título na primeira mensagem do usuário
-    if(role==='user' && conv.mensagens.filter(m=>m.role==='user').length===1){
-      conv.titulo = text.length > 40 ? text.substring(0,40)+'…' : text;
-      const titulo = document.getElementById('aiConvTitle');
-      if(titulo) titulo.textContent = conv.titulo;
-    }
-    // Mover para o topo
-    _aiConversas = [conv, ..._aiConversas.filter(c=>c.id!==conv.id)];
-    aiSalvarConversas();
-    aiRenderConvList();
-  }
-};
+  };
+})();
 </script>
 </body></html>`;
   const a=document.createElement('a');a.href='data:text/html;charset=utf-8,'+encodeURIComponent(html);
@@ -11614,10 +11562,9 @@ function showPage(id){
     if(pg)pg.scrollTop=0;
   }
   if(id==='pageAI'){
-    // Garantir display flex para o layout de duas colunas
-    const aiPage = document.getElementById('pageAI');
-    if(aiPage) aiPage.style.display = 'flex';
-    aiInitHistorico();
+    const aiPage=document.getElementById('pageAI');
+    if(aiPage) aiPage.style.display='flex';
+    if(typeof aiInitHistorico==='function') aiInitHistorico();
   }
 }
 
@@ -13029,18 +12976,8 @@ function renderDashboard(){
   const dashGr = $('dashGreeting');
   if(dashGr) dashGr.textContent = greetF+(appSettings.vendedor||'Felipe')+'!';
 
-  // Mostrar widget de missões sempre
-  const missoesWidget = $('dashMissoesWidget');
-  if(missoesWidget){
-    missoesWidget.style.display = 'block';
-    renderDashMissoes();
-  }
-
-  // Widget missões no dashboard
-  if(typeof renderDashMissoes === 'function') renderDashMissoes();
-
-  // Widget missões no dashboard
-  if(typeof renderDashMissoes === 'function') renderDashMissoes();
+  // Widget missões diárias
+  if(typeof renderDashMissoes==='function') renderDashMissoes();
 
   if(!total){
     $('dashKpiCards').innerHTML=`<div style="background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:48px;text-align:center;grid-column:1/-1;color:var(--muted2)"><div style="font-size:48px;margin-bottom:14px">🚀</div><div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px">Bem-vindo ao CAPTURO!</div><div style="font-size:13px">Crie uma campanha e comece a prospectar.</div></div>`;
@@ -13095,7 +13032,7 @@ function renderDashboard(){
   // Show sections
   const ms=$('dashMainSection'); if(ms) ms.style.display='grid';
 
-  // Card extra: ROI de Raios (inserido dinamicamente se tiver dados)
+  // Card extra: ROI de Sinais (inserido dinamicamente se tiver dados)
   const roiCard = document.getElementById('dashRoiSinais');
   if(!roiCard){
     const grid = $('dashKpiCards');
@@ -14007,7 +13944,7 @@ const FAQ_ITEMS = [
   },
   {
     q: '💾 Como fazer backup dos meus leads?',
-    a: 'Na aba <strong>Raios</strong>, clique em <em>Exportar CSV</em> para baixar todos os leads. Na aba <strong>Favoritos</strong>, use <em>Exportar</em> para baixar só os favoritos. Configure o Google Sheets para backup automático.'
+    a: 'Na aba <strong>Leads</strong>, clique em <em>Exportar CSV</em> para baixar todos os leads. Na aba <strong>Favoritos</strong>, use <em>Exportar</em> para baixar só os favoritos. Configure o Google Sheets para backup automático.'
   }
 ];
 
@@ -14458,7 +14395,7 @@ function atualizarBadgeLeads(){
   if(lblEl) lblEl.textContent = 'Raios';
   const cor = restantes <= 5 ? 'var(--red)' : restantes <= 15 ? 'var(--orange)' : 'var(--accent)';
   if(numEl) numEl.style.color = cor;
-  el.title = `${restantes} Raios restantes de ${_leadsProfile.sinais_limit}`;
+  el.title = `${restantes} Sinais restantes de ${_leadsProfile.sinais_limit}`;
   // Atualiza também o item do menu dropdown
   const menuLeadsEl = document.querySelector('#userMenu .um-leads span:last-child');
   if(menuLeadsEl){ menuLeadsEl.textContent = restantes; menuLeadsEl.style.color = cor; }
@@ -14581,10 +14518,10 @@ function updateUserHeader(){
     .um-danger:hover{background:var(--volcano-bg)!important}
     </style>
     <!-- Badge de Leads clicável -->
-    <div id="leadsBadge" onclick="abrirModalRecarga()" title="${restantes} raios restantes" style="display:flex;align-items:center;gap:5px;background:var(--accent-bg);border:1px solid rgba(79,142,255,.2);border-radius:var(--r-pill);padding:4px 12px 4px 8px;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='rgba(79,142,255,.2)'">
+    <div id="leadsBadge" onclick="abrirModalRecarga()" title="${restantes} leads restantes" style="display:flex;align-items:center;gap:5px;background:var(--accent-bg);border:1px solid rgba(79,142,255,.2);border-radius:var(--r-pill);padding:4px 12px 4px 8px;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='rgba(79,142,255,.2)'">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><circle cx="12" cy="12" r="3" fill="${corLeads}"/><circle cx="12" cy="12" r="7" stroke="${corLeads}" stroke-width="1.5" opacity=".4" fill="none"/></svg>
       <span class="sb-num" style="font-size:11px;font-weight:700;color:${corLeads};font-family:monospace">${restantes}</span>
-      <span class="sb-lbl" style="font-size:10px;color:var(--muted2)">Raios</span>
+      <span class="sb-lbl" style="font-size:10px;color:var(--muted2)">Sinais</span>
     </div>
     <!-- Avatar unificado clicável -->
     <div style="position:relative" id="userAvatarWrap">
@@ -14600,7 +14537,7 @@ function updateUserHeader(){
           <div class="um-email">${currentUser.email}</div>
         </div>
         <div class="um-leads" onclick="fecharUserMenu();abrirModalRecarga()">
-          <span style="font-size:12px;color:var(--muted2)">Raios restantes</span>
+          <span style="font-size:12px;color:var(--muted2)">Sinais restantes</span>
           <span style="font-size:13px;font-weight:700;color:${corLeads}">${restantes}</span>
         </div>
         <div class="um-item" onclick="fecharUserMenu();openUserProfile()">
@@ -15960,10 +15897,10 @@ window._postAuthInit = function(){
 </style>
 
 <!-- ── MODAL RECARGA DE RAIOS ── -->
-<div id="modalRecarga" role="dialog" aria-modal="true" aria-label="Recarregar Raios">
+<div id="modalRecarga" role="dialog" aria-modal="true" aria-label="Recarregar Sinais">
   <div class="recarga-box">
     <button class="recarga-close" onclick="fecharModalRecarga()" title="Fechar">✕</button>
-    <div class="recarga-title">⚡ Recarregar Raios</div>
+    <div class="recarga-title">⚡ Recarregar Sinais</div>
     <div class="recarga-sub" id="recargaSub">Escolha um pack para continuar prospectando</div>
 
     <!-- Packs avulsos -->
@@ -15971,14 +15908,14 @@ window._postAuthInit = function(){
       <!-- Pack 50 -->
       <div class="recarga-card" onclick="abrirHotmart('PACK_50')">
         <div class="recarga-qtd">50</div>
-        <div class="recarga-label">Raios</div>
+        <div class="recarga-label">Sinais</div>
         <div class="recarga-preco">R$&nbsp;97</div>
         <div class="recarga-custo">R$&nbsp;1,94/Sinal</div>
       </div>
       <!-- Pack 150 -->
       <div class="recarga-card destaque" onclick="abrirHotmart('PACK_150')">
         <div class="recarga-qtd">150</div>
-        <div class="recarga-label">Raios</div>
+        <div class="recarga-label">Sinais</div>
         <div class="recarga-preco">R$&nbsp;197</div>
         <div class="recarga-custo">R$&nbsp;1,31/Sinal</div>
         <div class="recarga-badge">Mais popular</div>
@@ -15986,7 +15923,7 @@ window._postAuthInit = function(){
       <!-- Pack 400 -->
       <div class="recarga-card" onclick="abrirHotmart('PACK_400')">
         <div class="recarga-qtd">400</div>
-        <div class="recarga-label">Raios</div>
+        <div class="recarga-label">Sinais</div>
         <div class="recarga-preco">R$&nbsp;397</div>
         <div class="recarga-custo">R$&nbsp;0,99/Sinal</div>
         <div class="recarga-badge" style="background:var(--green)">Melhor custo</div>
@@ -15996,7 +15933,7 @@ window._postAuthInit = function(){
     <!-- Pack Mega -->
     <div class="recarga-mensal" onclick="abrirHotmart('PACK_MEGA')" style="margin-bottom:10px;border-color:rgba(184,122,255,.3);background:var(--purple-bg)">
       <div class="recarga-mensal-info">
-        <div class="recarga-mensal-titulo" style="color:var(--purple)">⚡ Pack Mega — 1.000 Raios</div>
+        <div class="recarga-mensal-titulo" style="color:var(--purple)">⚡ Pack Mega — 1.000 Sinais</div>
         <div class="recarga-mensal-desc">R$&nbsp;0,79/Sinal — Para quem prospecta em volume</div>
       </div>
       <button class="recarga-mensal-btn" style="background:var(--purple)">R$&nbsp;797</button>
@@ -16013,29 +15950,29 @@ window._postAuthInit = function(){
     <div class="recarga-mensal" onclick="abrirHotmart('PLANO_STARTER')" style="margin-bottom:8px">
       <div class="recarga-mensal-info">
         <div class="recarga-mensal-titulo">🌱 Starter — R$&nbsp;97/mês</div>
-        <div class="recarga-mensal-desc">80 Raios/mês + acesso completo</div>
+        <div class="recarga-mensal-desc">80 Sinais/mês + acesso completo</div>
       </div>
       <button class="recarga-mensal-btn">Assinar</button>
     </div>
     <div class="recarga-mensal" onclick="abrirHotmart('PLANO_MENSAL')" style="margin-bottom:8px;border-color:var(--accent);background:var(--accent-bg)">
       <div class="recarga-mensal-info">
         <div class="recarga-mensal-titulo">🚀 Pro — R$&nbsp;197/mês <span style="font-size:9px;background:var(--accent);color:#fff;padding:2px 7px;border-radius:20px;margin-left:6px">RECOMENDADO</span></div>
-        <div class="recarga-mensal-desc">200 Raios/mês + Pitch IA + prioridade suporte</div>
+        <div class="recarga-mensal-desc">200 Sinais/mês + Pitch IA + prioridade suporte</div>
       </div>
       <button class="recarga-mensal-btn">Assinar</button>
     </div>
     <div class="recarga-mensal" onclick="abrirHotmart('PLANO_AGENCY')">
       <div class="recarga-mensal-info">
         <div class="recarga-mensal-titulo">🏢 Agency — R$&nbsp;397/mês</div>
-        <div class="recarga-mensal-desc">500 Raios/mês + multi-usuário + white label</div>
+        <div class="recarga-mensal-desc">500 Sinais/mês + multi-usuário + white label</div>
       </div>
       <button class="recarga-mensal-btn">Assinar</button>
     </div>
 
     <!-- Nota -->
     <div style="margin-top:14px;font-size:10px;color:var(--muted2);text-align:center;line-height:1.7">
-      Raios extras são usados primeiro. Após esgotar, voltam os do plano mensal.<br>
-      💡 <strong style="color:var(--text)">Dica:</strong> Complete missões diárias e ganhe Raios grátis!
+      Sinais extras são usados primeiro. Após esgotar, voltam os do plano mensal.<br>
+      💡 <strong style="color:var(--text)">Dica:</strong> Complete missões diárias e ganhe Sinais grátis!
     </div>
   </div>
 </div>
@@ -16321,7 +16258,7 @@ function abrirModalRecarga(forceMsg){
   } else {
     const r = leadsRestantes();
     sub.textContent = r === 0
-      ? 'Seus Raios acabaram. Escolha um pack para continuar.'
+      ? 'Seus Sinais acabaram. Escolha um pack para continuar.'
       : `Você tem ${r} Sinal${r!==1?'is':''} restante${r!==1?'s':''}. Quer adicionar mais?`;
     sub.style.color = '';
   }
@@ -16349,10 +16286,8 @@ function renderDashMissoes(){
   const container = document.getElementById('dashMissoesList');
   if(!container) return;
   const hoje = new Date().toDateString();
-  // Mostrar só as 4 primeiras no dashboard (mais compacto)
-  const lista = (typeof MISSOES !== 'undefined' ? MISSOES : []).slice(0, 4);
-  if(!lista.length){ container.innerHTML=''; return; }
-  container.innerHTML = lista.map(m=>{
+  if(typeof MISSOES === 'undefined') return;
+  container.innerHTML = MISSOES.slice(0,4).map(m=>{
     const feita = localStorage.getItem(`capturo_missao_${m.id}`) === hoje;
     return `<div style="display:flex;align-items:center;gap:10px;background:var(--s2);border:1px solid ${feita?'var(--green-b)':'var(--border)'};border-radius:10px;padding:10px 12px">
       <span style="font-size:16px">${m.icon}</span>
@@ -16361,7 +16296,7 @@ function renderDashMissoes(){
         <div style="font-size:10px;color:var(--muted2)">+${m.recompensa} Raios</div>
       </div>
       ${feita
-        ? `<span style="font-size:10px;color:var(--green);font-weight:700;flex-shrink:0">✅</span>`
+        ? `<span style="font-size:11px;color:var(--green);font-weight:700">✅</span>`
         : `<button onclick="completarMissao('${m.id}',${m.recompensa})" style="flex-shrink:0;background:var(--green-bg);border:1px solid var(--green-b);color:var(--green);padding:4px 8px;border-radius:7px;font-size:9px;font-weight:700;cursor:pointer">Coletar</button>`
       }
     </div>`;
@@ -16423,10 +16358,10 @@ async function completarMissao(missaoId, recompensa){
   }
 
   localStorage.setItem(`capturo_missao_${missaoId}`, hoje);
-  if(typeof renderMissoes==='function') renderMissoes();
-  if(typeof renderDashMissoes==='function') renderDashMissoes();
+  renderMissoes();
   const _m = MISSOES.find(x=>x.id===missaoId);
   toast(`🎉 +${recompensa} Raios! ${_m?`Missão "${_m.titulo}"`:''} concluída!`,'ok',4000);
+  if(typeof renderDashMissoes==='function') renderDashMissoes();
 }
 
 function copiarLinkConvite(){
@@ -17024,14 +16959,9 @@ function toggleAlertaCard(idx){
   if(!extra) return;
   const isOpen = extra.style.display !== 'none';
   extra.style.display = isOpen ? 'none' : 'block';
-  // Atualiza texto do botão
   const card = document.getElementById('acard-'+idx);
   const btn = card ? card.querySelector('.btn-ver-mais') : null;
-  if(btn){
-    btn.innerHTML = isOpen
-      ? '📂 Ver mais dados'
-      : '📁 Recolher dados';
-  }
+  if(btn) btn.innerHTML = isOpen ? '📂 Ver mais dados' : '📁 Recolher dados';
 }
 
 // ── PITCH IA: funções completas ───────────────────────────────
