@@ -794,7 +794,7 @@ select option{background:var(--s2);color:var(--text)}
 .seen-toggle{font-size:11px;cursor:pointer;background:none;border:1px solid var(--border2);border-radius:5px;padding:3px 7px;color:var(--muted2);transition:all .15s}
 .seen-toggle:hover{border-color:var(--accent2);color:var(--text)}
 .seen-toggle.active-seen{background:#1a1a28;color:var(--muted);border-color:var(--border)}
-@media(max-width:900px){#dashMainSection{grid-template-columns:1fr!important}}
+@media(max-width:900px){/* dashMainSection grid corrigido */}
 #dashMainSection{grid-template-columns:340px 1fr}
 @media(max-width:1200px){.kanban{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:750px){.kanban{grid-template-columns:1fr}.keys-grid{grid-template-columns:1fr}.state-city-row{grid-template-columns:1fr}}
@@ -1569,6 +1569,27 @@ select:focus {
 }
 @media (max-width: 768px) {
   #pageClients { padding: 16px !important; }
+}
+
+/* pageClients - GARANTIR sem espaço em branco */
+#pageClients {
+  padding: 24px 28px 24px 28px !important;
+  margin-top: 0 !important;
+  position: relative !important;
+}
+/* Remover qualquer min-height que causa espaço */
+#pageClients > * {
+  min-height: 0 !important;
+}
+
+/* Garantir que o conteúdo não fique sob o topnav */
+.main-wrap {
+  padding-top: 56px !important;
+}
+.topnav {
+  position: fixed !important;
+  top: 0 !important;
+  z-index: 100 !important;
 }
 </style>
 <style id="capturo-premium-v6">
@@ -3894,14 +3915,24 @@ function toast(msg, type='info', duration=3500){
       <div id="rl_resultado_area">
         <!-- Empty state -->
         <div id="rl_empty" style="text-align:center;padding:64px 24px;color:var(--muted2)">
-          <div style="width:72px;height:72px;border-radius:50%;background:rgba(52,199,89,.07);border:1px solid rgba(52,199,89,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="1.5" opacity=".5">
-              <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2" fill="#34c759" stroke="none"/>
-              <line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/>
-              <line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
+          <div style="position:relative;width:80px;height:80px;margin:0 auto 16px">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="40" cy="40" r="36" stroke="#34c759" stroke-width="1" opacity="0.2"/>
+              <circle cx="40" cy="40" r="24" stroke="#34c759" stroke-width="1" opacity="0.3"/>
+              <circle cx="40" cy="40" r="12" stroke="#34c759" stroke-width="1" opacity="0.4"/>
+              <line x1="40" y1="4" x2="40" y2="76" stroke="#34c759" stroke-width="0.5" opacity="0.15"/>
+              <line x1="4" y1="40" x2="76" y2="40" stroke="#34c759" stroke-width="0.5" opacity="0.15"/>
+              <circle cx="40" cy="40" r="3" fill="#34c759" opacity="0.8"/>
+              <g style="transform-origin:40px 40px;animation:radarSpin 3s linear infinite">
+                <path d="M40 40 L40 4" stroke="#34c759" stroke-width="1.5" stroke-linecap="round" opacity="0.9"/>
+                <path d="M40 40 L40 4 A36 36 0 0 0 40 4 Z" fill="#34c759" opacity="0.1"/>
+              </g>
+              <circle cx="56" cy="22" r="2.5" fill="#34c759" style="animation:radarBlipGreen 3s ease-in-out infinite;animation-delay:0s"/>
+              <circle cx="24" cy="30" r="2" fill="#34c759" style="animation:radarBlipGreen 3s ease-in-out infinite;animation-delay:0.8s"/>
+              <circle cx="58" cy="50" r="2.5" fill="#34c759" style="animation:radarBlipGreen 3s ease-in-out infinite;animation-delay:1.5s"/>
             </svg>
           </div>
-          <div style="font-size:15px;font-weight:700;color:var(--text2);margin-bottom:8px">Radar Local pronto para operar</div>
+          <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px">Radar Local pronto para operar</div>
           <div style="font-size:12px;line-height:1.7;max-width:360px;margin:0 auto">
             Configure a palavra-chave, endereço e tamanho do grid acima para mapear o rankeamento no Google Maps com precisão de grade.
           </div>
@@ -4557,7 +4588,7 @@ function toast(msg, type='info', duration=3500){
     <!-- Sidebar de conversas -->
     <div id="aiConvSidebar" style="width:230px;min-width:180px;background:var(--s1);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100%;flex-shrink:0;overflow:hidden">
       <div style="padding:12px 10px;border-bottom:1px solid var(--border)">
-        <button onclick="aiNovaConversa()" style="width:100%;padding:9px 12px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">✏️ Nova conversa</button>
+        <button onclick="if(typeof aiNovaConversa==='function')aiNovaConversa();else{location.reload();}" style="width:100%;padding:9px 12px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">✏️ Nova conversa</button>
       </div>
       <div id="aiConvList" style="flex:1;overflow-y:auto;padding:8px 6px">
         <div style="font-size:11px;color:var(--muted2);padding:8px 8px 4px;font-weight:700;letter-spacing:.04em">CONVERSAS</div>
@@ -4782,7 +4813,7 @@ function toast(msg, type='info', duration=3500){
         <circle cx="55" cy="22" r="3" fill="var(--accent)" style="animation:radarBlip 3s 1s infinite"/>
         <circle cx="28" cy="58" r="2" fill="var(--green)" style="animation:radarBlipGreen 3s 2s infinite"/>
       </svg>
-      <div style="font-size:16px;font-weight:700;margin-bottom:8px;color:var(--text2)">Radar aguardando configuração</div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:8px;color:var(--text)">Radar aguardando configuração</div>
       <div style="font-size:13px;line-height:1.6">Configure estado, cidade e nicho acima<br>para detectar empresas novas com oportunidade</div>
     </div>
   </div>
@@ -11597,7 +11628,13 @@ function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   const pg=$(id);if(pg)pg.classList.add('active');
   const wm=$('bgWatermark');if(wm)wm.style.display=(id==='pageHome'?'flex':'none');
-  if(id==='pageClients')renderClients();
+  if(id==='pageClients'){
+    renderClients();
+    // Scroll para o topo
+    const pg = document.getElementById('pageClients');
+    if(pg) pg.scrollTop = 0;
+    window.scrollTo(0,0);
+  }
   if(id==='pageManual'){
     renderManualLeads();
     // Mostra banner de qual campanha está ativa (ou aviso se nenhuma)
@@ -15647,18 +15684,18 @@ function renderVisualFunnel(stages){
   const maxN = stages[0]?.n || 1;
   const colors = ['var(--accent)','var(--cold)','var(--warm)','var(--green)','var(--volcano)'];
   const minW = 30, maxW = 100;
-  el.innerHTML = `<div class="funnel-wrap">` +
+  el.innerHTML = `<div class="funnel-wrap" style="overflow:hidden">` +
     stages.map((s,i)=>{
       const pct = maxN>0?(s.n/maxN*100):0;
       const w = Math.max(minW, Math.round(pct*(maxW-minW)/100+minW));
       const convPct = i>0&&stages[0].n>0?((s.n/stages[0].n)*100).toFixed(0):100;
       return `<div style="margin-bottom:3px;display:flex;align-items:center;gap:8px">
-        <div style="width:${w}%;background:${colors[i%colors.length]};border-radius:4px;height:32px;display:flex;align-items:center;padding:0 10px;transition:width .6s cubic-bezier(.4,0,.2,1);min-width:40px;position:relative;overflow:visible">
+        <div style="width:${w}%;background:${colors[i%colors.length]};border-radius:4px;height:28px;display:flex;align-items:center;padding:0 10px;transition:width .6s cubic-bezier(.4,0,.2,1);min-width:40px">
           <span style="font-size:10px;font-weight:700;color:#fff;font-family:'IBM Plex Mono',monospace;white-space:nowrap">${s.n}</span>
         </div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:11px;font-weight:600;color:var(--text)">${s.label}</div>
-          <div style="font-size:9px;color:var(--muted2);font-family:'IBM Plex Mono',monospace">${i===0?'100% — todos':convPct+'% conversão'}</div>
+        <div style="min-width:100px;max-width:120px">
+          <div style="font-size:11px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.label}</div>
+          <div style="font-size:9px;color:var(--muted2);font-family:'IBM Plex Mono',monospace">${i===0?'100%':'conv: '+convPct+'%'}</div>
         </div>
       </div>`;
     }).join('') + `</div>`;
@@ -16246,8 +16283,7 @@ function openUserProfile(){
   modal.classList.add('open');
   populateUserProfile();
   renderMissoes();
-  // Check-in diário automático ao abrir o perfil
-  setTimeout(_registrarCheckinMissao, 500);
+  // Check-in registrado manualmente pelo usuário via botão
 }
 function closeUserProfile(){
   const modal = document.getElementById('userProfileModal');
@@ -17749,16 +17785,27 @@ function aiRenderConvList(){
     const itens = lista.map(c => {
       const ativo = c.id === _aiConvAtualId;
       const tit = (c.titulo||'Conversa').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      return '<div onclick="aiCarregarConversa(' + JSON.stringify(c.id) + ')" style="padding:8px 10px;border-radius:8px;cursor:pointer;font-size:12px;color:' + (ativo?'var(--text)':'var(--text2)') + ';font-weight:' + (ativo?'600':'400') + ';background:' + (ativo?'var(--accent-bg)':'none') + ';border:1px solid ' + (ativo?'var(--accent-mid)':'transparent') + ';margin-bottom:2px;display:flex;align-items:center;justify-content:space-between;gap:4px" onmouseover="if(this.style.background==='none')this.style.background='var(--s2)'" onmouseout="if(this.style.background==='var(--s2)')this.style.background='none'">'
-        + '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">' + tit + '</span>'
-        + '<span onclick="event.stopPropagation();aiDeletarConversa(' + JSON.stringify(c.id) + ')" style="font-size:10px;color:var(--muted2);cursor:pointer;flex-shrink:0;padding:1px 4px;border-radius:3px;opacity:.5" onmouseover="this.style.opacity='1';this.style.color='var(--red)'" onmouseout="this.style.opacity='.5';this.style.color='var(--muted2)'">✕</span>'
-        + '</div>';
+      const bg = ativo ? 'var(--accent-bg)' : 'transparent';
+      const cor = ativo ? 'var(--text)' : 'var(--text2)';
+      const fw = ativo ? '600' : '400';
+      const brd = ativo ? 'var(--accent-mid)' : 'transparent';
+      return `<div data-convid="${c.id}" onclick="aiCarregarConversa(this.dataset.convid)"
+        style="padding:8px 10px;border-radius:8px;cursor:pointer;font-size:12px;
+               color:${cor};font-weight:${fw};background:${bg};
+               border:1px solid ${brd};margin-bottom:2px;
+               display:flex;align-items:center;justify-content:space-between;gap:4px"
+        onmouseenter="if(!this.classList.contains('ativo'))this.style.background='var(--s2)'"
+        onmouseleave="if(!this.classList.contains('ativo'))this.style.background='transparent'">
+        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${tit}</span>
+        <span data-delid="${c.id}" onclick="event.stopPropagation();aiDeletarConversa(this.dataset.delid)"
+          style="font-size:10px;color:var(--muted2);cursor:pointer;flex-shrink:0;padding:1px 4px;border-radius:3px;opacity:.4"
+          onmouseenter="this.style.opacity='1';this.style.color='var(--red)'"
+          onmouseleave="this.style.opacity='.4';this.style.color='var(--muted2)'">✕</span>
+      </div>`;
     }).join('');
-    return '<div style="font-size:10px;color:var(--muted2);padding:8px 8px 2px;font-weight:700;letter-spacing:.06em">' + titulo + '</div>' + itens;
+    return `<div style="font-size:10px;color:var(--muted2);padding:8px 8px 2px;font-weight:700;letter-spacing:.06em">${titulo}</div>${itens}`;
   }
 
-  list.innerHTML = renderGrupo('HOJE', grupos.hoje) + renderGrupo('ESTA SEMANA', grupos.semana) + renderGrupo('MAIS ANTIGAS', grupos.antigas);
-}
 
 function aiCarregarConversa(convId){
   const conv = _aiConversas.find(c=>c.id===convId);
