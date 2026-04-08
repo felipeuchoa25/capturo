@@ -10291,127 +10291,7 @@ function exportRelatorioHTML(){
     <td style="font-size:11px;color:#007aff">${l.website||l.bioUrl||'—'}</td>
     <td><span class="badge c">${l.status||'new'}</span></td>
   </tr>`).join('')}</tbody></table>
-  
-<script>
-// ══ AI HISTÓRICO DE CONVERSAS (estilo ChatGPT) ══════════════
-let _aiConversas = [];
-let _aiConvAtualId = null;
-
-function aiInitHistorico(){
-  try {
-    const saved = localStorage.getItem('capturo_ai_conversas');
-    if(saved) _aiConversas = JSON.parse(saved);
-  } catch(e){ _aiConversas = []; }
-  aiRenderConvList();
-  if(!_aiConvAtualId || !_aiConversas.find(c=>c.id===_aiConvAtualId)){
-    aiNovaConversa();
-  } else {
-    aiCarregarConversa(_aiConvAtualId);
-  }
-}
-
-function aiSalvarConversas(){
-  try { localStorage.setItem('capturo_ai_conversas', JSON.stringify(_aiConversas.slice(-30))); } catch(e){}
-}
-
-function aiNovaConversa(){
-  const convId = 'conv_' + Date.now();
-  const nova = { id: convId, titulo: 'Nova conversa', ts: Date.now(), mensagens: [] };
-  _aiConversas.unshift(nova);
-  _aiConvAtualId = convId;
-  if(typeof aiChatHistory !== 'undefined') aiChatHistory = [];
-  const msgs = document.getElementById('aiChatMessages');
-  if(msgs){
-    msgs.innerHTML = '<div style="margin:auto;text-align:center;color:var(--muted2);max-width:360px"><div style="font-size:52px;margin-bottom:16px">🤖</div><div style="font-size:18px;font-weight:700;margin-bottom:8px;color:var(--text)">Assistente IA</div><div style="font-size:13px;line-height:1.6">Analise leads, gere pitches e tire dúvidas sobre prospecção.</div></div>';
-  }
-  const titulo = document.getElementById('aiConvTitle');
-  if(titulo) titulo.textContent = 'Nova conversa';
-  aiSalvarConversas();
-  aiRenderConvList();
-}
-
-function aiRenderConvList(){
-  const list = document.getElementById('aiConvList');
-  if(!list) return;
-  if(!_aiConversas.length){
-    list.innerHTML = '<div style="font-size:11px;color:var(--muted2);padding:12px 10px">Nenhuma conversa ainda.</div>';
-    return;
-  }
-  const agora = Date.now();
-  const grupos = { hoje: [], semana: [], antigas: [] };
-  _aiConversas.forEach(c => {
-    const diff = agora - c.ts;
-    if(diff < 86400000) grupos.hoje.push(c);
-    else if(diff < 7*86400000) grupos.semana.push(c);
-    else grupos.antigas.push(c);
-  });
-
-  function renderGrupo(titulo, lista){
-    if(!lista.length) return '';
-    const itens = lista.map(c => {
-      const ativo = c.id === _aiConvAtualId;
-      const tit = (c.titulo||'Conversa').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      return '<div onclick="aiCarregarConversa('' + c.id + '')" style="padding:8px 10px;border-radius:8px;cursor:pointer;font-size:12px;color:' + (ativo?'var(--text)':'var(--text2)') + ';font-weight:' + (ativo?'600':'400') + ';background:' + (ativo?'var(--accent-bg)':'none') + ';border:1px solid ' + (ativo?'var(--accent-mid)':'transparent') + ';margin-bottom:2px;display:flex;align-items:center;justify-content:space-between;gap:4px" onmouseover="if(this.style.background==='none')this.style.background='var(--s2)'" onmouseout="if(this.style.background==='var(--s2)')this.style.background='none'">'
-        + '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">' + tit + '</span>'
-        + '<span onclick="event.stopPropagation();aiDeletarConversa('' + c.id + '')" style="font-size:10px;color:var(--muted2);cursor:pointer;flex-shrink:0;padding:1px 4px;border-radius:3px;opacity:.5" onmouseover="this.style.opacity='1';this.style.color='var(--red)'" onmouseout="this.style.opacity='.5';this.style.color='var(--muted2)'">✕</span>'
-        + '</div>';
-    }).join('');
-    return '<div style="font-size:10px;color:var(--muted2);padding:8px 8px 2px;font-weight:700;letter-spacing:.06em">' + titulo + '</div>' + itens;
-  }
-
-  list.innerHTML = renderGrupo('HOJE', grupos.hoje) + renderGrupo('ESTA SEMANA', grupos.semana) + renderGrupo('MAIS ANTIGAS', grupos.antigas);
-}
-
-function aiCarregarConversa(convId){
-  const conv = _aiConversas.find(c=>c.id===convId);
-  if(!conv) return;
-  _aiConvAtualId = convId;
-  if(typeof aiChatHistory !== 'undefined') aiChatHistory = [...(conv.mensagens||[])];
-  const msgs = document.getElementById('aiChatMessages');
-  if(!msgs) return;
-  msgs.innerHTML = '';
-  if(!(conv.mensagens||[]).length){
-    msgs.innerHTML = '<div style="margin:auto;text-align:center;color:var(--muted2)"><div style="font-size:40px;margin-bottom:12px">🤖</div><div>Assistente IA — comece uma conversa</div></div>';
-  } else {
-    conv.mensagens.forEach(m => { if(typeof appendAIMsg==='function') appendAIMsg(m.role, m.content); });
-  }
-  const titulo = document.getElementById('aiConvTitle');
-  if(titulo) titulo.textContent = conv.titulo || 'Conversa';
-  aiRenderConvList();
-}
-
-function aiDeletarConversa(convId){
-  _aiConversas = _aiConversas.filter(c=>c.id!==convId);
-  if(_aiConvAtualId === convId) aiNovaConversa();
-  else { aiSalvarConversas(); aiRenderConvList(); }
-}
-
-// Override appendAIMsg para salvar no histórico
-(function(){
-  const _orig = window.appendAIMsg;
-  if(!_orig) return;
-  window.appendAIMsg = function(role, text){
-    _orig.call(this, role, text);
-    const conv = _aiConversas.find(c=>c.id===_aiConvAtualId);
-    if(conv){
-      if(!conv.mensagens) conv.mensagens = [];
-      const last = conv.mensagens[conv.mensagens.length-1];
-      if(!last || last.role!==role || last.content!==text){
-        conv.mensagens.push({role, content: text});
-      }
-      if(role==='user' && conv.mensagens.filter(m=>m.role==='user').length===1){
-        conv.titulo = text.length>42 ? text.substring(0,42)+'…' : text;
-        const t = document.getElementById('aiConvTitle');
-        if(t) t.textContent = conv.titulo;
-      }
-      _aiConversas = [conv, ..._aiConversas.filter(c=>c.id!==conv.id)];
-      aiSalvarConversas();
-      aiRenderConvList();
-    }
-  };
-})();
-</script>
-</body></html>`;
+  </body></html>`;
   const a=document.createElement('a');a.href='data:text/html;charset=utf-8,'+encodeURIComponent(html);
   a.download=`CAPTURO-relatorio-${new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')}.html`;a.click();
   toast('✅ Relatório HTML exportado!','ok');
@@ -17539,6 +17419,126 @@ document.addEventListener('DOMContentLoaded',()=>{
 // ── FIM AUTOMAÇÕES ────────────────────────────────────────────
 
 
+</script>
+
+<script>
+// ══ AI HISTÓRICO DE CONVERSAS (estilo ChatGPT) ══════════════
+let _aiConversas = [];
+let _aiConvAtualId = null;
+
+function aiInitHistorico(){
+  try {
+    const saved = localStorage.getItem('capturo_ai_conversas');
+    if(saved) _aiConversas = JSON.parse(saved);
+  } catch(e){ _aiConversas = []; }
+  aiRenderConvList();
+  if(!_aiConvAtualId || !_aiConversas.find(c=>c.id===_aiConvAtualId)){
+    aiNovaConversa();
+  } else {
+    aiCarregarConversa(_aiConvAtualId);
+  }
+}
+
+function aiSalvarConversas(){
+  try { localStorage.setItem('capturo_ai_conversas', JSON.stringify(_aiConversas.slice(-30))); } catch(e){}
+}
+
+function aiNovaConversa(){
+  const convId = 'conv_' + Date.now();
+  const nova = { id: convId, titulo: 'Nova conversa', ts: Date.now(), mensagens: [] };
+  _aiConversas.unshift(nova);
+  _aiConvAtualId = convId;
+  if(typeof aiChatHistory !== 'undefined') aiChatHistory = [];
+  const msgs = document.getElementById('aiChatMessages');
+  if(msgs){
+    msgs.innerHTML = '<div style="margin:auto;text-align:center;color:var(--muted2);max-width:360px"><div style="font-size:52px;margin-bottom:16px">🤖</div><div style="font-size:18px;font-weight:700;margin-bottom:8px;color:var(--text)">Assistente IA</div><div style="font-size:13px;line-height:1.6">Analise leads, gere pitches e tire dúvidas sobre prospecção.</div></div>';
+  }
+  const titulo = document.getElementById('aiConvTitle');
+  if(titulo) titulo.textContent = 'Nova conversa';
+  aiSalvarConversas();
+  aiRenderConvList();
+}
+
+function aiRenderConvList(){
+  const list = document.getElementById('aiConvList');
+  if(!list) return;
+  if(!_aiConversas.length){
+    list.innerHTML = '<div style="font-size:11px;color:var(--muted2);padding:12px 10px">Nenhuma conversa ainda.</div>';
+    return;
+  }
+  const agora = Date.now();
+  const grupos = { hoje: [], semana: [], antigas: [] };
+  _aiConversas.forEach(c => {
+    const diff = agora - c.ts;
+    if(diff < 86400000) grupos.hoje.push(c);
+    else if(diff < 7*86400000) grupos.semana.push(c);
+    else grupos.antigas.push(c);
+  });
+
+  function renderGrupo(titulo, lista){
+    if(!lista.length) return '';
+    const itens = lista.map(c => {
+      const ativo = c.id === _aiConvAtualId;
+      const tit = (c.titulo||'Conversa').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      return '<div onclick="aiCarregarConversa('' + c.id + '')" style="padding:8px 10px;border-radius:8px;cursor:pointer;font-size:12px;color:' + (ativo?'var(--text)':'var(--text2)') + ';font-weight:' + (ativo?'600':'400') + ';background:' + (ativo?'var(--accent-bg)':'none') + ';border:1px solid ' + (ativo?'var(--accent-mid)':'transparent') + ';margin-bottom:2px;display:flex;align-items:center;justify-content:space-between;gap:4px" onmouseover="if(this.style.background==='none')this.style.background='var(--s2)'" onmouseout="if(this.style.background==='var(--s2)')this.style.background='none'">'
+        + '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">' + tit + '</span>'
+        + '<span onclick="event.stopPropagation();aiDeletarConversa('' + c.id + '')" style="font-size:10px;color:var(--muted2);cursor:pointer;flex-shrink:0;padding:1px 4px;border-radius:3px;opacity:.5" onmouseover="this.style.opacity='1';this.style.color='var(--red)'" onmouseout="this.style.opacity='.5';this.style.color='var(--muted2)'">✕</span>'
+        + '</div>';
+    }).join('');
+    return '<div style="font-size:10px;color:var(--muted2);padding:8px 8px 2px;font-weight:700;letter-spacing:.06em">' + titulo + '</div>' + itens;
+  }
+
+  list.innerHTML = renderGrupo('HOJE', grupos.hoje) + renderGrupo('ESTA SEMANA', grupos.semana) + renderGrupo('MAIS ANTIGAS', grupos.antigas);
+}
+
+function aiCarregarConversa(convId){
+  const conv = _aiConversas.find(c=>c.id===convId);
+  if(!conv) return;
+  _aiConvAtualId = convId;
+  if(typeof aiChatHistory !== 'undefined') aiChatHistory = [...(conv.mensagens||[])];
+  const msgs = document.getElementById('aiChatMessages');
+  if(!msgs) return;
+  msgs.innerHTML = '';
+  if(!(conv.mensagens||[]).length){
+    msgs.innerHTML = '<div style="margin:auto;text-align:center;color:var(--muted2)"><div style="font-size:40px;margin-bottom:12px">🤖</div><div>Assistente IA — comece uma conversa</div></div>';
+  } else {
+    conv.mensagens.forEach(m => { if(typeof appendAIMsg==='function') appendAIMsg(m.role, m.content); });
+  }
+  const titulo = document.getElementById('aiConvTitle');
+  if(titulo) titulo.textContent = conv.titulo || 'Conversa';
+  aiRenderConvList();
+}
+
+function aiDeletarConversa(convId){
+  _aiConversas = _aiConversas.filter(c=>c.id!==convId);
+  if(_aiConvAtualId === convId) aiNovaConversa();
+  else { aiSalvarConversas(); aiRenderConvList(); }
+}
+
+// Override appendAIMsg para salvar no histórico
+(function(){
+  const _orig = window.appendAIMsg;
+  if(!_orig) return;
+  window.appendAIMsg = function(role, text){
+    _orig.call(this, role, text);
+    const conv = _aiConversas.find(c=>c.id===_aiConvAtualId);
+    if(conv){
+      if(!conv.mensagens) conv.mensagens = [];
+      const last = conv.mensagens[conv.mensagens.length-1];
+      if(!last || last.role!==role || last.content!==text){
+        conv.mensagens.push({role, content: text});
+      }
+      if(role==='user' && conv.mensagens.filter(m=>m.role==='user').length===1){
+        conv.titulo = text.length>42 ? text.substring(0,42)+'…' : text;
+        const t = document.getElementById('aiConvTitle');
+        if(t) t.textContent = conv.titulo;
+      }
+      _aiConversas = [conv, ..._aiConversas.filter(c=>c.id!==conv.id)];
+      aiSalvarConversas();
+      aiRenderConvList();
+    }
+  };
+})();
 </script>
 </body>
 </html>
