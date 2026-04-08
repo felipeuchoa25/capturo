@@ -83,7 +83,7 @@
   --ease-bounce:cubic-bezier(.34,1.56,.64,1);
   --ease-out:cubic-bezier(0,.55,.45,1);
 }
-/* CAPTURO © Felipe Uchoa 2024-2025 — CAP-7B3E92A1F0C84D56 */
+/* CAPTURO © Noxvy 2024-2025 — CAP-7B3E92A1F0C84D56 */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 body{
   font-family:'Plus Jakarta Sans','Inter',system-ui,-apple-system,sans-serif;
@@ -866,7 +866,7 @@ select option{background:var(--s2);color:var(--text)}
   .sb-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
   .sb-label{font-size:12px;font-weight:500;opacity:0;transition:opacity .15s .05s;pointer-events:none;}
   .sidebar:hover .sb-label,.sidebar.expanded .sb-label{opacity:1;}
-  .sb-divider{height:1px;background:rgba(255,255,255,.06);margin:6px 4px;}
+  .sb-divider{height:1px;background:rgba(255,255,255,.1);margin:8px 8px;}
   .sb-section-label{
     padding:3px 10px 2px;
     overflow:hidden;
@@ -1430,9 +1430,9 @@ select:focus {
 
 /* SIDEBAR — divisórias suaves entre módulos */
 .sb-section-label {
-  margin-top: 6px !important;
-  padding-top: 14px !important;
-  border-top: 1px solid rgba(255,255,255,0.07) !important;
+  margin-top: 4px !important;
+  padding-top: 12px !important;
+  border-top: 1px solid rgba(255,255,255,0.12) !important;
 }
 .sb-section-label:first-of-type {
   border-top: none !important;
@@ -1590,6 +1590,22 @@ select:focus {
   position: fixed !important;
   top: 0 !important;
   z-index: 100 !important;
+}
+
+.login-input { color: #f0f0fa !important; caret-color: #f0f0fa !important; }
+.login-input:-webkit-autofill,
+.login-input:-webkit-autofill:hover,
+.login-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f0f0fa !important;
+  -webkit-box-shadow: 0 0 0 1000px #0d0d1a inset !important;
+  caret-color: #f0f0fa !important;
+}
+
+/* Topnav limpo - lupa ocupa espaço disponível */
+.gs-btn {
+  flex: 1 !important;
+  max-width: 400px !important;
+  justify-content: flex-start !important;
 }
 </style>
 <style id="capturo-premium-v6">
@@ -2644,6 +2660,19 @@ button:focus-visible, input:focus-visible, select:focus-visible {
   background: rgba(255,255,255,.07);
   box-shadow: 0 0 0 3px rgba(94,156,255,.12);
 }
+.login-input:-webkit-autofill,
+.login-input:-webkit-autofill:hover,
+.login-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f0f0fa !important;
+  -webkit-box-shadow: 0 0 0 1000px rgba(20,20,31,.95) inset !important;
+  background-color: rgba(20,20,31,.95) !important;
+  caret-color: #f0f0fa !important;
+  border-color: rgba(94,156,255,.6) !important;
+}
+.login-input {
+  color: #f0f0fa !important;
+  caret-color: #f0f0fa !important;
+}
 
 /* ── BTN ── */
 .login-btn {
@@ -2860,7 +2889,7 @@ const CAPTURO_SIGNATURE = {
   build:     'CAP-7B3E92A1F0C84D56',
   hash:      '7b3e92a1f0c84d563f291ae8b047209901f3da849d1bf54d1ebdcb10f72a4c1e',
   copyright: '© 2024-2025 Felipe Uchoa. Reprodução não autorizada proibida.',
-  verify:    () => { try{ (console.info||console.log).call(console,'%cCAPTURO%c © Felipe Uchoa — Build CAP-7B3E92A1F0C84D56','color:#007aff;font-weight:bold;font-size:14px','color:#888;font-size:11px'); }catch(e){} }
+  verify:    () => { try{ (console.info||console.log).call(console,'%cCAPTURO%c © Noxvy — Build CAP-7B3E92A1F0C84D56','color:#007aff;font-weight:bold;font-size:14px','color:#888;font-size:11px'); }catch(e){} }
 };
 if (typeof console !== 'undefined') { try{ CAPTURO_SIGNATURE.verify(); }catch(e){} }
 
@@ -3473,14 +3502,8 @@ function toast(msg, type='info', duration=3500){
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       Buscar... <span style="font-size:9px;opacity:.5;margin-left:4px">Ctrl+K</span>
     </button>
-    <!-- Swatches de tema no topnav — sempre visíveis -->
-    <div class="topnav-swatches" title="Tema de cores">
-      <div class="tn-swatch" id="swBlue"  style="background:#0f1117;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)" onclick="applyTheme('blue')"  title="🌑 Noturno"></div>
-      <div class="tn-swatch" id="swGray"  style="background:#b2cece;box-shadow:inset 0 0 0 1px rgba(0,0,0,.1)"      onclick="applyTheme('gray')"  title="🌿 Teal"></div>
-      <div class="tn-swatch" id="swWhite" style="background:#f2f2f7;box-shadow:inset 0 0 0 1px #ccc"                 onclick="applyTheme('white')" title="☀️ Claro"></div>
-    </div>
-    <!-- Avatar clicável unificado -->
-    <div id="userHeaderInfo" style="display:flex;align-items:center;gap:8px;flex-shrink:0;padding-left:10px;border-left:1px solid var(--border)"></div>
+
+
     <!-- Botão + Campanha — único no sistema -->
     <button class="btn-new" onclick="openCampaignModal()" style="flex-shrink:0">+ Campanha</button>
   </div>
@@ -14408,7 +14431,7 @@ function selectAllBulkLeads(){
     <!-- Actions -->
     <div style="display:flex;gap:10px;justify-content:flex-end">
       <button onclick="closeFeedbackModal()" class="btn btn-ghost">Cancelar</button>
-      <button onclick="submitFeedback()" class="btn btn-primary" style="min-width:140px">✉ Enviar Feedback</button>
+      
     </div>
   </div>
 </div>
@@ -14541,15 +14564,18 @@ async function loadLeadsProfile(){
 
 function atualizarBadgeLeads(){
   const restantes = leadsRestantes();
-  const el = document.getElementById('leadsBadge');
-  if(!el) return;
-  const numEl = el.querySelector('span.sb-num');
-  const lblEl = el.querySelector('span.sb-lbl');
-  if(numEl) numEl.textContent = restantes;
-  if(lblEl) lblEl.textContent = 'Raios';
   const cor = restantes <= 5 ? 'var(--red)' : restantes <= 15 ? 'var(--orange)' : 'var(--accent)';
-  if(numEl) numEl.style.color = cor;
-  el.title = `${restantes} Sinais restantes de ${_leadsProfile.sinais_limit}`;
+  // Atualiza sidebar
+  const sbCount = document.getElementById('sbRaiosCount');
+  if(sbCount){ sbCount.textContent = restantes; sbCount.style.color = cor; }
+  // Badge legado (se existir)
+  const el = document.getElementById('leadsBadge');
+  if(el){
+    const numEl = el.querySelector('span.sb-num');
+    const lblEl = el.querySelector('span.sb-lbl');
+    if(numEl){ numEl.textContent = restantes; numEl.style.color = cor; }
+    if(lblEl) lblEl.textContent = 'Raios';
+  }
   // Atualiza também o item do menu dropdown
   const menuLeadsEl = document.querySelector('#userMenu .um-leads span:last-child');
   if(menuLeadsEl){ menuLeadsEl.textContent = restantes; menuLeadsEl.style.color = cor; }
@@ -14851,7 +14877,7 @@ async function saveToSupabase(){
       if(campErr){
         console.error('[CAPTURO] Erro campanha "'+camp.name+'":', campErr);
         if(campErr.code==='42501'||campErr.message?.includes('policy')){
-          toast('Supabase bloqueou o salvamento (RLS). Verifique as politicas da tabela campaigns.','error',8000);
+          console.warn('[RLS] ' + arguments[0]);
         } else {
           toast('Erro ao salvar campanha: '+campErr.message,'error',6000);
         }
@@ -14908,7 +14934,7 @@ async function saveToSupabase(){
         if(leadsErr){
           console.error('[CAPTURO] Erro leads "'+camp.name+'":', leadsErr);
           if(leadsErr.code==='42501'||leadsErr.message?.includes('policy')){
-            toast('Supabase bloqueou os leads (RLS). Verifique as politicas da tabela leads.','error',8000);
+            console.warn('[RLS] ' + arguments[0]);
           } else {
             toast('Erro ao salvar leads: '+leadsErr.message,'error',6000);
           }
@@ -15268,7 +15294,7 @@ async function loadFromSupabase(){
   </div>
 </div>
 <!-- Botão flutuante sempre visível -->
-<button id="tourFloatBtn" title="Tour / Ajuda" style="position:fixed;bottom:24px;right:16px;z-index:99100;width:40px;height:40px;border-radius:50%;background:var(--accent);color:#fff;border:1px solid rgba(255,255,255,.15);cursor:grab;font-size:17px;box-shadow:0 2px 8px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;transition:box-shadow .15s;user-select:none" onclick="if(typeof restartTourFromFloat==='function')restartTourFromFloat();else{localStorage.removeItem('capturo-tour-done');location.reload();}">🧭</button>
+<button id="tourFloatBtn" title="Tour / Ajuda" style="position:fixed;bottom:24px;right:16px;z-index:99100;width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;border:none;cursor:grab;font-size:15px;box-shadow:0 1px 4px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;transition:opacity .15s;user-select:none;opacity:.75" onclick="if(typeof restartTourFromFloat==='function')restartTourFromFloat();else{localStorage.removeItem('capturo-tour-done');location.reload();}">🧭</button>
 <script>
 (function(){
   const btn = document.getElementById('tourFloatBtn');
