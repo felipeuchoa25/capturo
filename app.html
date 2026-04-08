@@ -3364,7 +3364,6 @@ function toast(msg, type='info', duration=3500){
     </span>
     <span class="sb-label" style="display:flex;gap:7px;align-items:center">
       <span class="tn-swatch-sb" style="width:14px;height:14px;border-radius:50%;background:#0f1117;border:2px solid rgba(255,255,255,.3);cursor:pointer" onclick="applyTheme('blue')" title="Noturno"></span>
-      <span class="tn-swatch-sb" style="width:14px;height:14px;border-radius:50%;background:#b2cece;border:2px solid rgba(0,0,0,.1);cursor:pointer" onclick="applyTheme('gray')" title="Teal"></span>
       <span class="tn-swatch-sb" style="width:14px;height:14px;border-radius:50%;background:#f2f2f7;border:2px solid #ccc;cursor:pointer" onclick="applyTheme('white')" title="Claro"></span>
     </span>
   </div>
@@ -5444,6 +5443,7 @@ function toast(msg, type='info', duration=3500){
         <p style="font-size:12px">Quando fechar um lead, clique em "💰 Fechar" no card e depois mova para cá.</p>
       </div>
     </div>
+    </div><!-- fecha clients-inner -->
   </div>
 
   <!-- CLIENT MODAL -->
@@ -15219,7 +15219,39 @@ async function loadFromSupabase(){
   </div>
 </div>
 <!-- Botão flutuante sempre visível -->
-<button id="tourFloatBtn" onclick="if(typeof restartTourFromFloat==='function'){restartTourFromFloat();}else{localStorage.removeItem('capturo-tour-done');location.reload();}" title="Abrir tour interativo / ajuda" style="position:fixed;bottom:24px;right:24px;z-index:99100;width:48px;height:48px;border-radius:50%;background:var(--accent);color:#fff;border:none;cursor:pointer;font-size:20px;box-shadow:0 4px 20px rgba(0,122,255,.5);display:flex;align-items:center;justify-content:center;transition:transform .15s,box-shadow .15s" onmouseover="this.style.transform='scale(1.12)';this.style.boxShadow='0 6px 28px rgba(0,122,255,.7)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 4px 20px rgba(0,122,255,.5)'">🧭</button>
+<button id="tourFloatBtn" title="Tour / Ajuda" style="position:fixed;bottom:24px;right:16px;z-index:99100;width:40px;height:40px;border-radius:50%;background:var(--accent);color:#fff;border:1px solid rgba(255,255,255,.15);cursor:grab;font-size:17px;box-shadow:0 2px 8px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;transition:box-shadow .15s;user-select:none" onclick="if(typeof restartTourFromFloat==='function')restartTourFromFloat();else{localStorage.removeItem('capturo-tour-done');location.reload();}">🧭</button>
+<script>
+(function(){
+  const btn = document.getElementById('tourFloatBtn');
+  if(!btn) return;
+  let dragging=false, startY=0, startTop=0;
+  btn.addEventListener('mousedown', e=>{
+    dragging=true; startY=e.clientY;
+    startTop=parseInt(btn.style.bottom)||24;
+    btn.style.cursor='grabbing';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', e=>{
+    if(!dragging) return;
+    const dy = startY - e.clientY;
+    const newBottom = Math.max(8, Math.min(window.innerHeight-60, startTop+dy));
+    btn.style.bottom = newBottom+'px';
+  });
+  document.addEventListener('mouseup', ()=>{ dragging=false; btn.style.cursor='grab'; });
+  // Touch
+  btn.addEventListener('touchstart', e=>{
+    dragging=true; startY=e.touches[0].clientY;
+    startTop=parseInt(btn.style.bottom)||24;
+    e.preventDefault();
+  },{passive:false});
+  document.addEventListener('touchmove', e=>{
+    if(!dragging) return;
+    const dy = startY - e.touches[0].clientY;
+    btn.style.bottom = Math.max(8,Math.min(window.innerHeight-60,startTop+dy))+'px';
+  });
+  document.addEventListener('touchend', ()=>{ dragging=false; });
+})();
+</script>
 
 <script>
 /* ══════════════════════════════════════════════════════════════
