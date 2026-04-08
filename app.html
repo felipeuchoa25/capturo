@@ -1558,6 +1558,18 @@ select:focus {
 #pageFavoritos {
   width: 100% !important;
 }
+
+/* pageClients - padding igual ao .main */
+#pageClients {
+  padding: 24px 28px !important;
+  width: 100% !important;
+  max-width: 1440px !important;
+  margin: 0 auto !important;
+  box-sizing: border-box !important;
+}
+@media (max-width: 768px) {
+  #pageClients { padding: 16px !important; }
+}
 </style>
 <style id="capturo-premium-v6">
 /* ═══════════════════════════════════════════════════════════
@@ -14486,7 +14498,7 @@ async function loadLeadsProfile(){
   if(!error && data){
     _leadsProfile = data;
     atualizarBadgeLeads();
-      if(p.plan) setUserPlan(p.plan);
+      if(data.plan) setUserPlan(data.plan);
   }
 }
 
@@ -17737,9 +17749,9 @@ function aiRenderConvList(){
     const itens = lista.map(c => {
       const ativo = c.id === _aiConvAtualId;
       const tit = (c.titulo||'Conversa').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      return '<div onclick="aiCarregarConversa('' + c.id + '')" style="padding:8px 10px;border-radius:8px;cursor:pointer;font-size:12px;color:' + (ativo?'var(--text)':'var(--text2)') + ';font-weight:' + (ativo?'600':'400') + ';background:' + (ativo?'var(--accent-bg)':'none') + ';border:1px solid ' + (ativo?'var(--accent-mid)':'transparent') + ';margin-bottom:2px;display:flex;align-items:center;justify-content:space-between;gap:4px" onmouseover="if(this.style.background==='none')this.style.background='var(--s2)'" onmouseout="if(this.style.background==='var(--s2)')this.style.background='none'">'
+      return '<div onclick="aiCarregarConversa(' + JSON.stringify(c.id) + ')" style="padding:8px 10px;border-radius:8px;cursor:pointer;font-size:12px;color:' + (ativo?'var(--text)':'var(--text2)') + ';font-weight:' + (ativo?'600':'400') + ';background:' + (ativo?'var(--accent-bg)':'none') + ';border:1px solid ' + (ativo?'var(--accent-mid)':'transparent') + ';margin-bottom:2px;display:flex;align-items:center;justify-content:space-between;gap:4px" onmouseover="if(this.style.background==='none')this.style.background='var(--s2)'" onmouseout="if(this.style.background==='var(--s2)')this.style.background='none'">'
         + '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">' + tit + '</span>'
-        + '<span onclick="event.stopPropagation();aiDeletarConversa('' + c.id + '')" style="font-size:10px;color:var(--muted2);cursor:pointer;flex-shrink:0;padding:1px 4px;border-radius:3px;opacity:.5" onmouseover="this.style.opacity='1';this.style.color='var(--red)'" onmouseout="this.style.opacity='.5';this.style.color='var(--muted2)'">✕</span>'
+        + '<span onclick="event.stopPropagation();aiDeletarConversa(' + JSON.stringify(c.id) + ')" style="font-size:10px;color:var(--muted2);cursor:pointer;flex-shrink:0;padding:1px 4px;border-radius:3px;opacity:.5" onmouseover="this.style.opacity='1';this.style.color='var(--red)'" onmouseout="this.style.opacity='.5';this.style.color='var(--muted2)'">✕</span>'
         + '</div>';
     }).join('');
     return '<div style="font-size:10px;color:var(--muted2);padding:8px 8px 2px;font-weight:700;letter-spacing:.06em">' + titulo + '</div>' + itens;
