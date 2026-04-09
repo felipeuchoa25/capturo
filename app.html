@@ -12566,7 +12566,7 @@ function addManualLead(){
   setTimeout(()=>syncToSheets(true), 2000);
 
   // Clear fields
-  ['mName','mCity','mNiche','mPhone','mEmail','mWebsite','mNotes','mInstagram','mWhatsapp','mAddress'].forEach(id=>{const el=$(id);if(el)el.value='';});
+  ['mName','mNiche','mPhone','mEmail','mWebsite','mNotes','mInstagram','mWhatsapp','mAddress'].forEach(id=>{const el=$(id);if(el)el.value='';});
 
   // Show success + trigger AI enrichment if Claude key available
   const list=$('manualLeadsList');
@@ -12691,10 +12691,10 @@ async function searchAndEnrichByName(){
                 document.querySelectorAll('.search-result-item').forEach(el=>el.style.background='');
                 this.style.background='var(--accent-bg)';
                 typeof toast==='function' && toast('✓ Campos preenchidos com este resultado!','ok',2000);
-              }).call(this)" 
-              style="padding:10px 12px;border-bottom:1px solid var(--border);font-size:12px;cursor:pointer;border-radius:8px;transition:background .15s" 
+              }).call(this)"
+              style="padding:10px 12px;border-bottom:1px solid var(--border);font-size:12px;cursor:pointer;border-radius:8px;transition:background .15s"
               class="search-result-item"
-              onmouseover="this.style.background='var(--s2)'" 
+              onmouseover="this.style.background='var(--s2)'"
               onmouseout="if(!this.style.background.includes('accent'))this.style.background=''">
                 <div style="font-weight:600;color:var(--text);margin-bottom:2px">${r.title||''}</div>
                 <div style="color:var(--accent);font-size:11px;margin-bottom:4px;word-break:break-all">${r.link||''}</div>
@@ -12730,6 +12730,32 @@ function renderManualLeads(){
   if(!list) return;
   // Don't wipe search results that are being shown
   if(list.querySelector('.search-results-preview')) return;
+}
+
+function updateManualCampaignBanner(){
+  const banner=$('manualCampaignBanner');
+  if(!banner) return;
+  const c=campaigns.find(x=>x.id===activeCampaignId);
+  if(c){
+    banner.style.display='flex';
+    banner.style.background='var(--green-bg)';
+    banner.style.borderColor='var(--green-b)';
+    banner.style.color='var(--green)';
+    banner.innerHTML=`<span>✓ Campanha ativa: <strong>${escHtml(c.name)}</strong> — os leads serão adicionados aqui</span>`;
+  } else if(campaigns.length===0){
+    banner.style.display='flex';
+    banner.style.background='var(--volcano-bg)';
+    banner.style.borderColor='var(--volcano-b)';
+    banner.style.color='var(--volcano)';
+    banner.innerHTML=`<div><strong>⚠️ Nenhuma campanha encontrada</strong> — <button onclick="openCampaignModal()" style="padding:4px 10px;border-radius:8px;background:var(--accent);color:#fff;border:none;cursor:pointer;font-size:11px">➕ Criar Campanha</button></div>`;
+  } else {
+    banner.style.display='flex';
+    banner.style.background='var(--volcano-bg)';
+    banner.style.borderColor='var(--volcano-b)';
+    banner.style.color='var(--volcano)';
+    const btns=campaigns.map(c=>`<button onclick="openCampaign('${c.id}');setTimeout(()=>showPage('pageManual'),100);" style="margin:4px 4px 0 0;padding:5px 10px;border-radius:8px;background:var(--accent);color:#fff;border:none;cursor:pointer;font-size:11px">${escHtml(c.name)}</button>`).join('');
+    banner.innerHTML=`<div><strong>⚠️ Nenhuma campanha selecionada!</strong> Escolha uma para adicionar leads:<br><div style="margin-top:6px">${btns}</div></div>`;
+  }
 }
 
 // ══════════════════════════════════════════
