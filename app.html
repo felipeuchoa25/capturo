@@ -1437,9 +1437,9 @@ select:focus {
 
 /* SIDEBAR — divisórias suaves entre módulos */
 .sb-section-label {
-  margin-top: 4px !important;
-  padding-top: 12px !important;
-  border-top: 1px solid rgba(255,255,255,0.12) !important;
+  margin-top: 2px !important;
+  padding-top: 4px !important;
+  border-top: none !important;
 }
 .sb-section-label:first-of-type {
   border-top: none !important;
@@ -1917,10 +1917,16 @@ body::before {
 .sb-item-automacoes.active::before { background: linear-gradient(to bottom, var(--purple), #d4a8ff) !important; }
 
 .sb-divider {
+  display: block !important;
   height: 1px !important;
-  background: rgba(255,255,255,.20) !important;
-  margin: 7px 6px !important;
+  background: rgba(255,255,255,.22) !important;
+  margin: 10px 12px !important;
+  border: 0 !important;
+  opacity: 1 !important;
 }
+.theme-white .sb-divider { background: rgba(0,0,0,.18) !important; }
+.theme-gray  .sb-divider { background: rgba(0,0,0,.22) !important; }
+.theme-teal  .sb-divider { background: rgba(14,60,46,.38) !important; }
 
 /* ══════════════════════════════════════════
    MAIN CONTENT AREA
@@ -2426,18 +2432,20 @@ h4, h5, h6, label {
 .page > * { min-height: 0 !important; }
 .theme-blue { --bg:#07070d; --s1:#0f0f1c; --s2:#161626; }
 .theme-teal {
-  --bg:#06141a; --s1:#0a1f28; --s2:#0f2a35; --s3:#143845;
-  --border:rgba(143,217,200,.18); --border2:rgba(143,217,200,.28);
-  --text:#eafffb; --text2:#c8efe6; --muted:#7fb3aa; --muted2:#9fcfc4;
-  --accent:#8FD9C8; --accent2:#A8E0D2; --accent-bg:rgba(143,217,200,.10);
-  --frozen:#5BC9B9; --frozen-bg:rgba(91,201,185,.08); --frozen-b:rgba(91,201,185,.22);
+  --bg:#e8f5ef; --s1:#f2faf6; --s2:#dcefe4; --s3:#cbe6d7;
+  --border:rgba(60,140,115,.22); --border2:rgba(60,140,115,.34);
+  --text:#0e2a22; --text2:#1a3d33; --muted:#4e7a6c; --muted2:#355e52;
+  --accent:#2f9d7d; --accent2:#46b896; --accent-bg:rgba(47,157,125,.12);
+  --frozen:#2f9d7d; --frozen-bg:rgba(47,157,125,.10); --frozen-b:rgba(47,157,125,.28);
 }
-.theme-teal .sidebar { background:rgba(6,20,26,.96)!important; border-right:1px solid rgba(143,217,200,.15)!important; }
-.theme-teal .topnav  { background:rgba(6,20,26,.92)!important; border-bottom:1px solid rgba(143,217,200,.12)!important; }
+.theme-teal body,
+.theme-teal .page,
+.theme-teal .main { background:#e8f5ef !important; }
+.theme-teal .sidebar { background:rgba(220,239,228,.96)!important; border-right:1px solid rgba(60,140,115,.22)!important; }
+.theme-teal .topnav  { background:rgba(220,239,228,.92)!important; border-bottom:1px solid rgba(60,140,115,.20)!important; }
 /* Divisórias da sidebar mais visíveis em todos os temas */
-.sb-divider { height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,.30),transparent)!important; margin:10px 12px!important; }
-[data-theme="white"] .sb-divider { background:linear-gradient(90deg,transparent,rgba(0,0,0,.14),transparent)!important; }
-[data-theme="teal"]  .sb-divider { background:linear-gradient(90deg,transparent,rgba(143,217,200,.55),transparent)!important; }
+/* regras sb-divider unificadas abaixo (ver bloco principal) — mantidas apenas como fallback */
+.sb-divider { height:1px; margin:10px 12px!important; }
 .theme-gray {
   --font-display: 'Syne', system-ui, sans-serif;
   --font-body:    'DM Sans', system-ui, sans-serif;
@@ -16674,6 +16682,29 @@ window._postAuthInit = function(){
   cursor: pointer !important;
   display: inline-block !important;
 }
+/* ══ SIDEBAR DIVIDERS — override final de TODAS as regras anteriores ══ */
+.sidebar .sb-divider,
+.sidebar div.sb-divider,
+body .sb-divider {
+  display: block !important;
+  height: 1px !important;
+  min-height: 1px !important;
+  margin: 10px 12px !important;
+  border: 0 !important;
+  opacity: 1 !important;
+  background: rgba(255,255,255,.28) !important;
+  background-image: none !important;
+}
+/* Sidebar é escura em TODOS os temas exceto teal — divider fica claro */
+body.theme-blue  .sb-divider,
+[data-theme="blue"]  .sb-divider,
+body.theme-white .sb-divider,
+[data-theme="white"] .sb-divider,
+body.theme-gray  .sb-divider,
+[data-theme="gray"]  .sb-divider { background: rgba(255,255,255,.30) !important; }
+/* Teal tem sidebar claro — divider fica escuro */
+body.theme-teal  .sb-divider,
+[data-theme="teal"]  .sb-divider { background: rgba(10,50,38,.42) !important; }
 </style>
 
 <!-- ── MODAL RECARGA DE RAIOS ── -->
@@ -16766,9 +16797,9 @@ window._postAuthInit = function(){
     <!-- Hero -->
     <div class="up-hero">
       <button class="up-close" onclick="event.stopPropagation();event.preventDefault();closeUserProfile();return false;" onmousedown="event.stopPropagation()">✕</button>
-      <div style="position:relative;cursor:pointer;margin-bottom:4px" onclick="document.getElementById('upPhotoInput').click()" title="Clique para trocar a foto">
+      <div style="position:relative;display:inline-block;cursor:pointer;margin-bottom:4px" onclick="document.getElementById('upPhotoInput').click()" title="Clique para trocar a foto">
         <div class="up-avatar" id="upAvatar" style="overflow:hidden">?</div>
-        <div style="position:absolute;bottom:0;right:0;width:20px;height:20px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;border:2px solid rgba(255,255,255,.3)">📷</div>
+        <div style="position:absolute;bottom:2px;right:2px;width:20px;height:20px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;border:2px solid rgba(255,255,255,.5)">📷</div>
       </div>
       <input type="file" id="upPhotoInput" accept="image/*" style="display:none" onchange="handleProfilePhotoUpload(this)">
       <div style="display:flex;align-items:center;gap:8px;justify-content:center">
