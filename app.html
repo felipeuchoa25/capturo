@@ -26,7 +26,7 @@
 <!-- iOS splash / icon -->
 <link rel="apple-touch-icon" href="icon-192.png">
 <!-- CAPTURO:Q0FQVFJPLS1GZWxpcGUtVWNob2EtMjAyNC1Qcm9zcGVjY2FvLUludGVsaWdlbnRlLWRlLUxlYWRz -->
-<title>CAPTURO v6.0</title>
+<title>CAPTURO v5.0</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -1459,10 +1459,7 @@ select:focus {
 
 /* FUNIL — controlado pelo JS (style.display) */
 
-/* CLIENTES — corrigir layout */
-#pageClients {
-  padding: 0 !important;
-}
+/* CLIENTES — layout */
 #pageClients .page-header {
   margin-bottom: 20px !important;
 }
@@ -1557,36 +1554,9 @@ select:focus {
   height: 100%;
   min-height: 0;
 }
-/* pageClients - sem espaço extra */
-#pageClients {
-  padding: 0 !important;
-}
 /* Favoritos - largura total */
 #pageFavoritos {
   width: 100% !important;
-}
-
-/* pageClients - padding igual ao .main */
-#pageClients {
-  padding: 24px 28px !important;
-  width: 100% !important;
-  max-width: 1440px !important;
-  margin: 0 auto !important;
-  box-sizing: border-box !important;
-}
-@media (max-width: 768px) {
-  #pageClients { padding: 16px !important; }
-}
-
-/* pageClients - GARANTIR sem espaço em branco */
-#pageClients {
-  padding: 24px 28px 24px 28px !important;
-  margin-top: 0 !important;
-  position: relative !important;
-}
-/* Remover qualquer min-height que causa espaço */
-#pageClients > * {
-  min-height: 0 !important;
 }
 
 /* Garantir que o conteúdo não fique sob o topnav */
@@ -2504,8 +2474,11 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 
 </style>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230a0a0f'/><circle cx='50' cy='50' r='32' fill='none' stroke='%235e9cff' stroke-width='3' opacity='0.6'/><circle cx='50' cy='50' r='22' fill='none' stroke='%235e9cff' stroke-width='2' opacity='0.7'/><circle cx='50' cy='50' r='12' fill='none' stroke='%235e9cff' stroke-width='2' opacity='0.8'/><circle cx='50' cy='50' r='4' fill='%235e9cff'/><line x1='50' y1='50' x2='74' y2='50' stroke='%235e9cff' stroke-width='2' opacity='0.7' stroke-dasharray='3 2'/><circle cx='68' cy='34' r='5' fill='%23ff443a' opacity='0.9'/><circle cx='32' cy='62' r='4' fill='%23ffd60a' opacity='0.9'/></svg>">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<!-- CDN scripts — versões fixas para evitar supply-chain attacks.
+     Para máxima segurança, adicione integrity="sha384-..." calculado via:
+     openssl dgst -sha384 -binary <arquivo.js> | openssl base64 -A -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.103.0/dist/umd/supabase.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" crossorigin="anonymous"></script>
 </head>
 <body class="theme-blue" data-theme="blue">
 <!-- CAPTURO authorship watermark — do not remove -->
@@ -2884,7 +2857,7 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 
     <!-- Rodapé da página -->
     <div class="login-page-footer">
-      CAPTURO v6.0 &nbsp;·&nbsp; Prospecção Inteligente
+      CAPTURO v5.0 &nbsp;·&nbsp; Prospecção Inteligente
     </div>
 
   </div>
@@ -3125,8 +3098,8 @@ async function buscarCnpjLead(leadId){
   try{
     const nome = (l.name||'').trim().split(/\s+/).slice(0,4).join('+');
     const cidade = encodeURIComponent(l.city||'');
-    const resp = await fetch(`https://receitaws.com.br/v1/cnpj/search?company=${encodeURIComponent(l.name||'')}&city=${cidade}`,
-      {headers:{Accept:'application/json'}}).catch(()=>null);
+    const resp = await _fetch(`https://receitaws.com.br/v1/cnpj/search?company=${encodeURIComponent(l.name||'')}&city=${cidade}`,
+      {headers:{Accept:'application/json'}}, 8000).catch(()=>null);
     let cnpjNum = null;
     if(resp&&resp.ok){
       const data = await resp.json().catch(()=>null);
@@ -3134,28 +3107,28 @@ async function buscarCnpjLead(leadId){
     }
     if(cnpjNum){
       const cnpjClean = cnpjNum.replace(/\D/g,'');
-      const r2 = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjClean}`,
-        {headers:{Accept:'application/json'}}).catch(()=>null);
+      const r2 = await _fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjClean}`,
+        {headers:{Accept:'application/json'}}, 8000).catch(()=>null);
       if(r2&&r2.ok){
         const d = await r2.json().catch(()=>null);
         if(d){ _aplicarCnpjEnriquecimento(l, d); saveCampaigns(); _refreshCnpjSection(l); renderAll(); return; }
       }
       // Fallback: CNPJ.ws
-      const rws = await fetch(`https://publica.cnpj.ws/cnpj/${cnpjClean}`,{headers:{Accept:'application/json'}}).catch(()=>null);
+      const rws = await _fetch(`https://publica.cnpj.ws/cnpj/${cnpjClean}`,{headers:{Accept:'application/json'}}, 8000).catch(()=>null);
       if(rws&&rws.ok){
         const dws = await rws.json().catch(()=>null);
         if(dws){ _aplicarCnpjEnriquecimento(l, _normalizeCnpjWs(dws)); saveCampaigns(); _refreshCnpjSection(l); renderAll(); return; }
       }
     }
     // Sem CNPJ pelo ReceitaWS — tenta busca direta na BrasilAPI via cidade+nome
-    const r3 = await fetch(`https://brasilapi.com.br/api/cnpj/v1/search?query=${encodeURIComponent(l.name||'')}`,
-      {headers:{Accept:'application/json'}}).catch(()=>null);
+    const r3 = await _fetch(`https://brasilapi.com.br/api/cnpj/v1/search?query=${encodeURIComponent(l.name||'')}`,
+      {headers:{Accept:'application/json'}}, 8000).catch(()=>null);
     if(r3&&r3.ok){
       const list = await r3.json().catch(()=>[]);
       const match = Array.isArray(list)&&list[0];
       if(match?.cnpj){
         const cnpjClean2 = match.cnpj.replace(/\D/g,'');
-        const r4 = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjClean2}`,{headers:{Accept:'application/json'}}).catch(()=>null);
+        const r4 = await _fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjClean2}`,{headers:{Accept:'application/json'}}, 8000).catch(()=>null);
         if(r4&&r4.ok){
           const d2 = await r4.json().catch(()=>null);
           if(d2){ _aplicarCnpjEnriquecimento(l, d2); saveCampaigns(); _refreshCnpjSection(l); renderAll(); return; }
@@ -3240,7 +3213,7 @@ async function buscarCnpjEmLote(){
 
     try{
       // Tenta ReceitaWS por nome + cidade
-      const resp = await fetch(
+      const resp = await _fetch(
         `https://receitaws.com.br/v1/cnpj/search?company=${encodeURIComponent(l.name||'')}&city=${encodeURIComponent(l.city||'')}`,
         {headers:{Accept:'application/json'}}
       ).catch(()=>null);
@@ -3254,7 +3227,7 @@ async function buscarCnpjEmLote(){
       // Se achou, busca dados completos na BrasilAPI
       if(cnpjNum){
         const cnpjClean = cnpjNum.replace(/\D/g,'');
-        const r2 = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjClean}`,
+        const r2 = await _fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjClean}`,
           {headers:{Accept:'application/json','User-Agent':'Mozilla/5.0'}}
         ).catch(()=>null);
         if(r2&&r2.ok){
@@ -3276,14 +3249,14 @@ async function buscarCnpjEmLote(){
               if(c) c.leads = leads;
               saveCampaigns();
             }
-            await new Promise(r=>setTimeout(r,800)); // respeita rate limit BrasilAPI
+            await _sleep(800); // respeita rate limit BrasilAPI
             continue;
           }
         }
       }
 
       // Tentativa alternativa: BrasilAPI busca textual
-      const r3 = await fetch(
+      const r3 = await _fetch(
         `https://brasilapi.com.br/api/cnpj/v1/search?text=${encodeURIComponent(l.name||'')}`,
         {headers:{Accept:'application/json','User-Agent':'Mozilla/5.0'}}
       ).catch(()=>null);
@@ -3295,7 +3268,7 @@ async function buscarCnpjEmLote(){
         ) || (Array.isArray(list)&&list[0]);
         if(match?.cnpj){
           const cnpjClean2 = match.cnpj.replace(/\D/g,'');
-          const r4 = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjClean2}`,
+          const r4 = await _fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjClean2}`,
             {headers:{Accept:'application/json','User-Agent':'Mozilla/5.0'}}
           ).catch(()=>null);
           if(r4&&r4.ok){
@@ -3307,7 +3280,7 @@ async function buscarCnpjEmLote(){
                 const ano2 = new Date(d2.data_inicio_atividade).getFullYear();
                 if(new Date().getFullYear()-ano2<=1){ l.score=Math.min(10,l.score+2); novos++; }
               }
-              await new Promise(r=>setTimeout(r,800));
+              await _sleep(800);
               continue;
             }
           }
@@ -3323,7 +3296,7 @@ async function buscarCnpjEmLote(){
     }
 
     // Pausa entre requests para não bater rate limit
-    await new Promise(r=>setTimeout(r,1200));
+    await _sleep(1200);
   }
 
   // Salva tudo
@@ -3416,7 +3389,7 @@ function toast(msg, type='info', duration=3500){
     <span class="sb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span><span class="sb-label">Dashboard</span>
   </div>
   <div class="sb-item" id="sb-leads" onclick="showPage('pageLeads');setSbActive('sb-leads')">
-    <span class="sb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="sb-label">Raios</span>
+    <span class="sb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="sb-label">Leads</span>
   </div>
   <div class="sb-item" id="sb-clients" onclick="showPage('pageClients');setSbActive('sb-clients')">
     <span class="sb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M9 11l2 2 4-4"/></svg></span><span class="sb-label">Clientes</span>
@@ -3577,7 +3550,7 @@ function toast(msg, type='info', duration=3500){
       </div>
       <!-- TEXTO -->
       <span><span style="color:var(--accent)">CAPT</span>URO</span>
-      <span style="font-size:10px;background:var(--accent);color:#fff;padding:2px 10px;border-radius:20px;font-weight:600;letter-spacing:.02em"> v6.0</span>
+      <span style="font-size:10px;background:var(--accent);color:#fff;padding:2px 10px;border-radius:20px;font-weight:600;letter-spacing:.02em"> v5.0</span>
     </div>
     <!-- Separador vertical -->
     <div style="width:1px;height:22px;background:var(--border);flex-shrink:0;margin:0 6px"></div>
@@ -5706,7 +5679,7 @@ function toast(msg, type='info', duration=3500){
         <button class="btn btn-primary" onclick="saveSettings()">💾 Salvar configurações</button>
       </div>
     </div>
-  </div></div>
+  </div>
   <!-- CLIENTES (CRM BÁSICO) -->
   <div class="page" id="pageClients">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-top:4px">
@@ -6689,7 +6662,7 @@ const BIOLINKS=[
 (function _migrateCampaignIds(){
   // Migra IDs antigos de campanhas (ex: "c1774832001234") para UUID real
   const _isUUID = id => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id||'');
-  const raw = JSON.parse(localStorage.getItem('pr6')||'[]');
+  const raw = lsGet('pr6', []);
   let changed = false;
   raw.forEach(c => {
     if(!_isUUID(c.id)){
@@ -6706,7 +6679,7 @@ const BIOLINKS=[
   });
   if(changed){ try{ localStorage.setItem('pr6', JSON.stringify(raw)); }catch(_){} }
 })();
-let campaigns=JSON.parse(localStorage.getItem('pr6')||'[]');
+let campaigns=_validateCampaigns(lsGet('pr6', []));
 let activeCampaignId=null;
 let leads=[];
 let currentMarket='nacional';
@@ -6743,14 +6716,14 @@ const setStat=t=>$('sTxt').innerHTML=t;
 // INIT
 // ══════════════════════════════════════════
 window.onload=()=>{
-  appSettings = JSON.parse(localStorage.getItem('capturo-settings')||'{}');
-  customTemplates = JSON.parse(localStorage.getItem('capturo-templates')||'[]');
+  appSettings = lsGet('capturo-settings', {});
+  customTemplates = lsGet('capturo-templates', []);
   initBiolinkChips();
   renderCampaignsList();
   renderDashboard();
   initAuth();
   // v4.5 init
-  followups=JSON.parse(localStorage.getItem('capturo-followups')||'[]');
+  followups=_validateFollowups(lsGet('capturo-followups', []));
   renderFollowups();
   updateFavBadge();
   // Check for overdue followups on load
@@ -7651,7 +7624,7 @@ function renderCampaignsList(){
   }).join('');
 
   // Nav tabs — show pinned, with dual count (priority | total)
-  const pinnedIds=JSON.parse(localStorage.getItem('capturo-pinned')||'[]');
+  const pinnedIds=lsGet('capturo-pinned', []);
   const pinned=campaigns.filter(c=>pinnedIds.includes(c.id));
   $('navTabs').innerHTML=pinned.map(c=>{
     const loc=c.neighborhood||c.city||'';
@@ -8090,7 +8063,7 @@ async function schemaOrgEmailExtract(website){
 
   for(const pageUrl of pagesToTry){
     try{
-      const resp = await fetch(pageUrl, {
+      const resp = await _fetch(pageUrl, {
         signal: AbortSignal.timeout(6000),
         headers: { 'Accept': 'text/html' }
       });
@@ -8264,7 +8237,7 @@ async function startMapsSearch(){
       let lat,lng;
       try{
         const geo=await gmGeocode(searchAddr);
-        if(!geo.results?.length){setStat(`⚠️ "${nb||searchCity}" não encontrado, pulando...`);await new Promise(r=>setTimeout(r,400));continue;}
+        if(!geo.results?.length){setStat(`⚠️ "${nb||searchCity}" não encontrado, pulando...`);await _sleep(400);continue;}
         lat=geo.results[0].geometry.location.lat;
         lng=geo.results[0].geometry.location.lng;
       }catch(e){setStat(`⚠️ Erro localizando ${nb||searchCity}: ${e.message}`);continue;}
@@ -8306,9 +8279,9 @@ async function startMapsSearch(){
             toast(`☁️ ${leads.length} leads salvos automaticamente na nuvem.`,'info',2500);
           }
         }
-        await new Promise(r=>setTimeout(r,60));
+        await _sleep(60);
       }
-      await new Promise(r=>setTimeout(r,300)); // small pause between neighborhoods/cities
+      await _sleep(300); // small pause between neighborhoods/cities
     }
 
     if(_filteredCount > 0) toast(`Filtros removeram ${_filteredCount} lead(s) fora dos critérios — economizando seus créditos.`, 'ok', 4000);
@@ -8317,11 +8290,15 @@ async function startMapsSearch(){
     // AI phase
     if(useAI){
       const withSite=leads.filter(l=>l.website&&!isBioLink(l.website)&&!/facebook|instagram|wa\.me/i.test(l.website));
-      for(let i=0;i<withSite.length;i++){
-        setProg(35+Math.round(((i+1)/withSite.length)*35));
-        setStat(`<span class="spinner"></span>✦ IA analisando ${i+1}/${withSite.length}: ${withSite[i].name}`);
-        await analyzeWithAI(withSite[i],'via-edge-function');renderAll();
-        await new Promise(r=>setTimeout(r,180));
+      const batchIA = withSite.slice(0, MAX_AI_BATCH); // máx MAX_AI_BATCH leads por busca
+      if(withSite.length > MAX_AI_BATCH) toast(`⚡ IA: analisando os primeiros ${MAX_AI_BATCH} leads (limite de batch).`, 'info', 4000);
+      for(let i=0;i<batchIA.length;i++){
+        if(searchAborted) break;
+        setProg(35+Math.round(((i+1)/batchIA.length)*35));
+        setStat(`<span class="spinner"></span>✦ IA analisando ${i+1}/${batchIA.length}: ${batchIA[i].name}`);
+        await _rateLimitedCall(()=>analyzeWithAI(batchIA[i],'via-edge-function'), 'claude');
+        renderAll();
+        await _sleep(350); // 350ms entre chamadas — respeita limites do Claude
       }
     }
     // EMAIL CASCADE PHASE (Hunter → Apollo → Snov → RocketReach → Google)
@@ -8348,7 +8325,7 @@ async function startMapsSearch(){
             renderAll();
           }
         }catch(e){}
-        await new Promise(r=>setTimeout(r,200));
+        await _sleep(200);
       }
     }
     finishSearch();
@@ -8443,7 +8420,7 @@ async function startBioSearch(){
         console.error('SerpAPI fetch error:',e.message);
         setStat(`⚠️ Erro ao buscar ${bioSite.label}: ${e.message}`);
       }
-      await new Promise(r=>setTimeout(r,500));
+      await _sleep(500);
     }
     finishSearch();
   }catch(e){
@@ -8545,17 +8522,20 @@ async function startMapsSearchInternal(gKey){
       // Aplica filtros avançados
       if(!passaFiltros(lead, _filters)){ _filteredCount++; continue; }
       leads.push(lead);setProg(10+Math.round(((nbIdx*places.length+i+1)/(searchListI.length*places.length))*30));renderAll();
-      await new Promise(r=>setTimeout(r,60));
+      await _sleep(60);
     }
     if(searchAborted) break;
-    await new Promise(r=>setTimeout(r,300));
+    await _sleep(300);
     } // end searchList loop
     if(_filteredCount > 0) toast(`Filtros removeram ${_filteredCount} lead(s) fora dos critérios.`, 'ok', 3000);
     if(useAI){
       const withSite=leads.filter(l=>l.source==='maps'&&l.website&&!isBioLink(l.website)&&!/facebook|instagram|wa\.me/i.test(l.website));
-      for(let i=0;i<withSite.length;i++){
-        await analyzeWithAI(withSite[i],'via-edge-function');renderAll();
-        await new Promise(r=>setTimeout(r,180));
+      const batchIA2 = withSite.slice(0, MAX_AI_BATCH);
+      for(let i=0;i<batchIA2.length;i++){
+        if(searchAborted) break;
+        await _rateLimitedCall(()=>analyzeWithAI(batchIA2[i],'via-edge-function'), 'claude');
+        renderAll();
+        await _sleep(350);
       }
     }
     if(useHunter){
@@ -8566,7 +8546,7 @@ async function startMapsSearchInternal(gKey){
           const result=await findEmailCascade(withDomain[i],keys2);
           if(result){withDomain[i].email=result.email;withDomain[i].emailVerified=result.verified;withDomain[i].emailConfidence=result.confidence;withDomain[i].emailSource=result.source;renderAll();}
         }catch(e){}
-        await new Promise(r=>setTimeout(r,300));
+        await _sleep(300);
       }
     }
   }catch(e){console.log('Maps error:',e);}
@@ -8623,7 +8603,7 @@ async function startBioSearchInternal(gKey,cseId){
       }
       if(searchAborted)break;
     }catch(e){ console.error('SerpAPI internal error:',e.message); }
-    await new Promise(r=>setTimeout(r,500));
+    await _sleep(500);
   }
 }
 
@@ -8732,7 +8712,19 @@ function updateNavScrollButtons(){
   btnRight.disabled=navTabs.scrollLeft>=(navTabs.scrollWidth-navTabs.clientWidth-5);
 }
 
-function renderAll(){
+// renderAll com debounce — evita N re-renders consecutivos (ex: ao importar 100 leads)
+// Chamadas em sequência rápida (<50ms) são agrupadas numa só renderização
+let _renderAllTimer = null;
+function renderAll(immediate=false){
+  if(immediate){
+    _renderAllNow();
+  } else {
+    clearTimeout(_renderAllTimer);
+    _renderAllTimer = setTimeout(_renderAllNow, 50);
+  }
+}
+function _renderAllNow(){
+  _renderAllTimer = null;
   const vl=leads.filter(l=>l.t==='volcano');
   const hot=leads.filter(l=>l.t==='hot');
   const warm=leads.filter(l=>l.t==='warm');
@@ -9754,7 +9746,7 @@ async function aiQuickAction(type){
 // ══════════════════════════════════════════
 // v4.5 — FOLLOW-UPS
 // ══════════════════════════════════════════
-let followups=JSON.parse(localStorage.getItem('capturo-followups')||'[]');
+let followups=_validateFollowups(lsGet('capturo-followups', []));
 
 function saveFollowups(){
   localStorage.setItem('capturo-followups',JSON.stringify(followups));
@@ -10103,13 +10095,13 @@ async function buscarNovosNegocios(){
         // Fallback direto: BrasilAPI (funciona no browser sem CORS)
         try{
           const nomeCod = encodeURIComponent(nome);
-          const r = await fetch('https://brasilapi.com.br/api/cnpj/v1/search?text='+nomeCod, {headers:{Accept:'application/json'}}).catch(()=>null);
+          const r = await _fetch('https://brasilapi.com.br/api/cnpj/v1/search?text='+nomeCod, {headers:{Accept:'application/json'}}, 8000).catch(()=>null);
           if(r && r.ok){
             const arr = await r.json().catch(()=>null);
             const match = Array.isArray(arr) ? arr[0] : arr?.companies?.[0] ?? null;
             if(match?.cnpj){
               const clean = match.cnpj.replace(/\D/g,'');
-              const r2 = await fetch('https://brasilapi.com.br/api/cnpj/v1/'+clean).catch(()=>null);
+              const r2 = await _fetch('https://brasilapi.com.br/api/cnpj/v1/'+clean, {}, 8000).catch(()=>null);
               if(r2 && r2.ok){
                 const d2 = await r2.json().catch(()=>null);
                 if(d2?.data_inicio_atividade) return _normalizarCnpjData(d2, 'BrasilAPI');
@@ -10184,7 +10176,7 @@ async function buscarNovosNegocios(){
         };
         novas.push(lead);
       }
-      await new Promise(r=>setTimeout(r,120));
+      await _sleep(120);
     }
 
     _alertasData=novas;
@@ -10500,7 +10492,7 @@ const CNPJ_SAVED_KEY  = 'capturo_cnpj_salvas';
 function cnpjSalvarHistorico(lista, cidade, nicho, dias){
   if(!lista||!lista.length) return;
   try{
-    const hist = JSON.parse(localStorage.getItem(CNPJ_HIST_KEY)||'[]');
+    const hist = lsGet(CNPJ_HIST_KEY, []);
     hist.unshift({ ts: Date.now(), cidade, nicho, dias, total: lista.length, lista: lista.slice(0,100) });
     localStorage.setItem(CNPJ_HIST_KEY, JSON.stringify(hist.slice(0,30)));
   }catch(e){ console.warn('[CNPJ] Erro ao salvar histórico:', e); }
@@ -10509,7 +10501,7 @@ function cnpjSalvarHistorico(lista, cidade, nicho, dias){
 function cnpjSalvarEmpresa(emp){
   if(!emp) return;
   try{
-    const salvas = JSON.parse(localStorage.getItem(CNPJ_SAVED_KEY)||'[]');
+    const salvas = lsGet(CNPJ_SAVED_KEY, []);
     const cnpj = (emp.cnpj||'').replace(/\D/g,'');
     if(cnpj && salvas.find(s=>(s.cnpj||'').replace(/\D/g,'')=== cnpj)){
       toast('Empresa já salva no histórico CNPJ.','warn'); return;
@@ -10524,7 +10516,7 @@ function cnpjRenderHistorico(){
   const el = document.getElementById('cnpjHistoricoLista');
   if(!el) return;
   try{
-    const hist = JSON.parse(localStorage.getItem(CNPJ_HIST_KEY)||'[]');
+    const hist = lsGet(CNPJ_HIST_KEY, []);
     if(!hist.length){ el.innerHTML=`<div style="text-align:center;padding:40px;color:var(--muted2)">📭 Nenhuma busca salva ainda.<br><span style="font-size:12px">Faça uma busca no Radar CNPJ para começar.</span></div>`; return; }
     el.innerHTML = hist.map((h,i)=>{
       const dt = new Date(h.ts).toLocaleString('pt-BR');
@@ -10545,7 +10537,7 @@ function cnpjRenderHistorico(){
 
 function cnpjDeletarHistorico(i){
   try{
-    const hist = JSON.parse(localStorage.getItem(CNPJ_HIST_KEY)||'[]');
+    const hist = lsGet(CNPJ_HIST_KEY, []);
     hist.splice(i,1);
     localStorage.setItem(CNPJ_HIST_KEY, JSON.stringify(hist));
     cnpjRenderHistorico();
@@ -10555,7 +10547,7 @@ function cnpjDeletarHistorico(i){
 
 function cnpjRestaurarBusca(i){
   try{
-    const hist = JSON.parse(localStorage.getItem(CNPJ_HIST_KEY)||'[]');
+    const hist = lsGet(CNPJ_HIST_KEY, []);
     const h = hist[i];
     if(!h||!h.lista) return;
     _alertasData = h.lista;
@@ -10569,7 +10561,7 @@ function cnpjRenderSalvas(){
   const el = document.getElementById('cnpjSalvasLista');
   if(!el) return;
   try{
-    const salvas = JSON.parse(localStorage.getItem(CNPJ_SAVED_KEY)||'[]');
+    const salvas = lsGet(CNPJ_SAVED_KEY, []);
     if(!salvas.length){ el.innerHTML=`<div style="text-align:center;padding:40px;color:var(--muted2)">⭐ Nenhuma empresa salva ainda.<br><span style="font-size:12px">Clique em 💾 Salvar em qualquer card do Radar CNPJ.</span></div>`; return; }
     el.innerHTML = salvas.map((emp,i)=>{
       const nome = escHtml(emp.razao_social||emp.nome_fantasia||emp.nome||'Sem nome');
@@ -10596,7 +10588,7 @@ function cnpjRenderSalvas(){
 
 function cnpjDeletarSalva(i){
   try{
-    const salvas = JSON.parse(localStorage.getItem(CNPJ_SAVED_KEY)||'[]');
+    const salvas = lsGet(CNPJ_SAVED_KEY, []);
     salvas.splice(i,1);
     localStorage.setItem(CNPJ_SAVED_KEY, JSON.stringify(salvas));
     cnpjRenderSalvas();
@@ -10606,7 +10598,7 @@ function cnpjDeletarSalva(i){
 
 function cnpjImportarSalva(i){
   try{
-    const salvas = JSON.parse(localStorage.getItem(CNPJ_SAVED_KEY)||'[]');
+    const salvas = lsGet(CNPJ_SAVED_KEY, []);
     const emp = salvas[i];
     if(!emp) return;
     if(!activeCampaignId){ toast('Abra uma campanha primeiro.','warn'); return; }
@@ -11733,7 +11725,7 @@ window.addEventListener('beforeunload', function(e){
 
 
 function pinCampaign(id){
-  let pins = JSON.parse(localStorage.getItem('capturo-pinned')||'[]');
+  let pins = lsGet('capturo-pinned', []);
   // Don't re-add if already pinned (preserves order)
   if(!pins.includes(id)){
     pins.push(id);
@@ -11743,7 +11735,7 @@ function pinCampaign(id){
   renderCampaignsList();
 }
 function unpinCampaign(id){
-  let pins = JSON.parse(localStorage.getItem('capturo-pinned')||'[]');
+  let pins = lsGet('capturo-pinned', []);
   pins = pins.filter(p => p !== id);
   localStorage.setItem('capturo-pinned', JSON.stringify(pins));
   if(activeCampaignId === id){ goHome(); }
@@ -11846,7 +11838,7 @@ async function _sheetsCall(action, sheetName, rows){
     const body = { action, spreadsheetId: SHEETS_SPREADSHEET_ID };
     if(sheetName) body.sheetName = sheetName;
     if(rows)      body.rows = rows;
-    const r = await fetch(`${SUPABASE_URL}/functions/v1/google-sheets`, {
+    const r = await _fetch(`${SUPABASE_URL}/functions/v1/google-sheets`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -11879,15 +11871,15 @@ async function _sheetsCall(action, sheetName, rows){
 // ── Fetch com fallback CORS (tenta proxy se falhar) ──
 async function fetchWithCORSFallback(url, options={}){
   try{
-    const r = await fetch(url, {...options, timeout:6000});
+    const r = await _fetch(url, options, 6000);
     if(!r.ok) throw new Error(`HTTP ${r.status}`);
     return r;
   }catch(err){
     // Se falhar por CORS ou timeout, tenta via proxy
-    if(err.message.includes('CORS')||err.message.includes('Failed')||err.message.includes('timeout')){
+    if(err.message.includes('CORS')||err.message.includes('Failed')||err.message.includes('timeout')||err.name==='AbortError'){
       try{
         const proxyUrl = `https://cors-anywhere.herokuapp.com/${url}`;
-        const r2 = await fetch(proxyUrl, {...options, timeout:5000});
+        const r2 = await _fetch(proxyUrl, options, 5000);
         if(!r2.ok) throw new Error(`Proxy HTTP ${r2.status}`);
         return r2;
       }catch(e2){
@@ -12649,7 +12641,7 @@ function renderManualLeads(){
 // ══════════════════════════════════════════
 // CLIENTS CRM
 // ══════════════════════════════════════════
-let clients=JSON.parse(localStorage.getItem('capturo-clients')||'[]');
+let clients=_validateClients(lsGet('capturo-clients', []));
 
 function saveClients(){
   localStorage.setItem('capturo-clients',JSON.stringify(clients));
@@ -12847,7 +12839,7 @@ $('clientModal').addEventListener('click',e=>{if(e.target===$('clientModal'))clo
 // ══════════════════════════════════════════
 // GMB RANKING — MKT LOCAL PDF IMPORT
 // ══════════════════════════════════════════
-let gmbReports = JSON.parse(localStorage.getItem('capturo-gmb') || '[]');
+let gmbReports = lsGet('capturo-gmb', []);
 
 function saveGmbReports(){
   localStorage.setItem('capturo-gmb', JSON.stringify(gmbReports));
@@ -13595,7 +13587,7 @@ document.addEventListener('click', ()=>{
 // ══════════════════════════════════════════
 // V2.2 — SETTINGS
 // ══════════════════════════════════════════
-let appSettings = JSON.parse(localStorage.getItem('capturo-settings')||'{}');
+let appSettings = lsGet('capturo-settings', {});
 
 function calcParcelas(vista, juros){
   const v = parseFloat((vista+'').replace(/[^0-9,.]/g,'').replace(',','.')) || 3000;
@@ -14196,7 +14188,7 @@ const DEFAULT_TEMPLATES = [
   {id:'d20',name:'Geral - Resultado Comprovado',cenario:'geral',step:'step2',content:'Show, {{nome_lead}}! Vou direto ao ponto.\n\nEu crio landing pages profissionais que colocam negócios como a {{nome_empresa}} no mapa digital. Página rápida, otimizada pro celular, com botão de 💬 WhatsApp e feita pra aparecer no Google quando alguém busca por {{nicho}} em {{cidade}}.\n\nO resultado é simples: mais pessoas te encontram, mais clientes entram em contato.\n\nInvestimento: {{preco}} ({{parcelas}}).\n\nQuer ver meu portfólio?',isDefault:true},
 ];
 
-let customTemplates = JSON.parse(localStorage.getItem('capturo-templates')||'[]');
+let customTemplates = lsGet('capturo-templates', []);
 let tpFilter = 'all';
 let editingTplId = null;
 
@@ -14722,7 +14714,7 @@ async function searchBioLinksActive(){
     try{
       const q = encodeURIComponent(`"${l.name}" site:${plat.domain}`);
       const url = `https://www.googleapis.com/customsearch/v1?key=${keys.gKey}&cx=${keys.cseId}&q=${q}&num=3`;
-      const res = await fetch(url);
+      const res = await _fetch(url, {}, 12000);
       const data = await res.json();
       if(data.items && data.items.length){
         const item = data.items[0];
@@ -14736,7 +14728,7 @@ async function searchBioLinksActive(){
     }catch(e){ /* silencioso */ }
 
     // Pequeno delay para não estrangular a API
-    await new Promise(r=>setTimeout(r,300));
+    await _sleep(300);
   }
 
   // Salvar no lead
@@ -14807,7 +14799,7 @@ function submitFeedback(){
   if(!message.trim()){toast('Preencha sua mensagem','warn');return;}
 
   // Salvar feedback no localStorage para referência
-  const feedbacks=JSON.parse(localStorage.getItem('capturo-feedbacks')||'[]');
+  const feedbacks=lsGet('capturo-feedbacks', []);
   feedbacks.push({
     rating:feedbackRating,
     subject:subject.trim(),
@@ -14926,14 +14918,14 @@ function guiaScroll(sectionId){
   }, 300);
 
   // ── Auto-sync Sheets a cada 5 minutos ──
-  setInterval(()=>{
+  window._sheetsAutoSyncInterval = setInterval(()=>{
     if(campaigns.reduce((s,c)=>s+(c.leads||[]).length,0)>0)
       syncAllToSheets(null,true);
   },5*60*1000);
 
   // ── Auto-save Supabase a cada 2 minutos em loop real ──
   // Independente do Sheets — garante que leads não se percam ao atualizar
-  setInterval(async ()=>{
+  window._supabaseAutoSaveInterval = setInterval(async ()=>{
     if(typeof currentUser==='undefined'||!currentUser) return;
     const totalLeads = campaigns.reduce((s,c)=>s+(c.leads||[]).length,0);
     if(totalLeads===0) return;
@@ -15221,7 +15213,7 @@ const SUPABASE_KEY = localStorage.getItem('capturo-sbKey') || _SB_KEY_DEFAULT;
 const EF = SUPABASE_URL + '/functions/v1';
 
 async function efCall(fn, body){
-  const r = await fetch(`${EF}/${fn}`, {
+  const r = await _fetch(`${EF}/${fn}`, {
     method: 'POST',
     headers: {
       'Content-Type':'application/json',
@@ -15587,6 +15579,10 @@ async function doSignUp(){
 async function doSignOut(){
   const sb = getSupabase();
   if(sb) await sb.auth.signOut();
+  // Limpa intervalos persistentes ao sair
+  [window._sheetsAutoSyncInterval, window._supabaseAutoSaveInterval,
+   window._notifCheckInterval, window._clockInterval,
+   window._autoSchedulerInterval].forEach(id=>{ if(id) clearInterval(id); });
   toast('Até logo! 👋','info');
 }
 
@@ -15706,13 +15702,13 @@ async function saveToSupabase(){
     if(typeof followups!=='undefined') extraPayload.followups = followups;
     if(typeof clients!=='undefined') extraPayload.clients = clients;
     if(typeof gmbReports!=='undefined') extraPayload.gmb_reports = gmbReports;
-    const _cnpjHist  = JSON.parse(localStorage.getItem('capturo_cnpj_historico')||'[]');
-    const _cnpjSalvas= JSON.parse(localStorage.getItem('capturo_cnpj_salvas')||'[]');
+    const _cnpjHist  = lsGet('capturo_cnpj_historico', []);
+    const _cnpjSalvas= lsGet('capturo_cnpj_salvas', []);
     if(_cnpjHist.length)  extraPayload.cnpj_historico = _cnpjHist.slice(0,30);
     if(_cnpjSalvas.length) extraPayload.cnpj_salvas   = _cnpjSalvas.slice(0,500);
-    const _feedbacks = JSON.parse(localStorage.getItem('capturo-feedbacks')||'[]');
+    const _feedbacks = lsGet('capturo-feedbacks', []);
     if(_feedbacks.length) extraPayload.feedbacks = _feedbacks;
-    const _pinned = JSON.parse(localStorage.getItem('capturo-pinned')||'[]');
+    const _pinned = lsGet('capturo-pinned', []);
     if(_pinned.length) extraPayload.pinned_ids = _pinned;
     if(Object.keys(extraPayload).length > 0){
       extraPayload.updated_at = new Date().toISOString();
@@ -16201,8 +16197,107 @@ function resetFiltros(){
 
 function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 // Escape para uso dentro de atributos JS (onclick, ondragstart, etc.)
-// Escapa: \  '  "  `  <  >  para evitar XSS em contextos JavaScript inline
 function escJs(s){ return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"').replace(/`/g,'\\`').replace(/</g,'\\x3c').replace(/>/g,'\\x3e'); }
+// Leitura segura do localStorage — nunca lança SyntaxError se JSON corrompido
+function lsGet(key, fallback){ try{ const v=localStorage.getItem(key); return v===null ? fallback : JSON.parse(v); }catch(e){ console.warn('[CAPTURO] lsGet corrompido:',key,e); return fallback; } }
+// Escrita segura no localStorage — ignora silenciosamente se quota excedida
+function lsSet(key, value){ try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){ console.warn('[CAPTURO] lsSet falhou:',key,e); } }
+
+// ── Schema Validation ─────────────────────────────────────────────────────────
+// Garante que dados lidos do localStorage têm a estrutura mínima esperada.
+// Corrige campos ausentes/inválidos sem apagar os dados existentes.
+
+function _validateLead(l){
+  if(!l || typeof l !== 'object') return null;
+  return {
+    id:           (typeof l.id==='string' && l.id) ? l.id : crypto.randomUUID(),
+    name:         typeof l.name==='string'   ? l.name   : '',
+    status:       ['new','contacted','replied','proposal','negotiating','closed','lost'].includes(l.status) ? l.status : 'new',
+    t:            ['volcano','hot','warm','cold','frozen'].includes(l.t) ? l.t : 'cold',
+    score:        typeof l.score==='number'  ? l.score  : 0,
+    email:        typeof l.email==='string'  ? l.email  : '',
+    phone:        typeof l.phone==='string'  ? l.phone  : '',
+    website:      typeof l.website==='string'? l.website: '',
+    city:         typeof l.city==='string'   ? l.city   : '',
+    notes:        typeof l.notes==='string'  ? l.notes  : '',
+    activities:   Array.isArray(l.activities)? l.activities : [],
+    siteIssues:   Array.isArray(l.siteIssues)? l.siteIssues : [],
+    source:       typeof l.source==='string' ? l.source : 'manual',
+    // Preserva todos os outros campos sem modificar
+    ...Object.fromEntries(Object.entries(l).filter(([k])=>!['id','name','status','t','score','email','phone','website','city','notes','activities','siteIssues','source'].includes(k)))
+  };
+}
+
+function _validateCampaign(c){
+  if(!c || typeof c !== 'object') return null;
+  return {
+    id:     (typeof c.id==='string' && c.id) ? c.id : crypto.randomUUID(),
+    name:   typeof c.name==='string'  ? c.name   : 'Campanha',
+    nicho:  typeof c.nicho==='string' ? c.nicho  : '',
+    city:   typeof c.city==='string'  ? c.city   : '',
+    leads:  Array.isArray(c.leads)    ? c.leads.map(_validateLead).filter(Boolean) : [],
+    ...Object.fromEntries(Object.entries(c).filter(([k])=>!['id','name','nicho','city','leads'].includes(k)))
+  };
+}
+
+function _validateCampaigns(raw){
+  if(!Array.isArray(raw)){
+    console.warn('[CAPTURO] campaigns corrompido — resetando para []');
+    return [];
+  }
+  return raw.map(_validateCampaign).filter(Boolean);
+}
+
+function _validateClients(raw){
+  if(!Array.isArray(raw)) return [];
+  return raw.filter(c => c && typeof c === 'object' && c.id);
+}
+
+function _validateFollowups(raw){
+  if(!Array.isArray(raw)) return [];
+  return raw.filter(f => f && typeof f === 'object' && f.id && f.date);
+}
+// Fetch com timeout configurável (padrão 10s) — evita interface travada
+async function _fetch(url, opts={}, ms=10000){
+  const ctrl = new AbortController();
+  const tid  = setTimeout(()=>ctrl.abort(), ms);
+  try{
+    return await fetch(url, {...opts, signal: ctrl.signal});
+  } finally {
+    clearTimeout(tid);
+  }
+}
+// Sleep helper — substitui await new Promise(r=>setTimeout(r,X)) espalhados pelo código
+const _sleep = ms => new Promise(r => setTimeout(r, ms));
+
+// Rate limiter para APIs externas
+// Uso: await _rateLimitedCall(fn, 'claude') — respeita 429 com backoff exponencial
+const _rlState = {};
+async function _rateLimitedCall(fn, apiName='api', maxRetries=3){
+  for(let attempt=0; attempt<=maxRetries; attempt++){
+    try{
+      const result = await fn();
+      // Reseta backoff em sucesso
+      if(_rlState[apiName]) _rlState[apiName] = 0;
+      return result;
+    }catch(e){
+      const is429 = e?.message?.includes('429') || e?.status === 429;
+      const isAbort = e?.name === 'AbortError';
+      if(is429 && attempt < maxRetries){
+        const wait = Math.min(1000 * Math.pow(2, attempt), 16000); // 1s, 2s, 4s, 8s…
+        console.warn(`[CAPTURO] ${apiName} rate limit (429) — aguardando ${wait}ms (tentativa ${attempt+1})`);
+        toast(`⏳ Limite da API ${apiName}. Aguardando ${wait/1000}s...`, 'warn', wait);
+        await _sleep(wait);
+        continue;
+      }
+      if(isAbort) throw new Error(`Timeout na chamada ${apiName}`);
+      throw e;
+    }
+  }
+}
+
+// Limite máximo de leads analisados por batch de IA (evita custo inesperado)
+const MAX_AI_BATCH = 30;
 
 function gsGoToLead(leadId, campId){
   closeGlobalSearch({});
@@ -16464,7 +16559,7 @@ function checkFollowupNotifications(){
 // Request permission when user is logged in & start interval
 function initNotifications(){
   requestNotificationPermission();
-  setInterval(checkFollowupNotifications, 60000); // check every minute
+  window._notifCheckInterval = setInterval(checkFollowupNotifications, 60000); // check every minute
   checkFollowupNotifications(); // check immediately
 }
 
@@ -17696,7 +17791,7 @@ function rlAtualizarCusto(){
 // ── Geocodificação (via Nominatim — sem custo) ───────────────
 async function rlGeocodificar(address){
   const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1&countrycodes=BR,US,PT,AR`;
-  const r = await fetch(url, {headers:{'Accept-Language':'pt-BR'}});
+  const r = await _fetch(url, {headers:{'Accept-Language':'pt-BR'}}, 10000);
   const d = await r.json();
   if(!d || !d[0]) throw new Error('Endereço não encontrado. Tente ser mais específico.');
   return { lat: parseFloat(d[0].lat), lng: parseFloat(d[0].lon), label: d[0].display_name };
@@ -17727,7 +17822,7 @@ async function rlBuscarPonto(lat, lng, keyword, apiKey){
   // Para MVP, vamos fazer via nosso backend (efCall) ou fallback mock.
   try {
     const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
-    const r = await fetch(proxyUrl);
+    const r = await _fetch(proxyUrl, {}, 10000);
     const d = await r.json();
     return (d.results || []).map((p, i) => ({
       place_id: p.place_id,
@@ -17807,14 +17902,17 @@ async function rlIniciarPesquisa(){
       const pt = pontos[i];
       setPrg(i+1, total);
       setStt(`Pesquisando ponto ${i+1}/${total} (${pt.row},${pt.col})...`);
-      const results = await rlBuscarPonto(pt.lat, pt.lng, keyword, apiKey);
-      results.forEach((emp, idx) => {
+      const results = await _rateLimitedCall(
+        ()=>rlBuscarPonto(pt.lat, pt.lng, keyword, apiKey),
+        'google-maps'
+      );
+      results.forEach((emp) => {
         if(!empresaMap[emp.place_id]){
           empresaMap[emp.place_id] = { ...emp, posicoes:[], totalPontos: total };
         }
         empresaMap[emp.place_id].posicoes.push(emp.posicao);
       });
-      await new Promise(r=>setTimeout(r,120)); // throttle
+      await _sleep(200); // 200ms entre chamadas — respeita quota da Places API
     }
 
     const ranking = rlCalcularMetricas(empresaMap);
@@ -18034,7 +18132,7 @@ function rlExportarPDF(){
 
 // ── Histórico ─────────────────────────────────────────────────
 function rlSalvarHistorico(data){
-  const hist = JSON.parse(localStorage.getItem(RL_HISTORICO_KEY)||'[]');
+  const hist = lsGet(RL_HISTORICO_KEY, []);
   hist.unshift({ ...data, ranking: data.ranking.slice(0,20) }); // salva top 20
   localStorage.setItem(RL_HISTORICO_KEY, JSON.stringify(hist.slice(0,50))); // max 50 pesquisas
   rlRenderizarHistorico();
@@ -18043,7 +18141,7 @@ function rlSalvarHistorico(data){
 function rlRenderizarHistorico(){
   const el = document.getElementById('rl_historico_lista');
   if(!el) return;
-  const hist = JSON.parse(localStorage.getItem(RL_HISTORICO_KEY)||'[]');
+  const hist = lsGet(RL_HISTORICO_KEY, []);
   if(!hist.length){ el.innerHTML='<div style="text-align:center;padding:64px;color:var(--muted2)"><div style="font-size:32px;margin-bottom:12px">📋</div><div style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:6px">Nenhuma pesquisa ainda</div><div style="font-size:12px">Faça sua primeira análise no <a onclick="showPage(\'pageRadarLocal\');setSbActive(\'sb-radarlocal\')" style="color:#34c759;cursor:pointer">Grid GMB</a></div></div>'; return; }
   el.innerHTML = hist.map((h,i)=>{
     const top = h.ranking?.[0];
@@ -18060,7 +18158,7 @@ function rlRenderizarHistorico(){
 }
 
 function rlCarregarHistorico(idx){
-  const hist = JSON.parse(localStorage.getItem(RL_HISTORICO_KEY)||'[]');
+  const hist = lsGet(RL_HISTORICO_KEY, []);
   const data = hist[idx];
   if(!data) return;
   showPage('pageRadarLocal'); setSbActive('sb-radarlocal');
@@ -18330,7 +18428,7 @@ function autoSave(){
   }catch(e){}
 }
 function autoLoad(){
-  try{ _autoList = JSON.parse(localStorage.getItem(AUTO_KEY)||'[]'); }
+  try{ _autoList = lsGet(AUTO_KEY, []); }
   catch(e){ _autoList = []; }
   // Mescla com Supabase se logado e perfil tiver automacoes salvas
   try{
@@ -18354,7 +18452,7 @@ function autoLogSave(){
   localStorage.setItem(AUTO_LOG_KEY, JSON.stringify(_autoLog));
 }
 function autoLogLoad(){
-  try{ _autoLog = JSON.parse(localStorage.getItem(AUTO_LOG_KEY)||'[]'); }
+  try{ _autoLog = lsGet(AUTO_LOG_KEY, []); }
   catch(e){ _autoLog = []; }
 }
 
@@ -18664,7 +18762,7 @@ async function _autoFollowup(a){
   return `${atrasados.length} lead(s) aguardando follow-up`;
 }
 async function _autoRadarCnpj(a){
-  const hist = JSON.parse(localStorage.getItem('capturo_cnpj_historico')||'[]');
+  const hist = lsGet('capturo_cnpj_historico', []);
   const rec = hist.filter(h=>h.ts&&(Date.now()-h.ts)<86400000);
   window._autoLastMsg = `\ud83c\udfe2 CAPTURO \u2014 Radar CNPJ\n${rec.length} empresa(s) nova(s) encontrada(s) nas \u00faltimas 24h.`;
   return `${rec.length} empresa(s) nova(s) no Radar CNPJ`;
@@ -18742,7 +18840,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   autoLoad(); autoLogLoad();
   autoReiniciarScheduler();
   // Relógio em tempo real na status strip
-  setInterval(()=>{
+  window._clockInterval = setInterval(()=>{
     const hEl=document.getElementById('autoHoraAtual');
     if(hEl) hEl.textContent=new Date().toLocaleTimeString('pt-BR');
   }, 1000);
@@ -19125,12 +19223,12 @@ Estrutura obrigatória:
 
     // Animar último step
     await _iapAnimateStep('iap-s5', 0);
-    await new Promise(r=>setTimeout(r,600));
+    await _sleep(600);
 
     // Marcar todos como done
     document.querySelectorAll('.iap-step-item').forEach(el=>{ el.classList.remove('active'); el.classList.add('done'); });
 
-    await new Promise(r=>setTimeout(r,400));
+    await _sleep(400);
 
     // Renderizar resultado
     _iapRenderResult(data, lead);
