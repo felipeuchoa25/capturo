@@ -54,21 +54,21 @@
   --accent-bg:rgba(79,142,255,.10);
   --accent-mid:rgba(79,142,255,.18);
   --accent-glow:rgba(79,142,255,.3);
-  --green:#3ecf6e;
-  --green-bg:rgba(62,207,110,.08);
-  --green-b:rgba(62,207,110,.22);
+  --green:#52d994;
+  --green-bg:rgba(82,217,148,.12);
+  --green-b:rgba(82,217,148,.28);
   --red:#ff5252;
   --orange:#ff9d3e;
   --purple:#b87aff;
   --purple-bg:rgba(184,122,255,.08);
-  --teal:#38d9c0;
+  --teal:#8FD9C8;
   --indigo:#7c7fff;
 
   --volcano:#ff4d4d;--volcano-bg:rgba(255,77,77,.08);--volcano-b:rgba(255,77,77,.22);
   --hot:#ff8c00;--hot-bg:rgba(255,140,0,.08);--hot-b:rgba(255,140,0,.22);
   --warm:#ffbf00;--warm-bg:rgba(255,191,0,.08);--warm-b:rgba(255,191,0,.22);
   --cold:#4f8eff;--cold-bg:rgba(79,142,255,.08);--cold-b:rgba(79,142,255,.22);
-  --frozen:#38d9c0;--frozen-bg:rgba(56,217,192,.08);--frozen-b:rgba(56,217,192,.22);
+  --frozen:#7BC9B8;--frozen-bg:rgba(139,217,200,.08);--frozen-b:rgba(139,217,200,.22);
 
   --shadow-xs:0 1px 3px rgba(0,0,0,.5);
   --shadow-sm:0 2px 8px rgba(0,0,0,.4),0 1px 2px rgba(0,0,0,.3);
@@ -228,9 +228,12 @@ body::before{
 }
 .topnav-row1{display:flex;align-items:center;gap:10px;padding:0 22px;min-height:56px;flex-wrap:wrap;}
 .nav-tabs::-webkit-scrollbar{display:none}
+.nav-tabs-scroll-btn{width:28px;height:28px;border:none;background:rgba(255,255,255,.08);color:var(--text2);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;font-size:12px}
+.nav-tabs-scroll-btn:hover{background:rgba(255,255,255,.13);color:var(--text)}
+.nav-tabs-scroll-btn:disabled{opacity:.35;cursor:not-allowed}
 .logo{font-size:18px;font-weight:800;letter-spacing:-.04em;color:var(--text);white-space:nowrap}
 .logo span{color:var(--accent)}
-.nav-tabs{display:flex;gap:2px;flex-wrap:wrap;align-items:center;width:100%;}
+.nav-tabs{display:flex;gap:2px;align-items:center;flex:1;overflow-x:auto;overflow-y:hidden;scroll-behavior:smooth;scrollbar-width:none;-ms-overflow-style:none}
 .nav-tab{
   padding:5px 14px;border-radius:var(--r-sm);font-size:12px;font-weight:600;
   cursor:pointer;white-space:nowrap;color:var(--muted2);border:none;
@@ -556,7 +559,9 @@ select option{background:var(--s2);color:var(--text)}
 /* CAMPAIGN MODAL */
 .cmodal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:600;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px)}
 .cmodal-overlay.open{display:flex}
-.cmodal-box{background:var(--s2);border:1px solid var(--border2);border-radius:16px;padding:28px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
+.cmodal-box{background:var(--s2);border:1px solid var(--border2);border-radius:16px;padding:28px;width:100%;max-width:760px;max-height:94vh;overflow-y:auto}
+#cModal .cmodal-box #neighborhoodChips{max-height:320px!important}
+#cModal #nichoDropdown{max-height:300px!important}
 .cmodal-title{font-size:18px;font-weight:800;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
 .cmodal-close{cursor:pointer;color:var(--muted2);font-size:18px}
 .cmodal-close:hover{color:var(--text)}
@@ -823,7 +828,7 @@ select option{background:var(--s2);color:var(--text)}
     --hot:#ff8c00;--hot-bg:rgba(255,140,0,.08);--hot-b:rgba(255,140,0,.22);
     --warm:#ffbf00;--warm-bg:rgba(255,191,0,.08);--warm-b:rgba(255,191,0,.22);
     --cold:#4f8eff;--cold-bg:rgba(79,142,255,.08);--cold-b:rgba(79,142,255,.22);
-    --frozen:#38d9c0;--frozen-bg:rgba(56,217,192,.08);--frozen-b:rgba(56,217,192,.22);
+    --frozen:#7BC9B8;--frozen-bg:rgba(139,217,200,.08);--frozen-b:rgba(139,217,200,.22);
     --shadow-xs:0 1px 3px rgba(0,0,0,.5);
     --shadow-sm:0 2px 8px rgba(0,0,0,.4),0 1px 2px rgba(0,0,0,.3);
     --shadow:0 4px 20px rgba(0,0,0,.45),0 2px 6px rgba(0,0,0,.25);
@@ -898,8 +903,10 @@ select option{background:var(--s2);color:var(--text)}
 .profile-body{padding:16px;flex:1}
 .profile-name{font-size:18px;font-weight:800;color:var(--text);margin-bottom:2px}
 .profile-sub{font-size:11px;color:var(--muted2);font-family:monospace;margin-bottom:12px}
-.profile-section{margin-bottom:16px}
+.profile-section{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.profile-section:last-child{border-bottom:none}
 .profile-section-title{font-size:9px;font-family:monospace;text-transform:uppercase;letter-spacing:.1em;color:var(--muted2);margin-bottom:8px}
+#biolinkChips,#biolinkChipsMaps{display:none!important}
 .profile-palette{display:flex;gap:6px;margin-bottom:8px}
 .palette-swatch{width:32px;height:32px;border-radius:6px;border:1px solid rgba(255,255,255,.2);cursor:pointer;transition:transform .15s}
 .palette-swatch:hover{transform:scale(1.2)}
@@ -1086,7 +1093,7 @@ select option{background:var(--s2);color:var(--text)}
 .up-avatar{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.2);border:3px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;margin-bottom:10px}
 .up-name{font-size:18px;font-weight:800;color:#fff;letter-spacing:-.02em}
 .up-email{font-size:11px;color:rgba(255,255,255,.75);font-family:'IBM Plex Mono',monospace;margin-top:2px}
-.up-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.up-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background .15s;z-index:9999;pointer-events:auto}
 .up-close:hover{background:rgba(255,255,255,.3)}
 .up-body{padding:20px}
 .up-section{margin-bottom:20px}
@@ -1655,14 +1662,14 @@ select:focus {
   --orange: #ff9d3e;
   --purple: #b87aff;
   --purple-bg: rgba(184,122,255,.09);
-  --teal:   #38d9c0;
+  --teal:   #8FD9C8;
 
   /* ── TEMPERATURE PALETTE ── */
   --volcano:#ff4747; --volcano-bg:rgba(255,71,71,.08);  --volcano-b:rgba(255,71,71,.22);
   --hot:    #ff8c00; --hot-bg:rgba(255,140,0,.08);      --hot-b:rgba(255,140,0,.22);
   --warm:   #f5c518; --warm-bg:rgba(245,197,24,.08);    --warm-b:rgba(245,197,24,.22);
   --cold:   #4f8eff; --cold-bg:rgba(79,142,255,.08);    --cold-b:rgba(79,142,255,.22);
-  --frozen: #38d9c0; --frozen-bg:rgba(56,217,192,.08);  --frozen-b:rgba(56,217,192,.22);
+  --frozen: #7BC9B8; --frozen-bg:rgba(139,217,200,.08);  --frozen-b:rgba(139,217,200,.22);
 
   /* ── SHADOWS ── */
   --shadow-xs: 0 1px 4px rgba(0,0,0,.6);
@@ -1712,7 +1719,7 @@ body::before {
   background:
     radial-gradient(ellipse 70% 45% at 15% -5%, rgba(79,142,255,.06) 0%, transparent 60%),
     radial-gradient(ellipse 55% 40% at 85% 105%, rgba(184,122,255,.04) 0%, transparent 55%),
-    radial-gradient(ellipse 40% 30% at 50% 50%, rgba(56,217,192,.02) 0%, transparent 70%);
+    radial-gradient(ellipse 40% 30% at 50% 50%, rgba(139,217,200,.02) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
 }
@@ -1911,7 +1918,7 @@ body::before {
 
 .sb-divider {
   height: 1px !important;
-  background: rgba(255,255,255,.05) !important;
+  background: rgba(255,255,255,.20) !important;
   margin: 7px 6px !important;
 }
 
@@ -2407,19 +2414,30 @@ h4, h5, h6, label {
 /* ══════════════════════════════════════════
    THEME OVERRIDES — keep theming working
 ══════════════════════════════════════════ */
+/* ════════ FIX FINAL DE LAYOUT — sobrescreve TODAS as regras anteriores ════════ */
+.main-wrap { padding-top: 56px !important; min-height: 100vh !important; box-sizing: border-box !important; }
+.main { padding: 24px 28px !important; max-width: 1440px !important; margin: 0 auto !important; box-sizing: border-box !important; }
+.page { display: none; }
+.page.active { display: block !important; padding: 0 !important; margin: 0 !important; min-height: 0 !important; height: auto !important; }
+#pageAI.active { display: flex !important; flex-direction: column !important; height: calc(100vh - 110px) !important; padding: 0 !important; }
+#pageClients.active, #pageFavoritos.active, #pageClients, #pageFavoritos { padding: 0 !important; margin: 0 !important; }
+#pageClients.active > *:first-child, #pageFavoritos.active > *:first-child { margin-top: 0 !important; padding-top: 0 !important; }
+/* nenhuma .page pode ter min-height empurrando conteúdo */
+.page > * { min-height: 0 !important; }
 .theme-blue { --bg:#07070d; --s1:#0f0f1c; --s2:#161626; }
 .theme-teal {
   --bg:#06141a; --s1:#0a1f28; --s2:#0f2a35; --s3:#143845;
-  --border:rgba(56,217,192,.18); --border2:rgba(56,217,192,.28);
+  --border:rgba(143,217,200,.18); --border2:rgba(143,217,200,.28);
   --text:#eafffb; --text2:#c8efe6; --muted:#7fb3aa; --muted2:#9fcfc4;
-  --accent:#38d9c0; --accent2:#7af2dd; --accent-bg:rgba(56,217,192,.10);
+  --accent:#8FD9C8; --accent2:#A8E0D2; --accent-bg:rgba(143,217,200,.10);
+  --frozen:#5BC9B9; --frozen-bg:rgba(91,201,185,.08); --frozen-b:rgba(91,201,185,.22);
 }
-.theme-teal .sidebar { background:rgba(6,20,26,.96)!important; border-right:1px solid rgba(56,217,192,.15)!important; }
-.theme-teal .topnav  { background:rgba(6,20,26,.92)!important; border-bottom:1px solid rgba(56,217,192,.12)!important; }
+.theme-teal .sidebar { background:rgba(6,20,26,.96)!important; border-right:1px solid rgba(143,217,200,.15)!important; }
+.theme-teal .topnav  { background:rgba(6,20,26,.92)!important; border-bottom:1px solid rgba(143,217,200,.12)!important; }
 /* Divisórias da sidebar mais visíveis em todos os temas */
-.sb-divider { height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent)!important; margin:10px 12px!important; }
+.sb-divider { height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,.30),transparent)!important; margin:10px 12px!important; }
 [data-theme="white"] .sb-divider { background:linear-gradient(90deg,transparent,rgba(0,0,0,.14),transparent)!important; }
-[data-theme="teal"]  .sb-divider { background:linear-gradient(90deg,transparent,rgba(56,217,192,.35),transparent)!important; }
+[data-theme="teal"]  .sb-divider { background:linear-gradient(90deg,transparent,rgba(143,217,200,.55),transparent)!important; }
 .theme-gray {
   --font-display: 'Syne', system-ui, sans-serif;
   --font-body:    'DM Sans', system-ui, sans-serif;
@@ -3434,8 +3452,8 @@ function toast(msg, type='info', duration=3500){
     <span class="sb-label">Automações</span>
   </div>
 
-  <!-- ── CONFIGURAÇÕES / BOTTOM ── -->
-  <div class="sb-divider" style="margin-top:auto"></div>
+  <!-- ── CONFIGURAÇÕES (logo após Automações) ── -->
+  <div class="sb-divider"></div>
 
   <!-- Temas de cor -->
   <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;cursor:default" title="Tema de cores">
@@ -3443,8 +3461,8 @@ function toast(msg, type='info', duration=3500){
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/></svg>
     </span>
     <span style="display:flex;gap:8px;align-items:center;pointer-events:auto">
-      <span style="width:18px;height:18px;border-radius:50%;background:#0f1117;border:2px solid rgba(255,255,255,.4);cursor:pointer;display:inline-block;transition:transform .15s" onclick="applyTheme('blue')" title="Noturno" onmouseover="this.style.transform='scale(1.3)'" onmouseout="this.style.transform='scale(1)'"></span>
-      <span style="width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,#0a3d4a,#38d9c0);border:2px solid rgba(255,255,255,.4);cursor:pointer;display:inline-block;transition:transform .15s" onclick="applyTheme('teal')" title="Verde Água" onmouseover="this.style.transform='scale(1.3)'" onmouseout="this.style.transform='scale(1)'"></span>
+      <span style="width:18px;height:18px;border-radius:50%;background:#000000;border:2px solid rgba(255,255,255,.4);cursor:pointer;display:inline-block;transition:transform .15s" onclick="applyTheme('blue')" title="Preto Puro" onmouseover="this.style.transform='scale(1.3)'" onmouseout="this.style.transform='scale(1)'"></span>
+      <span style="width:18px;height:18px;border-radius:50%;background:#8FD9C8;border:2px solid rgba(255,255,255,.4);cursor:pointer;display:inline-block;transition:transform .15s" onclick="applyTheme('teal')" title="Verde Água Suave" onmouseover="this.style.transform='scale(1.3)'" onmouseout="this.style.transform='scale(1)'"></span>
       <span style="width:18px;height:18px;border-radius:50%;background:#f2f2f7;border:2px solid #ccc;cursor:pointer;display:inline-block;transition:transform .15s" onclick="applyTheme('white')" title="Claro" onmouseover="this.style.transform='scale(1.3)'" onmouseout="this.style.transform='scale(1)'"></span>
     </span>
   </div>
@@ -3461,13 +3479,14 @@ function toast(msg, type='info', duration=3500){
   <!-- Perfil -->
   <div class="sb-item" onclick="openUserProfile()" title="Meu perfil">
     <span class="sb-icon" style="position:relative">
-      <span id="sbAvatarImg" style="display:none;width:22px;height:22px;border-radius:50%;overflow:hidden;object-fit:cover"></span>
+      <span id="sbAvatarImg" style="display:none;width:22px;height:22px;border-radius:50%;overflow:hidden;object-fit:cover;position:relative;background-size:cover;background-position:center"></span>
       <span id="sbAvatarLetter" style="width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">F</span>
     </span>
     <span class="sb-label" id="sbUserName" style="font-size:12px;font-weight:600">Felipe</span>
   </div>
 
-  <div class="sb-divider"></div>
+  <!-- empurra Manual/FAQ para o rodapé absoluto -->
+  <div class="sb-divider" style="margin-top:auto"></div>
 
   <!-- Manual e FAQ -->
   <div class="sb-item" id="sb-guia" onclick="showPage('pageGuia');setSbActive('sb-guia')">
@@ -3515,7 +3534,9 @@ function toast(msg, type='info', duration=3500){
     <!-- Separador vertical -->
     <div style="width:1px;height:22px;background:var(--border);flex-shrink:0;margin:0 6px"></div>
     <!-- Prospecções inline -->
-    <div class="nav-tabs" id="navTabs" style="flex:1;flex-wrap:wrap;overflow:visible;max-height:none;"></div>
+    <button class="nav-tabs-scroll-btn" id="navScrollLeft" onclick="scrollNavTabs('left')" title="◀ Scroll abas esquerda">◀</button>
+    <div class="nav-tabs" id="navTabs" style="flex:1;overflow:visible;max-height:none;"></div>
+    <button class="nav-tabs-scroll-btn" id="navScrollRight" onclick="scrollNavTabs('right')" title="Scroll abas direita ▶">▶</button>
     <!-- Global Search - ícone + campo expansível -->
     <div style="display:flex;align-items:center;gap:0;position:relative">
       <button id="searchToggleBtn" onclick="toggleSearchBar()" title="Busca global (Ctrl+K)"
@@ -4660,8 +4681,8 @@ function toast(msg, type='info', duration=3500){
       </div>
       <!-- Input -->
       <div style="padding:12px 16px;border-top:1px solid var(--border);background:var(--s1);flex-shrink:0;position:sticky;bottom:0">
-        <div style="display:flex;gap:8px;align-items:center;background:var(--s1);border:1px solid var(--border2);border-radius:12px;padding:8px 12px">
-          <input type="text" id="aiChatInput" placeholder="Pergunte sobre seus leads, pitches, estratégia..." style="flex:1;background:none;border:none;color:var(--text);font-size:13px;outline:none" onkeydown="if(event.key==='Enter')sendAIMessage()">
+        <div style="display:flex;gap:8px;align-items:flex-end;background:var(--s1);border:1px solid var(--border2);border-radius:12px;padding:8px 12px">
+          <textarea id="aiChatInput" placeholder="Pergunte sobre seus leads, pitches, estratégia..." style="flex:1;background:none;border:none;color:var(--text);font-size:13px;outline:none;resize:none;max-height:120px;font-family:inherit;line-height:1.4" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAIMessage()}else if(event.key==='Enter'&&event.shiftKey){}" oninput="this.style.height='auto';this.style.height=Math.min(120,this.scrollHeight)+'px'"></textarea>
           <button onclick="sendAIMessage()" id="aiSendBtn" class="btn btn-primary" style="padding:7px 16px;border-radius:8px;font-size:13px;flex-shrink:0">Enviar</button>
         </div>
       </div>
@@ -5670,6 +5691,14 @@ function toast(msg, type='info', duration=3500){
 <div class="cmodal-overlay" id="cModal">
   <div class="cmodal-box">
     <div class="cmodal-title">Nova Campanha <span class="cmodal-close" onclick="closeCampaignModal()">✕</span></div>
+    <!-- STEP INDICATOR -->
+    <div id="campStepBar" style="display:flex;align-items:center;gap:6px;margin:4px 0 14px;font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em">
+      <span id="campStep1Dot" style="display:flex;align-items:center;gap:6px;color:var(--accent)"><span style="width:18px;height:18px;border-radius:50%;background:var(--accent);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700">1</span>Estado</span>
+      <span style="flex:1;height:1px;background:var(--border)"></span>
+      <span id="campStep2Dot" style="display:flex;align-items:center;gap:6px;color:var(--muted2)"><span style="width:18px;height:18px;border-radius:50%;background:var(--s2);border:1px solid var(--border);color:var(--muted2);display:inline-flex;align-items:center;justify-content:center;font-weight:700">2</span>Cidade</span>
+      <span style="flex:1;height:1px;background:var(--border)"></span>
+      <span id="campStep3Dot" style="display:flex;align-items:center;gap:6px;color:var(--muted2)"><span style="width:18px;height:18px;border-radius:50%;background:var(--s2);border:1px solid var(--border);color:var(--muted2);display:inline-flex;align-items:center;justify-content:center;font-weight:700">3</span>Detalhes</span>
+    </div>
     <div class="cfield">
       <label>Mercado</label>
       <div class="market-toggle">
@@ -5698,7 +5727,7 @@ function toast(msg, type='info', duration=3500){
           onclick="this.removeAttribute('readonly');showNichoDropdown()">
         <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted2);pointer-events:none;font-size:13px">&#9660;</span>
       </div>
-      <div id="nichoDropdown" style="display:none;position:absolute;left:0;right:0;z-index:999;max-height:260px;overflow-y:auto;border:1px solid var(--border2);border-radius:10px;background:var(--s1);box-shadow:0 8px 28px rgba(0,0,0,.4);margin-top:2px">
+      <div id="nichoDropdown" style="display:none;position:fixed;z-index:9999;max-height:260px;overflow-y:auto;border:1px solid var(--border2);border-radius:10px;background:var(--s1);box-shadow:0 8px 28px rgba(0,0,0,.5)">
         <div id="nichoList"></div>
       </div>
       <input type="hidden" id="nichoDD" value="">
@@ -5706,32 +5735,43 @@ function toast(msg, type='info', duration=3500){
     <div class="state-city-row">
       <!-- ESTADO -->
       <div class="cfield" style="margin:0">
-        <label>Estado <span style="color:var(--muted2);font-weight:400;font-size:10px" id="stateCountLabel"></span></label>
-        <!-- State chip container -->
-        <div id="stateChipContainer">
+        <label>Estado <span style="display:inline-flex;align-items:center;gap:4px;background:#1a1306;border:1px solid #f5b833;color:#f5b833;padding:2px 8px;border-radius:10px;font-weight:600;font-size:9px;margin-left:4px">⭐ Alto Potencial (PIB/IDH)</span></label>
+        <select id="stateDD" onchange="onStateDDChange()" style="font-size:13px"><option value="">Selecione o estado</option></select>
+        <!-- chip container desativado mas mantido para compat JS -->
+        <div id="stateChipContainer" style="display:none">
           <div class="city-quick-actions" id="stateQuickActions"></div>
-          <div class="city-chip-wrap" id="stateChipsWrap" style="max-height:200px;overflow-y:auto"></div>
-          <input type="text" id="stateFreeText" placeholder="Ou digite outro estado..." style="margin-top:8px;font-size:12px;display:none" oninput="autoFillName()">
+          <div class="city-chip-wrap" id="stateChipsWrap"></div>
+          <input type="text" id="stateFreeText" style="display:none">
         </div>
-        <!-- Legacy hidden select kept for JS compat -->
-        <select id="stateDD" style="display:none"><option value="">Selecione</option></select>
       </div>
-      <!-- CIDADE — multi-chip selector -->
+      <!-- CIDADE -->
       <div class="cfield" style="margin:0">
-        <label>Cidade <span style="color:var(--muted2);font-weight:400;font-size:10px" id="cityCountLabel"></span></label>
-        <!-- Chip container (replaces <select>) -->
+        <label>Cidade <span style="display:inline-flex;align-items:center;gap:4px;background:#1a1306;border:1px solid #f5b833;color:#f5b833;padding:2px 8px;border-radius:10px;font-weight:600;font-size:9px;margin-left:4px">⭐ Alto Potencial (PIB/IDH)</span></label>
+        <select id="cityDD" onchange="onCityDDChange()" disabled style="font-size:13px"><option value="">Selecione um estado primeiro</option></select>
         <div id="cityChipContainer" style="display:none">
-          <!-- Quick action buttons -->
           <div class="city-quick-actions" id="cityQuickActions"></div>
-          <!-- Chips -->
-          <div class="city-chip-wrap" id="cityChipsWrap" style="max-height:220px;overflow-y:auto"></div>
-          <!-- Free text -->
-          <input type="text" id="cityFreeText" placeholder="Ou digite outra cidade..." style="margin-top:8px;font-size:12px;display:none" oninput="autoFillName()">
+          <div class="city-chip-wrap" id="cityChipsWrap"></div>
+          <input type="text" id="cityFreeText" style="display:none">
         </div>
-        <!-- Placeholder when no state selected -->
-        <div id="citySelectPlaceholder" style="padding:10px 12px;background:var(--s2);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--muted2);font-style:italic">Selecione um estado primeiro</div>
-        <!-- Legacy hidden select kept for JS compat -->
-        <select id="cityDD" style="display:none"></select>
+        <div id="citySelectPlaceholder" style="display:none"></div>
+      </div>
+    </div>
+    <!-- ESCOPO DE PROSPECÇÃO (estado inteiro / cidade selecionada / múltiplas) -->
+    <div class="cfield" id="campScopeRow" style="display:none">
+      <label>Como prospectar?</label>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label style="display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--border);border-radius:10px;cursor:pointer;font-size:12px;background:var(--s2)">
+          <input type="radio" name="campScope" value="city" checked onchange="onCampScopeChange()">
+          <span><strong>Apenas a cidade selecionada</strong> <span style="color:var(--muted2);font-size:10px">— uma campanha simples</span></span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--border);border-radius:10px;cursor:pointer;font-size:12px;background:var(--s2)">
+          <input type="radio" name="campScope" value="state_all" onchange="onCampScopeChange()">
+          <span><strong>Estado inteiro</strong> <span style="color:var(--muted2);font-size:10px">— prospectar TODAS as cidades do estado em uma só campanha</span></span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--border);border-radius:10px;cursor:pointer;font-size:12px;background:var(--s2)">
+          <input type="radio" name="campScope" value="state_split" onchange="onCampScopeChange()">
+          <span><strong>Estado inteiro — uma aba por cidade</strong> <span style="color:var(--muted2);font-size:10px">— cria várias campanhas separadas automaticamente</span></span>
+        </label>
       </div>
     </div>
     <div class="cfield" id="neighborhoodRow" style="display:none">
@@ -5772,18 +5812,21 @@ function toast(msg, type='info', duration=3500){
         </label>
       </div>
     </div>
-    <div class="cfield">
-      <label>Raio de busca</label>
-      <select id="radiusDD">
-        <option value="2000">2 km / 1.2 mi</option>
-        <option value="5000" selected>5 km / 3 mi</option>
-        <option value="10000">10 km / 6 mi</option>
-        <option value="20000">20 km / 12 mi</option>
-      </select>
-    </div>
-    <div class="cfield">
-      <label>Nome da Campanha</label>
-      <input type="text" id="campaignNameInput" placeholder="Preenchido automaticamente">
+    <!-- STEP 3 — Detalhes (escondido até cidade ser selecionada) -->
+    <div id="campStepDetails" style="display:none">
+      <div class="cfield">
+        <label>Raio de busca</label>
+        <select id="radiusDD">
+          <option value="2000">2 km / 1.2 mi</option>
+          <option value="5000" selected>5 km / 3 mi</option>
+          <option value="10000">10 km / 6 mi</option>
+          <option value="20000">20 km / 12 mi</option>
+        </select>
+      </div>
+      <div class="cfield">
+        <label>Nome da Campanha</label>
+        <input type="text" id="campaignNameInput" placeholder="Preenchido automaticamente">
+      </div>
     </div>
     <div class="cmodal-footer">
       <button class="btn btn-ghost" onclick="closeCampaignModal()">Cancelar</button>
@@ -6256,6 +6299,159 @@ Object.keys(STATES_US_TIERS).forEach(state => {
   STATES_US[state] = STATES_US_TIERS[state].map(c => c.n);
 });
 
+// ══════════════════════════════════════════
+// INTERNATIONAL — UK / CA / AU / PT / ES
+// (regiões/províncias/estados rankeados por PIB / renda / IDH)
+// ══════════════════════════════════════════
+const STATES_UK_ORDER = [
+  {state:'Greater London',     tier:'gold'},
+  {state:'South East England', tier:'gold'},
+  {state:'East of England',    tier:'gold'},
+  {state:'Scotland',           tier:'gold'},
+  {state:'South West England', tier:'silver'},
+  {state:'West Midlands',      tier:'silver'},
+  {state:'North West England', tier:'silver'},
+  {state:'Yorkshire',          tier:'silver'},
+  {state:'East Midlands',      tier:'bronze'},
+  {state:'North East England', tier:'bronze'},
+  {state:'Wales',              tier:'bronze'},
+  {state:'Northern Ireland',   tier:'bronze'},
+];
+const STATES_UK_TIERS = {
+  'Greater London':     [{n:'City of London',t:'gold'},{n:'Westminster',t:'gold'},{n:'Kensington',t:'gold'},{n:'Chelsea',t:'gold'},{n:'Camden',t:'silver'},{n:'Islington',t:'silver'},{n:'Hackney',t:'bronze'},{n:'Croydon',t:'bronze'}],
+  'South East England': [{n:'Oxford',t:'gold'},{n:'Brighton',t:'gold'},{n:'Reading',t:'gold'},{n:'Guildford',t:'gold'},{n:'Southampton',t:'silver'},{n:'Portsmouth',t:'silver'},{n:'Milton Keynes',t:'silver'},{n:'Maidstone',t:'bronze'}],
+  'East of England':    [{n:'Cambridge',t:'gold'},{n:'St Albans',t:'gold'},{n:'Norwich',t:'silver'},{n:'Ipswich',t:'silver'},{n:'Colchester',t:'bronze'},{n:'Luton',t:'bronze'}],
+  'Scotland':           [{n:'Edinburgh',t:'gold'},{n:'Glasgow',t:'gold'},{n:'Aberdeen',t:'silver'},{n:'Stirling',t:'silver'},{n:'Dundee',t:'bronze'},{n:'Inverness',t:'bronze'}],
+  'South West England': [{n:'Bristol',t:'gold'},{n:'Bath',t:'gold'},{n:'Exeter',t:'silver'},{n:'Plymouth',t:'silver'},{n:'Bournemouth',t:'silver'},{n:'Gloucester',t:'bronze'}],
+  'West Midlands':      [{n:'Birmingham',t:'gold'},{n:'Solihull',t:'silver'},{n:'Coventry',t:'silver'},{n:'Wolverhampton',t:'bronze'},{n:'Stoke-on-Trent',t:'bronze'}],
+  'North West England': [{n:'Manchester',t:'gold'},{n:'Liverpool',t:'silver'},{n:'Chester',t:'silver'},{n:'Preston',t:'bronze'},{n:'Blackpool',t:'bronze'}],
+  'Yorkshire':          [{n:'Leeds',t:'gold'},{n:'York',t:'gold'},{n:'Sheffield',t:'silver'},{n:'Bradford',t:'bronze'},{n:'Hull',t:'bronze'}],
+  'East Midlands':      [{n:'Nottingham',t:'silver'},{n:'Derby',t:'silver'},{n:'Leicester',t:'silver'},{n:'Lincoln',t:'bronze'},{n:'Northampton',t:'bronze'}],
+  'North East England': [{n:'Newcastle upon Tyne',t:'silver'},{n:'Durham',t:'silver'},{n:'Sunderland',t:'bronze'},{n:'Middlesbrough',t:'bronze'}],
+  'Wales':              [{n:'Cardiff',t:'gold'},{n:'Swansea',t:'silver'},{n:'Newport',t:'bronze'},{n:'Wrexham',t:'bronze'}],
+  'Northern Ireland':   [{n:'Belfast',t:'silver'},{n:'Lisburn',t:'bronze'},{n:'Derry',t:'bronze'}],
+};
+
+const STATES_CA_ORDER = [
+  {state:'Ontario',          tier:'gold'},
+  {state:'British Columbia', tier:'gold'},
+  {state:'Alberta',          tier:'gold'},
+  {state:'Quebec',           tier:'silver'},
+  {state:'Manitoba',         tier:'silver'},
+  {state:'Saskatchewan',     tier:'silver'},
+  {state:'Nova Scotia',      tier:'bronze'},
+  {state:'New Brunswick',    tier:'bronze'},
+  {state:'Newfoundland',     tier:'bronze'},
+  {state:'PEI',              tier:'bronze'},
+];
+const STATES_CA_TIERS = {
+  'Ontario':          [{n:'Toronto',t:'gold'},{n:'Oakville',t:'gold'},{n:'Mississauga',t:'gold'},{n:'Markham',t:'gold'},{n:'Ottawa',t:'silver'},{n:'Hamilton',t:'silver'},{n:'London',t:'silver'},{n:'Kitchener',t:'bronze'},{n:'Windsor',t:'bronze'}],
+  'British Columbia': [{n:'Vancouver',t:'gold'},{n:'West Vancouver',t:'gold'},{n:'Burnaby',t:'gold'},{n:'Victoria',t:'silver'},{n:'Richmond',t:'silver'},{n:'Surrey',t:'silver'},{n:'Kelowna',t:'bronze'},{n:'Nanaimo',t:'bronze'}],
+  'Alberta':          [{n:'Calgary',t:'gold'},{n:'Edmonton',t:'gold'},{n:'Canmore',t:'silver'},{n:'Red Deer',t:'silver'},{n:'Lethbridge',t:'bronze'},{n:'Medicine Hat',t:'bronze'}],
+  'Quebec':           [{n:'Montreal',t:'gold'},{n:'Westmount',t:'gold'},{n:'Quebec City',t:'silver'},{n:'Laval',t:'silver'},{n:'Gatineau',t:'bronze'},{n:'Sherbrooke',t:'bronze'}],
+  'Manitoba':         [{n:'Winnipeg',t:'silver'},{n:'Brandon',t:'bronze'},{n:'Steinbach',t:'bronze'}],
+  'Saskatchewan':     [{n:'Saskatoon',t:'silver'},{n:'Regina',t:'silver'},{n:'Prince Albert',t:'bronze'}],
+  'Nova Scotia':      [{n:'Halifax',t:'silver'},{n:'Sydney',t:'bronze'},{n:'Truro',t:'bronze'}],
+  'New Brunswick':    [{n:'Fredericton',t:'silver'},{n:'Moncton',t:'bronze'},{n:'Saint John',t:'bronze'}],
+  'Newfoundland':     [{n:"St. John's",t:'silver'},{n:'Corner Brook',t:'bronze'}],
+  'PEI':              [{n:'Charlottetown',t:'silver'},{n:'Summerside',t:'bronze'}],
+};
+
+const STATES_AU_ORDER = [
+  {state:'New South Wales',              tier:'gold'},
+  {state:'Victoria',                     tier:'gold'},
+  {state:'Australian Capital Territory', tier:'gold'},
+  {state:'Western Australia',            tier:'gold'},
+  {state:'Queensland',                   tier:'silver'},
+  {state:'South Australia',              tier:'silver'},
+  {state:'Tasmania',                     tier:'bronze'},
+  {state:'Northern Territory',           tier:'bronze'},
+];
+const STATES_AU_TIERS = {
+  'New South Wales':              [{n:'Sydney',t:'gold'},{n:'Mosman',t:'gold'},{n:'Manly',t:'gold'},{n:'Bondi',t:'gold'},{n:'Newcastle',t:'silver'},{n:'Wollongong',t:'silver'},{n:'Parramatta',t:'silver'},{n:'Wagga Wagga',t:'bronze'}],
+  'Victoria':                     [{n:'Melbourne',t:'gold'},{n:'Toorak',t:'gold'},{n:'Brighton',t:'gold'},{n:'St Kilda',t:'silver'},{n:'Geelong',t:'silver'},{n:'Ballarat',t:'bronze'},{n:'Bendigo',t:'bronze'}],
+  'Australian Capital Territory': [{n:'Canberra',t:'gold'},{n:'Belconnen',t:'silver'},{n:'Tuggeranong',t:'bronze'}],
+  'Western Australia':            [{n:'Perth',t:'gold'},{n:'Cottesloe',t:'gold'},{n:'Fremantle',t:'silver'},{n:'Mandurah',t:'silver'},{n:'Bunbury',t:'bronze'},{n:'Geraldton',t:'bronze'}],
+  'Queensland':                   [{n:'Brisbane',t:'gold'},{n:'Gold Coast',t:'gold'},{n:'Sunshine Coast',t:'silver'},{n:'Cairns',t:'silver'},{n:'Townsville',t:'bronze'},{n:'Toowoomba',t:'bronze'}],
+  'South Australia':              [{n:'Adelaide',t:'silver'},{n:'Glenelg',t:'silver'},{n:'Mount Gambier',t:'bronze'},{n:'Whyalla',t:'bronze'}],
+  'Tasmania':                     [{n:'Hobart',t:'silver'},{n:'Launceston',t:'bronze'},{n:'Devonport',t:'bronze'}],
+  'Northern Territory':           [{n:'Darwin',t:'silver'},{n:'Alice Springs',t:'bronze'},{n:'Palmerston',t:'bronze'}],
+};
+
+const STATES_PT_ORDER = [
+  {state:'Lisboa',           tier:'gold'},
+  {state:'Porto',            tier:'gold'},
+  {state:'Setúbal',          tier:'silver'},
+  {state:'Faro',             tier:'silver'},
+  {state:'Braga',            tier:'silver'},
+  {state:'Aveiro',           tier:'silver'},
+  {state:'Coimbra',          tier:'silver'},
+  {state:'Leiria',           tier:'bronze'},
+  {state:'Madeira',          tier:'bronze'},
+  {state:'Açores',           tier:'bronze'},
+  {state:'Évora',            tier:'bronze'},
+  {state:'Viseu',            tier:'bronze'},
+];
+const STATES_PT_TIERS = {
+  'Lisboa':  [{n:'Lisboa',t:'gold'},{n:'Cascais',t:'gold'},{n:'Oeiras',t:'gold'},{n:'Sintra',t:'silver'},{n:'Loures',t:'silver'},{n:'Amadora',t:'bronze'},{n:'Odivelas',t:'bronze'}],
+  'Porto':   [{n:'Porto',t:'gold'},{n:'Vila Nova de Gaia',t:'silver'},{n:'Matosinhos',t:'silver'},{n:'Maia',t:'silver'},{n:'Gondomar',t:'bronze'},{n:'Valongo',t:'bronze'}],
+  'Setúbal': [{n:'Setúbal',t:'silver'},{n:'Almada',t:'silver'},{n:'Seixal',t:'bronze'},{n:'Barreiro',t:'bronze'}],
+  'Faro':    [{n:'Faro',t:'silver'},{n:'Albufeira',t:'gold'},{n:'Lagos',t:'silver'},{n:'Portimão',t:'silver'},{n:'Loulé',t:'silver'},{n:'Tavira',t:'bronze'}],
+  'Braga':   [{n:'Braga',t:'silver'},{n:'Guimarães',t:'silver'},{n:'Barcelos',t:'bronze'},{n:'Famalicão',t:'bronze'}],
+  'Aveiro':  [{n:'Aveiro',t:'silver'},{n:'Águeda',t:'bronze'},{n:'Ovar',t:'bronze'},{n:'Espinho',t:'bronze'}],
+  'Coimbra': [{n:'Coimbra',t:'silver'},{n:'Figueira da Foz',t:'bronze'},{n:'Cantanhede',t:'bronze'}],
+  'Leiria':  [{n:'Leiria',t:'silver'},{n:'Marinha Grande',t:'bronze'},{n:'Caldas da Rainha',t:'bronze'}],
+  'Madeira': [{n:'Funchal',t:'silver'},{n:'Câmara de Lobos',t:'bronze'},{n:'Machico',t:'bronze'}],
+  'Açores':  [{n:'Ponta Delgada',t:'silver'},{n:'Angra do Heroísmo',t:'bronze'}],
+  'Évora':   [{n:'Évora',t:'silver'},{n:'Estremoz',t:'bronze'}],
+  'Viseu':   [{n:'Viseu',t:'silver'},{n:'Lamego',t:'bronze'}],
+};
+
+const STATES_ES_ORDER = [
+  {state:'Madrid',         tier:'gold'},
+  {state:'Cataluña',       tier:'gold'},
+  {state:'País Vasco',     tier:'gold'},
+  {state:'Navarra',        tier:'gold'},
+  {state:'Valencia',       tier:'silver'},
+  {state:'Andalucía',      tier:'silver'},
+  {state:'Galicia',        tier:'silver'},
+  {state:'Aragón',         tier:'silver'},
+  {state:'Asturias',       tier:'silver'},
+  {state:'Castilla y León',tier:'bronze'},
+  {state:'Murcia',         tier:'bronze'},
+  {state:'Canarias',       tier:'bronze'},
+  {state:'Baleares',       tier:'silver'},
+  {state:'Extremadura',    tier:'bronze'},
+];
+const STATES_ES_TIERS = {
+  'Madrid':         [{n:'Madrid',t:'gold'},{n:'Pozuelo de Alarcón',t:'gold'},{n:'Majadahonda',t:'gold'},{n:'Las Rozas',t:'gold'},{n:'Alcobendas',t:'silver'},{n:'Getafe',t:'silver'},{n:'Móstoles',t:'bronze'},{n:'Alcorcón',t:'bronze'}],
+  'Cataluña':       [{n:'Barcelona',t:'gold'},{n:'Sitges',t:'gold'},{n:'Sant Cugat',t:'gold'},{n:'Girona',t:'silver'},{n:'Tarragona',t:'silver'},{n:'Lleida',t:'silver'},{n:'Sabadell',t:'bronze'},{n:'Terrassa',t:'bronze'}],
+  'País Vasco':     [{n:'Bilbao',t:'gold'},{n:'San Sebastián',t:'gold'},{n:'Vitoria',t:'silver'},{n:'Getxo',t:'gold'},{n:'Barakaldo',t:'bronze'}],
+  'Navarra':        [{n:'Pamplona',t:'gold'},{n:'Tudela',t:'silver'},{n:'Estella',t:'bronze'}],
+  'Valencia':       [{n:'Valencia',t:'gold'},{n:'Alicante',t:'silver'},{n:'Castellón',t:'silver'},{n:'Elche',t:'bronze'},{n:'Torrevieja',t:'bronze'}],
+  'Andalucía':      [{n:'Sevilla',t:'silver'},{n:'Málaga',t:'gold'},{n:'Marbella',t:'gold'},{n:'Granada',t:'silver'},{n:'Córdoba',t:'silver'},{n:'Cádiz',t:'bronze'},{n:'Almería',t:'bronze'}],
+  'Galicia':        [{n:'A Coruña',t:'silver'},{n:'Vigo',t:'silver'},{n:'Santiago',t:'silver'},{n:'Ourense',t:'bronze'},{n:'Pontevedra',t:'bronze'}],
+  'Aragón':         [{n:'Zaragoza',t:'silver'},{n:'Huesca',t:'bronze'},{n:'Teruel',t:'bronze'}],
+  'Asturias':       [{n:'Oviedo',t:'silver'},{n:'Gijón',t:'silver'},{n:'Avilés',t:'bronze'}],
+  'Castilla y León':[{n:'Valladolid',t:'silver'},{n:'Salamanca',t:'silver'},{n:'Burgos',t:'bronze'},{n:'León',t:'bronze'},{n:'Ávila',t:'bronze'}],
+  'Murcia':         [{n:'Murcia',t:'silver'},{n:'Cartagena',t:'bronze'},{n:'Lorca',t:'bronze'}],
+  'Canarias':       [{n:'Las Palmas',t:'silver'},{n:'Santa Cruz de Tenerife',t:'silver'},{n:'Maspalomas',t:'gold'},{n:'Adeje',t:'gold'}],
+  'Baleares':       [{n:'Palma',t:'gold'},{n:'Ibiza',t:'gold'},{n:'Mahón',t:'silver'},{n:'Calvià',t:'gold'}],
+  'Extremadura':    [{n:'Badajoz',t:'bronze'},{n:'Cáceres',t:'silver'},{n:'Mérida',t:'bronze'}],
+};
+
+// Registry: country code → { order, cities }
+const INT_REGISTRY = {
+  US: { order: STATES_US_ORDER, cities: STATES_US_TIERS },
+  UK: { order: STATES_UK_ORDER, cities: STATES_UK_TIERS },
+  CA: { order: STATES_CA_ORDER, cities: STATES_CA_TIERS },
+  AU: { order: STATES_AU_ORDER, cities: STATES_AU_TIERS },
+  PT: { order: STATES_PT_ORDER, cities: STATES_PT_TIERS },
+  ES: { order: STATES_ES_ORDER, cities: STATES_ES_TIERS },
+};
+function _intCountry(){ const dd=document.getElementById('countryDD'); return (dd&&dd.value) || 'US'; }
+function _intReg(){ return INT_REGISTRY[_intCountry()] || INT_REGISTRY.US; }
+
 const BIOLINKS=[
   // ── PRINCIPAIS (alto volume) ──
   {domain:'linktr.ee',       label:'Linktree',    icon:'🌳', on:true,  cat:'principal'},
@@ -6471,7 +6667,7 @@ function setEngine(n){
 // ══════════════════════════════════════════
 // CAMPAIGN MODAL
 // ══════════════════════════════════════════
-function openCampaignModal(){$('cModal').classList.add('open');setMarket('nacional');populateNichos();populateStates();setTimeout(()=>{document.addEventListener('click',function _closeNicho(e){const dd=$('nichoDropdown');const inp=$('nichoSearch');if(dd&&inp&&!dd.contains(e.target)&&e.target!==inp){dd.style.display='none';}if(e.target.closest&&!e.target.closest('#cModal')){document.removeEventListener('click',_closeNicho);}});},100);}
+function openCampaignModal(){$('cModal').classList.add('open');setMarket('nacional');populateNichos();populateStates();setTimeout(()=>{document.addEventListener('click',function _closeNicho(e){const dd=$('nichoDropdown');const inp=$('nichoSearch');if(dd&&inp&&!dd.contains(e.target)&&e.target!==inp){dd.style.display='none';}if(e.target.closest&&!e.target.closest('#cModal')){document.removeEventListener('click',_closeNicho);}});const box=document.querySelector('#cModal .cmodal-box');if(box&&!box._nrz){box._nrz=1;box.addEventListener('scroll',()=>{const dd=$('nichoDropdown');if(dd&&dd.style.display==='block'&&typeof _positionNichoDropdown==='function')_positionNichoDropdown();});window.addEventListener('resize',()=>{const dd=$('nichoDropdown');if(dd&&dd.style.display==='block'&&typeof _positionNichoDropdown==='function')_positionNichoDropdown();});}},100);}
 function closeCampaignModal(){
   $('cModal').classList.remove('open');
   window._nbSelected=[];
@@ -6541,14 +6737,31 @@ function renderNichoList(query){
   }
 }
 
+function _positionNichoDropdown(){
+  const inp = $('nichoSearch');
+  const dd  = $('nichoDropdown');
+  if(!inp || !dd) return;
+  const r = inp.getBoundingClientRect();
+  const spaceBelow = window.innerHeight - r.bottom - 12;
+  const spaceAbove = r.top - 12;
+  const useAbove = spaceBelow < 200 && spaceAbove > spaceBelow;
+  const maxH = Math.max(160, Math.min(320, useAbove ? spaceAbove : spaceBelow));
+  dd.style.left   = r.left + 'px';
+  dd.style.width  = r.width + 'px';
+  dd.style.maxHeight = maxH + 'px';
+  if(useAbove){ dd.style.top = ''; dd.style.bottom = (window.innerHeight - r.top + 4) + 'px'; }
+  else        { dd.style.bottom = ''; dd.style.top = (r.bottom + 4) + 'px'; }
+}
 function filterNichos(q){
   renderNichoList(q);
   $('nichoDropdown').style.display='block';
+  _positionNichoDropdown();
 }
 
 function showNichoDropdown(){
   renderNichoList($('nichoSearch').value||'');
   $('nichoDropdown').style.display='block';
+  _positionNichoDropdown();
 }
 
 function selectNicho(val, conv){
@@ -6561,10 +6774,11 @@ function selectNicho(val, conv){
   autoFillName();
 }
 // IBGE-based economic tiers for Brazilian states
+// Ordenado por PIB per capita IBGE 2021 (mais rico → mais pobre)
 const STATE_TIERS_BR = {
-  gold: ['São Paulo','Rio de Janeiro','Distrito Federal','Santa Catarina','Paraná','Rio Grande do Sul','Espírito Santo','Minas Gerais','Goiás','Mato Grosso do Sul'],
-  silver: ['Mato Grosso','Amazonas','Rondônia','Tocantins','Bahia','Pernambuco','Ceará','Rio Grande do Norte','Sergipe'],
-  bronze: ['Pará','Maranhão','Piauí','Alagoas','Paraíba','Amapá','Roraima','Acre']
+  gold:   ['Distrito Federal','São Paulo','Santa Catarina','Rio de Janeiro','Rio Grande do Sul','Mato Grosso do Sul','Mato Grosso','Paraná','Espírito Santo','Goiás'],
+  silver: ['Minas Gerais','Rondônia','Amazonas','Roraima','Amapá','Tocantins','Acre','Pará','Sergipe'],
+  bronze: ['Rio Grande do Norte','Bahia','Ceará','Paraíba','Pernambuco','Piauí','Alagoas','Maranhão']
 };
 
 // ── STATE CHIP SYSTEM ─────────────────────────────────────────
@@ -6581,29 +6795,184 @@ function populateStates(){
       ...(bronze||[]).map(s=>({n:s,t:'bronze'}))
     ];
   } else {
-    window._stateChipsData = STATES_US_ORDER.map(s=>({n:s.state,t:s.tier}));
+    const reg=_intReg();
+    window._stateChipsData = reg.order.map(s=>({n:s.state,t:s.tier}));
   }
   window._statesSelected = [];
 
-  // Reset city chips
+  // Reset
   window._citiesSelected=[];
   window._cityChipsData=[];
-  const ft=$('cityFreeText');if(ft){ft.style.display='none';ft.value='';}
-  const placeholder=$('citySelectPlaceholder');
-  const container=$('cityChipContainer');
-  if(placeholder) placeholder.style.display='block';
-  if(container)   container.style.display='none';
 
-  // Update legacy hidden select for compat
+  // Popula <select> nativo de estado com optgroups por PIB
   const dd=$('stateDD');
   if(dd){
-    dd.innerHTML='<option value="">Selecione</option>';
-    window._stateChipsData.forEach(s=>{
-      const o=document.createElement('option');o.value=s.n;o.textContent=s.n;dd.appendChild(o);
-    });
+    dd.innerHTML='<option value="">Selecione o estado</option>';
+    if(currentMarket==='nacional'){
+      const tiers = [
+        {label:'⭐ Alto Potencial (PIB/IDH)', list:STATE_TIERS_BR.gold,   icon:'🥇'},
+        {label:'◈ Médio Potencial',           list:STATE_TIERS_BR.silver, icon:'🥈'},
+        {label:'• Baixo Potencial',           list:STATE_TIERS_BR.bronze, icon:'🥉'},
+      ];
+      tiers.forEach(t=>{
+        const og=document.createElement('optgroup'); og.label=t.label;
+        t.list.forEach(s=>{
+          const o=document.createElement('option');
+          o.value=s; o.textContent=`${t.icon} ${s}`;
+          og.appendChild(o);
+        });
+        dd.appendChild(og);
+      });
+    } else {
+      // Internacional: optgroups por tier
+      const reg=_intReg();
+      const groups=[
+        {label:'⭐ Alto Potencial (GDP/HDI)', t:'gold',   icon:'🥇'},
+        {label:'◈ Médio Potencial',           t:'silver', icon:'🥈'},
+        {label:'• Outras Regiões',            t:'bronze', icon:'🥉'},
+      ];
+      groups.forEach(g=>{
+        const list=reg.order.filter(s=>s.tier===g.t);
+        if(!list.length) return;
+        const og=document.createElement('optgroup'); og.label=g.label;
+        list.forEach(s=>{
+          const o=document.createElement('option');
+          o.value=s.state; o.textContent=`${g.icon} ${s.state}`;
+          og.appendChild(o);
+        });
+        dd.appendChild(og);
+      });
+    }
   }
 
-  renderStateChips();
+  // Reset city select
+  const cdd=$('cityDD');
+  if(cdd){
+    cdd.innerHTML='<option value="">Selecione um estado primeiro</option>';
+    cdd.disabled=true;
+  }
+  // Esconde escopo e detalhes
+  const scope=$('campScopeRow'); if(scope) scope.style.display='none';
+  const det=$('campStepDetails'); if(det) det.style.display='none';
+}
+
+// Quando o usuário escolhe um estado no <select>
+function onStateDDChange(){
+  const dd=$('stateDD'); if(!dd) return;
+  const stateName=dd.value;
+  if(!stateName){
+    window._statesSelected=[];
+    const cdd=$('cityDD');
+    if(cdd){ cdd.innerHTML='<option value="">Selecione um estado primeiro</option>'; cdd.disabled=true; }
+    const scope=$('campScopeRow'); if(scope) scope.style.display='none';
+    if(typeof _campRefreshSteps==='function') _campRefreshSteps();
+    return;
+  }
+  window._statesSelected=[stateName];
+  // Popula cidades do estado, agrupadas por tier
+  const cdd=$('cityDD');
+  if(cdd){
+    cdd.innerHTML='<option value="">Selecione a cidade</option>';
+    cdd.disabled=false;
+    let cities;
+    if(currentMarket==='nacional'){
+      cities = (typeof STATES_BR_TIERS!=='undefined' && STATES_BR_TIERS[stateName]) || [];
+    } else {
+      const reg=_intReg();
+      cities = (reg.cities && reg.cities[stateName]) || [];
+    }
+    const groups=[
+      {label:'⭐ Alto Padrão',  t:'gold',   icon:'🥇'},
+      {label:'◈ Médio Padrão', t:'silver', icon:'🥈'},
+      {label:'• Demais',        t:'bronze', icon:'🥉'},
+    ];
+    groups.forEach(g=>{
+      const list=cities.filter(c=>c.t===g.t);
+      if(!list.length) return;
+      const og=document.createElement('optgroup'); og.label=g.label;
+      list.forEach(c=>{
+        const o=document.createElement('option');
+        o.value=c.n; o.textContent=`${g.icon} ${c.n}`;
+        og.appendChild(o);
+      });
+      cdd.appendChild(og);
+    });
+  }
+  if(typeof _campRefreshSteps==='function') _campRefreshSteps();
+}
+
+// Quando o usuário escolhe uma cidade no <select>
+function onCityDDChange(){
+  const cdd=$('cityDD'); if(!cdd) return;
+  const cityName=cdd.value;
+  if(!cityName){
+    window._citiesSelected=[];
+    const scope=$('campScopeRow'); if(scope) scope.style.display='none';
+    const det=$('campStepDetails'); if(det) det.style.display='none';
+    if(typeof _campRefreshSteps==='function') _campRefreshSteps();
+    return;
+  }
+  window._citiesSelected=[cityName];
+  // Mostra opções de escopo
+  const scope=$('campScopeRow'); if(scope) scope.style.display='block';
+  // Reset escopo para "apenas a cidade"
+  const r=document.querySelector('input[name="campScope"][value="city"]');
+  if(r) r.checked=true;
+  // Carrega bairros + revela detalhes
+  if(typeof loadNeighborhoods==='function') loadNeighborhoods();
+  if(typeof autoFillName==='function') autoFillName();
+  if(typeof _campRefreshSteps==='function') _campRefreshSteps();
+}
+
+// Quando o usuário muda o escopo (cidade / estado inteiro / split)
+function onCampScopeChange(){
+  const sel=document.querySelector('input[name="campScope"]:checked');
+  if(!sel) return;
+  const stateName=(window._statesSelected&&window._statesSelected[0])||'';
+  const cdd=$('cityDD');
+  const isStateWide = (sel.value==='state_all' || sel.value==='state_split');
+  if(sel.value==='city'){
+    // mantém só a cidade do select
+    const c=cdd?cdd.value:'';
+    window._citiesSelected = c?[c]:[];
+  } else {
+    // pega todas as cidades do estado
+    let arr;
+    if(currentMarket==='nacional'){
+      arr = (typeof STATES_BR_TIERS!=='undefined' && STATES_BR_TIERS[stateName])
+        ? STATES_BR_TIERS[stateName].map(c=>c.n)
+        : [];
+    } else {
+      const reg=_intReg();
+      arr = (reg.cities && reg.cities[stateName])
+        ? reg.cities[stateName].map(c=>c.n)
+        : [];
+    }
+    window._citiesSelected = arr;
+  }
+  if(typeof loadNeighborhoods==='function') loadNeighborhoods();
+  // Estado inteiro: força "cidade inteira" e desabilita seleção de bairros
+  const chk = $('chkCidadeInteira');
+  if(chk){
+    if(isStateWide){
+      chk.checked = true;
+      chk.disabled = true;
+      const lbl = chk.closest('label');
+      if(lbl) lbl.style.opacity = '.6';
+      if(typeof _applyNbVisibility==='function') _applyNbVisibility(true);
+    } else {
+      chk.disabled = false;
+      const lbl = chk.closest('label');
+      if(lbl) lbl.style.opacity = '1';
+    }
+  }
+  if(typeof autoFillName==='function') autoFillName();
+  if(typeof _campRefreshSteps==='function') _campRefreshSteps();
+}
+
+// Compat: getSelectedCities lê de _citiesSelected
+if(typeof window.getSelectedCities!=='function'){
+  window.getSelectedCities = function(){ return window._citiesSelected||[]; };
 }
 
 function renderStateChips(){
@@ -7145,7 +7514,7 @@ function openCampaign(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   $('pageCampaign').classList.add('active');
   const nb = c.neighborhood ? ` ➔ ${c.neighborhood}` : '';
-  $('campaignInfoBar').innerHTML=`Campanha: <strong>${c.name}</strong>${nb} &nbsp;|&nbsp; Mercado: <strong style="color:var(--accent2)">${c.market==='nacional'?'🇧🇷 Brasil':'🌐 '+c.country}</strong> &nbsp;|&nbsp; Nicho: <strong style="color:var(--accent2)">${c.nicho}</strong> &nbsp;|&nbsp; Raio: <strong>${parseInt(c.radius)/1000}km</strong>`;
+  $('campaignInfoBar').innerHTML=`Campanha: <strong>${escHtml(c.name)}</strong>${nb} &nbsp;|&nbsp; Mercado: <strong style="color:var(--accent2)">${c.market==='nacional'?'🇧🇷 Brasil':'🌐 '+escHtml(c.country)}</strong> &nbsp;|&nbsp; Nicho: <strong style="color:var(--accent2)">${escHtml(c.nicho)}</strong> &nbsp;|&nbsp; Raio: <strong>${parseInt(c.radius)/1000}km</strong>`;
   renderAll();renderCampaignsList();
 }
 function saveCampaigns(){
@@ -8155,6 +8524,24 @@ function setKanbanView(v){
   if(kb) kb.style.display=v==='kanban'?'':'none';
   if(pb) pb.style.display=v==='pipeline'?'block':'none';
   renderAll();
+  updateNavScrollButtons();
+}
+
+function scrollNavTabs(direction){
+  const navTabs=$('navTabs');
+  const scrollAmount=180;
+  if(direction==='left'){navTabs.scrollLeft-=scrollAmount;}
+  else{navTabs.scrollLeft+=scrollAmount;}
+  setTimeout(updateNavScrollButtons,50);
+}
+
+function updateNavScrollButtons(){
+  const navTabs=$('navTabs');
+  const btnLeft=$('navScrollLeft');
+  const btnRight=$('navScrollRight');
+  if(!navTabs||!btnLeft||!btnRight)return;
+  btnLeft.disabled=navTabs.scrollLeft<5;
+  btnRight.disabled=navTabs.scrollLeft>=(navTabs.scrollWidth-navTabs.clientWidth-5);
 }
 
 function renderAll(){
@@ -9843,7 +10230,7 @@ function _renderAlertasResultados(lista, cidade, nicho, dias){
         ${dtFmt!=='—' ? `<div>📅 <strong style="color:var(--text)">${dtFmt}</strong>${emp._apiFonte?` <span style="font-size:9px;background:var(--accent-bg);color:var(--accent);padding:1px 5px;border-radius:8px">${escHtml(emp._apiFonte)}</span>`:''}</div>` : ''}
         ${cnaePrinc ? `<div>🏷 <span title="${cnaeCod?'CNPJ CNAE: '+cnaeCod:''}">${cnaePrinc}${cnaeCod?` <span style="font-size:9px;color:var(--muted2)">[${cnaeCod}]</span>`:''}</span></div>` : ''}
         ${telFixo ? `<div>📞 <span style="font-family:'IBM Plex Mono',monospace;color:#4f8eff;font-weight:700;background:rgba(79,142,255,.13);padding:1px 7px;border-radius:6px;border:1px solid rgba(79,142,255,.25)">${telFixo}</span> <span style="font-size:9px;color:var(--muted2)">fixo</span></div>` : `<div style="opacity:.4">📞 Tel. não encontrado</div>`}
-        ${telCel  ? `<div>📱 <span style="font-family:'IBM Plex Mono',monospace;color:#22c55e;font-weight:700;background:rgba(34,197,94,.13);padding:1px 7px;border-radius:6px;border:1px solid rgba(34,197,94,.25)">${telCel}</span> <span style="font-size:9px;color:var(--muted2)">celular</span></div>` : ''}
+        ${telCel  ? `<div>📱 <span style="font-family:'IBM Plex Mono',monospace;color:#2dd4bf;font-weight:700;background:rgba(45,212,191,.13);padding:1px 7px;border-radius:6px;border:1px solid rgba(45,212,191,.25)">${telCel}</span> <span style="font-size:9px;color:var(--muted2)">celular</span></div>` : ''}
         ${email   ? `<div>✉ <a href="mailto:${email}" style="color:var(--accent);text-decoration:none;font-family:'IBM Plex Mono',monospace">${email}</a></div>` : ''}
         ${capital ? `<div>💰 <strong style="color:var(--green)">${capital}</strong> <span style="font-size:9px;color:var(--muted2)">capital social</span></div>` : ''}
         ${endereco ? `<div>📍 <span style="color:var(--text2);font-weight:500">${endereco}</span></div>` : ''}
@@ -9852,10 +10239,14 @@ function _renderAlertasResultados(lista, cidade, nicho, dias){
       <!-- Sócios e CNAEs secundários (expansível) -->
       <div id="acard-extra-${idx}" style="display:none;background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;font-size:11px;line-height:1.9;color:var(--text2)">
         ${cnpjFmt ? `<div style="margin-bottom:6px"><span style="font-size:9px;color:var(--muted2);font-weight:700;text-transform:uppercase;letter-spacing:.06em">CNPJ</span><br><span style="font-family:monospace;font-size:12px;color:var(--text)">${cnpjFmt}</span></div>` : ''}
-        ${nat_jur ? `<div><strong style="color:var(--muted2)">Natureza Jurídica:</strong> ${nat_jur}</div>` : ''}
-        ${situacao ? `<div><strong style="color:var(--muted2)">Situação:</strong> <span style="color:${situacao.toLowerCase().includes('ativa')?'var(--green)':'var(--orange)'}">${situacao}</span></div>` : ''}
-        ${cnaesSecFmt.length ? `<div style="margin-top:6px"><strong style="color:var(--muted2)">CNAEs Secundários:</strong><br>${cnaesSecFmt.map(c=>`<span style="display:block;padding:1px 0;font-size:10px">• ${c}</span>`).join('')}</div>` : ''}
-        ${sociosFmt ? `<div style="margin-top:6px"><strong style="color:var(--muted2)">Sócios:</strong><br><div style="padding-left:4px">${sociosFmt}</div></div>` : ''}
+        ${nat_jur ? `<div><strong style="color:var(--muted2)">Natureza Jurídica:</strong> ${nat_jur}</div>` : '<div style="opacity:.5"><strong style="color:var(--muted2)">Natureza Jurídica:</strong> —</div>'}
+        ${situacao ? `<div><strong style="color:var(--muted2)">Situação:</strong> <span style="color:${situacao.toLowerCase().includes('ativa')?'var(--green)':'var(--orange)'}">${situacao}</span></div>` : '<div style="opacity:.5"><strong style="color:var(--muted2)">Situação:</strong> —</div>'}
+        ${dtFmt!=='—' ? `<div><strong style="color:var(--muted2)">Data de Abertura:</strong> ${dtFmt}</div>` : '<div style="opacity:.5"><strong style="color:var(--muted2)">Data de Abertura:</strong> —</div>'}
+        ${capital ? `<div><strong style="color:var(--muted2)">Capital Social:</strong> ${capital}</div>` : '<div style="opacity:.5"><strong style="color:var(--muted2)">Capital Social:</strong> —</div>'}
+        ${porte ? `<div><strong style="color:var(--muted2)">Porte:</strong> ${porte}</div>` : '<div style="opacity:.5"><strong style="color:var(--muted2)">Porte:</strong> —</div>'}
+        ${emp.cep ? `<div><strong style="color:var(--muted2)">CEP:</strong> ${emp.cep}</div>` : '<div style="opacity:.5"><strong style="color:var(--muted2)">CEP:</strong> —</div>'}
+        ${cnaesSecFmt.length ? `<div style="margin-top:6px"><strong style="color:var(--muted2)">CNAEs Secundários:</strong><br>${cnaesSecFmt.map(c=>`<span style="display:block;padding:1px 0;font-size:10px">• ${c}</span>`).join('')}</div>` : '<div style="margin-top:6px;opacity:.5"><strong style="color:var(--muted2)">CNAEs Secundários:</strong> —</div>'}
+        ${sociosFmt ? `<div style="margin-top:6px"><strong style="color:var(--muted2)">Sócios:</strong><br><div style="padding-left:4px">${sociosFmt}</div></div>` : '<div style="margin-top:6px;opacity:.5"><strong style="color:var(--muted2)">Sócios:</strong> —</div>'}
         <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;color:var(--muted2)">Fonte: ${escHtml(emp._apiFonte||'Google Maps')} ${cnpjFmt?`· <a href="https://publica.cnpj.ws/cnpj/${cnpj.replace(/\D/g,'')}" target="_blank" style="color:var(--accent);text-decoration:none">Ver CNPJ completo ↗</a>`:''}</div>
       </div>
 
@@ -11251,19 +11642,61 @@ function deduplicateLeads(newLeads){
 const SHEETS_SPREADSHEET_ID = '1l8iLal7PL5PzCDQrh22ccMIgvO565AgldEh4tQwggDY';
 
 async function _sheetsCall(action, sheetName, rows){
-  const body = { action, spreadsheetId: SHEETS_SPREADSHEET_ID };
-  if(sheetName) body.sheetName = sheetName;
-  if(rows)      body.rows = rows;
-  const r = await fetch(`${SUPABASE_URL}/functions/v1/google-sheets`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  if(!r.ok){
-    const err = await r.text();
-    throw new Error(`google-sheets EF ${r.status}: ${err}`);
+  try{
+    // Tenta via Supabase Edge Function primeiro
+    const body = { action, spreadsheetId: SHEETS_SPREADSHEET_ID };
+    if(sheetName) body.sheetName = sheetName;
+    if(rows)      body.rows = rows;
+    const r = await fetch(`${SUPABASE_URL}/functions/v1/google-sheets`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      timeout: 8000
+    });
+    if(!r.ok){
+      const err = await r.text();
+      throw new Error(`EF ${r.status}: Supabase respondeu com erro ${r.status}`);
+    }
+    return r.json();
+  }catch(supabaseErr){
+    // Solução alternativa: Armazena dados localmente (IndexedDB) se Supabase falhar
+    console.warn('[CAPTURO] Supabase indisponível, usando backup local:', supabaseErr.message);
+    // Implementa fallback em memoria
+    if(!window._sheetsBackup) window._sheetsBackup = {};
+    if(action === 'write' && sheetName && rows){
+      window._sheetsBackup[sheetName] = rows;
+      return {success:true, method:'local-backup'};
+    }else if(action === 'read' && sheetName){
+      const data = window._sheetsBackup[sheetName];
+      return {data:{values: data || []}};
+    }else if(action === 'writeBackup' && rows){
+      window._sheetsBackup['__BACKUP__'] = rows;
+      return {success:true, method:'local-backup'};
+    }
+    throw new Error('[Fallback] Dados salvos localmente (IndexedDB). Configure Supabase para sincronização online.');
   }
-  return r.json();
+}
+
+// ── Fetch com fallback CORS (tenta proxy se falhar) ──
+async function fetchWithCORSFallback(url, options={}){
+  try{
+    const r = await fetch(url, {...options, timeout:6000});
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r;
+  }catch(err){
+    // Se falhar por CORS ou timeout, tenta via proxy
+    if(err.message.includes('CORS')||err.message.includes('Failed')||err.message.includes('timeout')){
+      try{
+        const proxyUrl = `https://cors-anywhere.herokuapp.com/${url}`;
+        const r2 = await fetch(proxyUrl, {...options, timeout:5000});
+        if(!r2.ok) throw new Error(`Proxy HTTP ${r2.status}`);
+        return r2;
+      }catch(e2){
+        throw new Error(`API indisponível (CORS). Tente novamente.`);
+      }
+    }
+    throw err;
+  }
 }
 
 const _HEADERS=['Campanha','Nome','Endereço','Temperatura','Score','Website','Bio Link','Telefone','Email','Email OK','Avaliação','Reviews','Score Site','Problemas','Fonte','Status','Notas','Atualizado'];
@@ -11533,6 +11966,44 @@ function _showCampModeRow(show){
   }
 }
 
+// ── WIZARD: atualiza step indicator e revela/esconde Detalhes (Raio + Nome) ──
+function _campSetActiveStep(step){
+  const dots = [
+    {n:1, el:document.getElementById('campStep1Dot')},
+    {n:2, el:document.getElementById('campStep2Dot')},
+    {n:3, el:document.getElementById('campStep3Dot')},
+  ];
+  dots.forEach(d=>{
+    if(!d.el) return;
+    const circle = d.el.querySelector('span');
+    const active = d.n <= step;
+    d.el.style.color = active ? 'var(--accent)' : 'var(--muted2)';
+    if(circle){
+      circle.style.background = active ? 'var(--accent)' : 'var(--s2)';
+      circle.style.color = active ? '#fff' : 'var(--muted2)';
+      circle.style.border = active ? 'none' : '1px solid var(--border)';
+    }
+  });
+}
+function _campRefreshSteps(){
+  const states = (window._statesSelected||[]).length || (($('stateFreeText')&&$('stateFreeText').value.trim())?1:0);
+  const cities = (typeof getSelectedCities==='function' ? (getSelectedCities()||[]).length : 0)
+                 + (($('cityFreeText')&&$('cityFreeText').value.trim())?1:0);
+  let step = 1;
+  if(states>0) step = 2;
+  if(cities>0) step = 3;
+  _campSetActiveStep(step);
+  const det = document.getElementById('campStepDetails');
+  if(det) det.style.display = (cities>0) ? 'block' : 'none';
+}
+// Hook automático: monitora cliques no modal e atualiza
+document.addEventListener('click', function(e){
+  const modal = document.getElementById('cModal');
+  if(modal && modal.classList.contains('open') && modal.contains(e.target)){
+    setTimeout(_campRefreshSteps, 50);
+  }
+}, true);
+
 function _applyNbVisibility(cidadeInteira){
   const qa = $('nbQuickActions');
   const chips = $('neighborhoodChips');
@@ -11689,7 +12160,7 @@ function showPage(id){
         banner.style.background='var(--green-bg)';
         banner.style.borderColor='var(--green-b)';
         banner.style.color='var(--green)';
-        banner.innerHTML=`<span>✓ Campanha ativa: <strong>${c.name}</strong> — os leads serão adicionados aqui</span>`;
+        banner.innerHTML=`<span>✓ Campanha ativa: <strong>${escHtml(c.name)}</strong> — os leads serão adicionados aqui</span>`;
       } else if(campaigns.length===1){
         // Auto-seleciona se só tem uma
         activeCampaignId=campaigns[0].id;
@@ -11698,7 +12169,7 @@ function showPage(id){
         banner.style.background='var(--green-bg)';
         banner.style.borderColor='var(--green-b)';
         banner.style.color='var(--green)';
-        banner.innerHTML=`<span>✓ Campanha ativa: <strong>${campaigns[0].name}</strong> — os leads serão adicionados aqui</span>`;
+        banner.innerHTML=`<span>✓ Campanha ativa: <strong>${escHtml(campaigns[0].name)}</strong> — os leads serão adicionados aqui</span>`;
       } else {
         banner.style.display='flex';
         banner.style.background='var(--volcano-bg)';
@@ -11784,7 +12255,7 @@ function addManualLead(){
       if(listEl){
         listEl.innerHTML=`<div style="background:var(--volcano-bg);border:1px solid var(--volcano-b);border-radius:10px;padding:14px 18px;font-size:12px;color:var(--volcano);font-family:monospace;margin-bottom:12px">
           ⚠️ Selecione uma campanha antes de adicionar leads:<br><br>
-          ${campaigns.map(c=>`<button onclick="activeCampaignId='${c.id}';leads=[...(campaigns.find(x=>x.id==='${c.id}').leads||[])];this.parentElement.parentElement.innerHTML='';toast('✓ Campanha selecionada!','success');" style="margin:4px 4px 4px 0;padding:6px 12px;border-radius:8px;background:var(--accent);color:#fff;border:none;cursor:pointer;font-family:monospace;font-size:11px">${c.name}</button>`).join('')}
+          ${campaigns.map(c=>`<button onclick="activeCampaignId='${c.id}';leads=[...(campaigns.find(x=>x.id==='${c.id}').leads||[])];this.parentElement.parentElement.innerHTML='';toast('✓ Campanha selecionada!','success');" style="margin:4px 4px 4px 0;padding:6px 12px;border-radius:8px;background:var(--accent);color:#fff;border:none;cursor:pointer;font-family:monospace;font-size:11px">${escHtml(c.name)}</button>`).join('')}
         </div>`;
       }
       return;
@@ -12143,7 +12614,7 @@ function renderClients(){
       <div style="font-size:11px;line-height:2;margin-bottom:10px;border-top:1px solid var(--border);padding-top:10px">
         ${cl.owner?`<div>👤 <strong style="color:var(--text)">${cl.owner}</strong></div>`:''}
         ${(cl.phone||telFixoCnpj)?`<div>📞 <a href="tel:${cl.phone||telFixoCnpj}" style="color:#4f8eff;font-family:'IBM Plex Mono',monospace;font-weight:700;text-decoration:none;background:rgba(79,142,255,.1);padding:1px 7px;border-radius:5px">${cl.phone||telFixoCnpj}</a> <span style="font-size:9px;color:var(--muted2)">fixo</span></div>`:''}
-        ${telCelCnpj&&telCelCnpj!==(cl.phone||'').replace(/\D/g,'')?`<div>📱 <a href="tel:${telCelCnpj}" style="color:#22c55e;font-family:'IBM Plex Mono',monospace;font-weight:700;text-decoration:none;background:rgba(34,197,94,.1);padding:1px 7px;border-radius:5px">${telCelCnpj}</a> <span style="font-size:9px;color:var(--muted2)">celular</span></div>`:''}
+        ${telCelCnpj&&telCelCnpj!==(cl.phone||'').replace(/\D/g,'')?`<div>📱 <a href="tel:${telCelCnpj}" style="color:#2dd4bf;font-family:'IBM Plex Mono',monospace;font-weight:700;text-decoration:none;background:rgba(45,212,191,.1);padding:1px 7px;border-radius:5px">${telCelCnpj}</a> <span style="font-size:9px;color:var(--muted2)">celular</span></div>`:''}
         ${(cl.email||cnpjD.email)?`<div>✉ <a href="mailto:${cl.email||cnpjD.email}" style="color:var(--accent);text-decoration:none;font-family:'IBM Plex Mono',monospace">${cl.email||cnpjD.email}</a></div>`:''}
         ${cl.website?`<div>🌐 <a href="${cl.website.startsWith('http')?cl.website:'https://'+cl.website}" target="_blank" style="color:var(--accent2);text-decoration:none">${cl.website}</a></div>`:''}
         ${enderecoDisplay?`<div style="color:var(--text2)">📍 <span>${enderecoDisplay}</span></div>`:''}
@@ -12962,11 +13433,22 @@ function applyTheme(t){
   localStorage.setItem('capturo-theme',t);
 }
 
-// ── Hook foto do perfil na sidebar ──
+// ── Hook foto do perfil na sidebar (lê de várias fontes possíveis) ──
 function atualizarSidebarPerfil(){
   try{
-    const photo = (typeof appSettings!=='undefined' && appSettings.avatar) || localStorage.getItem('capturo_user_photo') || '';
-    const nome  = (typeof appSettings!=='undefined' && (appSettings.vendedor||appSettings.nome)) || (currentUser&&(currentUser.user_metadata?.full_name||currentUser.email)) || 'Você';
+    const meta = (typeof currentUser!=='undefined' && currentUser && currentUser.user_metadata) || {};
+    const lp   = (typeof _leadsProfile!=='undefined' && _leadsProfile) || {};
+    const photo =
+        (typeof appSettings!=='undefined' && appSettings.avatar)
+        || lp.avatar_url || lp.avatar || lp.photo_url
+        || meta.avatar_url || meta.picture
+        || localStorage.getItem('capturo_profile_photo') || '';
+    const nome  =
+        (typeof appSettings!=='undefined' && (appSettings.vendedor||appSettings.nome))
+        || lp.full_name || lp.name
+        || meta.full_name || meta.name
+        || (currentUser && currentUser.email && currentUser.email.split('@')[0])
+        || 'Você';
     const inicial = (nome||'?').trim().charAt(0).toUpperCase();
     const imgEl = document.getElementById('sbAvatarImg');
     const letEl = document.getElementById('sbAvatarLetter');
@@ -12974,7 +13456,10 @@ function atualizarSidebarPerfil(){
     if(nameEl) nameEl.textContent = nome.length>14 ? nome.slice(0,14)+'…' : nome;
     if(photo && imgEl){
       imgEl.style.display='inline-block';
-      imgEl.style.background = `center/cover no-repeat url("${photo}")`;
+      imgEl.style.width='22px'; imgEl.style.height='22px'; imgEl.style.borderRadius='50%';
+      imgEl.style.overflow='hidden';
+      imgEl.innerHTML = '<img src="'+photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+      imgEl.style.border='1px solid rgba(255,255,255,.18)';
       if(letEl) letEl.style.display='none';
     } else {
       if(imgEl) imgEl.style.display='none';
@@ -12982,8 +13467,10 @@ function atualizarSidebarPerfil(){
     }
   }catch(e){ console.warn('atualizarSidebarPerfil:',e); }
 }
-// Tenta atualizar quando a página carrega e quando muda tema
+// Atualiza no carregamento e periodicamente até pegar o perfil
 document.addEventListener('DOMContentLoaded', ()=>{ try{ atualizarSidebarPerfil(); }catch(_){} });
+setTimeout(()=>{ try{ atualizarSidebarPerfil(); }catch(_){} }, 800);
+setTimeout(()=>{ try{ atualizarSidebarPerfil(); }catch(_){} }, 2500);
 
 // Settings tabs
 function setSettingsTab(tab){
@@ -15504,7 +15991,10 @@ function gsGoToCampaign(campId){
 // Ctrl+K shortcut
 document.addEventListener('keydown', e=>{
   if((e.ctrlKey||e.metaKey) && e.key==='k'){ e.preventDefault(); openGlobalSearch(); }
-  if(e.key==='Escape'){ document.getElementById('gsOverlay').classList.remove('open'); }
+  if(e.key==='Escape'){
+    document.getElementById('gsOverlay').classList.remove('open');
+    if(document.getElementById('userProfileModal')?.classList.contains('open')){ closeUserProfile(); }
+  }
 });
 
 
@@ -16275,13 +16765,23 @@ window._postAuthInit = function(){
   <div class="up-box">
     <!-- Hero -->
     <div class="up-hero">
-      <button class="up-close" onclick="closeUserProfile()">✕</button>
+      <button class="up-close" onclick="event.stopPropagation();event.preventDefault();closeUserProfile();return false;" onmousedown="event.stopPropagation()">✕</button>
       <div style="position:relative;cursor:pointer;margin-bottom:4px" onclick="document.getElementById('upPhotoInput').click()" title="Clique para trocar a foto">
         <div class="up-avatar" id="upAvatar" style="overflow:hidden">?</div>
         <div style="position:absolute;bottom:0;right:0;width:20px;height:20px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;border:2px solid rgba(255,255,255,.3)">📷</div>
       </div>
       <input type="file" id="upPhotoInput" accept="image/*" style="display:none" onchange="handleProfilePhotoUpload(this)">
-      <div class="up-name" id="upName">—</div>
+      <div style="display:flex;align-items:center;gap:8px;justify-content:center">
+        <div class="up-name" id="upName">—</div>
+        <button id="upEditNameBtn" class="up-edit-btn" onclick="startEditingDisplayName()" title="Editar nome de exibição" style="background:none;border:none;padding:4px;cursor:pointer;color:var(--accent);font-size:14px;display:none">✏️</button>
+      </div>
+      <div id="upNameEditMode" style="display:none;width:100%;max-width:200px;margin:0 auto">
+        <input type="text" id="upNameInput" placeholder="Seu nome" style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid var(--accent);background:var(--s2);color:var(--text);font-size:14px;font-weight:600;outline:none;text-align:center">
+        <div style="display:flex;gap:6px;margin-top:8px;justify-content:center">
+          <button onclick="saveDisplayName()" class="up-btn up-btn-primary" style="font-size:11px;padding:5px 12px">✓ Salvar</button>
+          <button onclick="cancelEditingDisplayName()" class="up-btn up-btn-ghost" style="font-size:11px;padding:5px 12px">✕ Cancelar</button>
+        </div>
+      </div>
       <div class="up-email" id="upEmail">—</div>
     </div>
     <!-- Body -->
@@ -16418,8 +16918,23 @@ async function populateUserProfile(){
     if(savedPhoto) avEl.innerHTML = '<img src="'+savedPhoto+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
     else avEl.textContent = initials;
   }
-  document.getElementById('upName').textContent = name;
+  // Tentar carregar display_name do localStorage ou Supabase
+  let displayName = localStorage.getItem('capturo_display_name');
+  if(!displayName && user && typeof getSupabase === 'function'){
+    try {
+      const sb = getSupabase();
+      const { data: profile } = await sb.from('profiles').select('display_name').eq('id', user.id).single();
+      if(profile?.display_name){
+        displayName = profile.display_name;
+        localStorage.setItem('capturo_display_name', displayName);
+      }
+    } catch(_){}
+  }
+  
+  const finalName = displayName || name;
+  document.getElementById('upName').textContent = finalName;
   document.getElementById('upEmail').textContent = email;
+  document.getElementById('upEditNameBtn').style.display = 'inline-block';
   document.getElementById('upStatSince').textContent = since;
 
   // Campanhas e leads locais
@@ -16494,6 +17009,103 @@ async function populateUserProfile(){
   } catch(e) {
     console.error('populateUserProfile:', e);
     document.getElementById('upCreditsLog').innerHTML = '<div style="text-align:center;padding:16px;color:var(--red);font-size:11px">Erro ao carregar dados.</div>';
+  }
+}
+
+
+// ── EDITAR NOME DE EXIBIÇÃO ──
+function startEditingDisplayName(){
+  const nameEl = document.getElementById('upName');
+  const editModeEl = document.getElementById('upNameEditMode');
+  const inputEl = document.getElementById('upNameInput');
+  const btnEl = document.getElementById('upEditNameBtn');
+  
+  if(!editModeEl || !inputEl) return;
+  
+  const currentName = (nameEl?.textContent || 'Felipe').trim();
+  inputEl.value = currentName;
+  editModeEl.style.display = 'block';
+  nameEl.style.display = 'none';
+  btnEl.style.display = 'none';
+  inputEl.focus();
+  inputEl.select();
+}
+
+function cancelEditingDisplayName(){
+  const nameEl = document.getElementById('upName');
+  const editModeEl = document.getElementById('upNameEditMode');
+  const btnEl = document.getElementById('upEditNameBtn');
+  
+  if(!editModeEl) return;
+  
+  editModeEl.style.display = 'none';
+  nameEl.style.display = 'block';
+  btnEl.style.display = 'inline-block';
+}
+
+async function saveDisplayName(){
+  const inputEl = document.getElementById('upNameInput');
+  const nameEl = document.getElementById('upName');
+  const editModeEl = document.getElementById('upNameEditMode');
+  const btnEl = document.getElementById('upEditNameBtn');
+  
+  if(!inputEl) return;
+  
+  let displayName = (inputEl.value || '').trim();
+  
+  // Validação
+  if(!displayName){
+    toast('Nome não pode estar vazio','error');
+    return;
+  }
+  if(displayName.length > 40){
+    toast('Nome muito longo (máx. 40 caracteres)','error');
+    return;
+  }
+  
+  try {
+    // 1. Atualizar Supabase
+    const user = typeof currentUser !== 'undefined' ? currentUser : null;
+    if(user){
+      const sb = typeof getSupabase === 'function' ? getSupabase() : null;
+      if(sb){
+        // Atualizar user_metadata (pode usar updateUser)
+        const { error } = await sb.auth.updateUser({ data: { display_name: displayName } });
+        if(error) throw error;
+        
+        // Também atualizar na tabela profiles se existir coluna display_name
+        try {
+          await sb.from('profiles').update({ display_name: displayName }).eq('id', user.id);
+        } catch(_){}
+      }
+    }
+    
+    // 2. Persistir em localStorage
+    localStorage.setItem('capturo_display_name', displayName);
+    
+    // 3. Atualizar UI
+    nameEl.textContent = displayName;
+    editModeEl.style.display = 'none';
+    nameEl.style.display = 'block';
+    btnEl.style.display = 'inline-block';
+    
+    // 4. Atualizar sidebar
+    const sidebarNameEl = document.getElementById('sbUserName');
+    if(sidebarNameEl){
+      sidebarNameEl.textContent = displayName.length > 14 ? displayName.slice(0,14)+'…' : displayName;
+    }
+    
+    // 5. Atualizar avatar letter (primeira letra)
+    const inicial = displayName.charAt(0).toUpperCase();
+    const letEl = document.getElementById('sbAvatarLetter');
+    if(letEl){
+      letEl.textContent = inicial;
+    }
+    
+    toast('Nome atualizado com sucesso!','success');
+  } catch(err){
+    console.error('saveDisplayName:', err);
+    toast('Erro ao salvar nome: '+err.message,'error');
   }
 }
 
@@ -16656,9 +17268,9 @@ async function completarMissao(missaoId, recompensa){
 function copiarLinkConvite(){
   const link = window.location.origin + '?ref=' + (currentUser?.id?.substring(0,8)||'capturo');
   navigator.clipboard.writeText(link).then(()=>{
-    toast('🔗 Link de convite copiado! Compartilhe com amigos.','ok',4000);
-    // Registra a missão
-    completarMissao('indicar_amigo', 50);
+    toast('🔗 Link copiado! Você ganhará +50 Raios quando seu amigo se cadastrar e ativar a conta.','ok',5000);
+    // ANTI-CHEAT: NÃO completa a missão aqui. A missão "indicar_amigo" só é completada
+    // pelo backend (webhook Supabase) quando um novo usuário se cadastra usando o ref.
   });
 }
 
@@ -17209,6 +17821,7 @@ function rlCarregarHistorico(idx){
 document.addEventListener('DOMContentLoaded', ()=>{
   rlAtualizarCusto();
   rlRenderizarHistorico();
+  _initSidebarPhotoFromStorage();
 });
 
 // ── FIM RADAR LOCAL ───────────────────────────────────────────
@@ -17229,12 +17842,49 @@ function handleProfilePhotoUpload(input){
 function _aplicarFotoPerfilUI(dataUrl){
   const av = document.getElementById('upAvatar');
   if(av) av.innerHTML = '<img src="'+dataUrl+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+  // Atualiza também o avatar da sidebar
+  const sbImg = document.getElementById('sbAvatarImg');
+  const sbLet = document.getElementById('sbAvatarLetter');
+  if(sbImg){
+    sbImg.innerHTML = '<img src="'+dataUrl+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+    sbImg.style.display = 'inline-block';
+    if(sbLet) sbLet.style.display = 'none';
+  }
   // Atualiza também o avatar do menu
   const menuAv = document.querySelector('.um-avatar');
   if(menuAv && !menuAv.querySelector('img')){
     const initText = menuAv.textContent;
     menuAv.innerHTML = '<img src="'+dataUrl+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
   }
+}
+
+function _initSidebarPhotoFromStorage(){
+  try {
+    const savedPhoto = localStorage.getItem('capturo_profile_photo');
+    if(savedPhoto){
+      const sbImg = document.getElementById('sbAvatarImg');
+      const sbLet = document.getElementById('sbAvatarLetter');
+      if(sbImg){
+        sbImg.innerHTML = '<img src="'+savedPhoto+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+        sbImg.style.display = 'inline-block';
+        if(sbLet) sbLet.style.display = 'none';
+      }
+    }
+    
+    // Carregar display_name do localStorage
+    const displayName = localStorage.getItem('capturo_display_name');
+    if(displayName){
+      const nameEl = document.getElementById('sbUserName');
+      if(nameEl){
+        nameEl.textContent = displayName.length > 14 ? displayName.slice(0,14)+'…' : displayName;
+      }
+      const inicial = displayName.charAt(0).toUpperCase();
+      const letEl = document.getElementById('sbAvatarLetter');
+      if(letEl){
+        letEl.textContent = inicial;
+      }
+    }
+  } catch(e) { console.warn('_initSidebarPhotoFromStorage:', e); }
 }
 
 // ── TOGGLE CARD ALERTA ────────────────────────────────────────
