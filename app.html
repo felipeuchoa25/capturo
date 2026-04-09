@@ -12508,12 +12508,21 @@ function addManualLead(){
       if(listEl){
         listEl.innerHTML=`<div style="background:var(--volcano-bg);border:1px solid var(--volcano-b);border-radius:10px;padding:14px 18px;font-size:12px;color:var(--volcano);font-family:monospace;margin-bottom:12px">
           ⚠️ Selecione uma campanha antes de adicionar leads:<br><br>
-          ${campaigns.map(c=>`<button onclick="activeCampaignId='${c.id}';leads=[...(campaigns.find(x=>x.id==='${c.id}').leads||[])];this.parentElement.parentElement.innerHTML='';toast('✓ Campanha selecionada!','success');" style="margin:4px 4px 4px 0;padding:6px 12px;border-radius:8px;background:var(--accent);color:#fff;border:none;cursor:pointer;font-family:monospace;font-size:11px">${escHtml(c.name)}</button>`).join('')}
+          ${campaigns.map(c=>`<button onclick="activeCampaignId='${c.id}';leads=[...(campaigns.find(x=>x.id==='${c.id}').leads||[])];document.getElementById('manualLeadsList').innerHTML='';toast('✓ Campanha \"'+escHtml(c.name)+'\" selecionada!','success');updateManualCampaignBanner();" style="margin:4px 4px 4px 0;padding:6px 12px;border-radius:8px;background:var(--accent);color:#fff;border:none;cursor:pointer;font-family:monospace;font-size:11px">${escHtml(c.name)}</button>`).join('')}
+          <button onclick="openCampaignModal();document.getElementById('manualLeadsList').innerHTML='';" style="margin:4px 4px 4px 0;padding:6px 12px;border-radius:8px;background:var(--s2);color:var(--text2);border:1px solid var(--border);cursor:pointer;font-family:monospace;font-size:11px">➕ Nova Campanha</button>
         </div>`;
       }
       return;
     } else {
-      toast('⚠️ Crie uma campanha primeiro! Clique em "+ Campanha" no topo.','error',6000);
+      toast('⚠️ Crie uma campanha primeiro!','error',5000);
+      const listEl=$('manualLeadsList');
+      if(listEl){
+        listEl.innerHTML=`<div style="background:var(--volcano-bg);border:1px solid var(--volcano-b);border-radius:12px;padding:18px 20px;font-size:12px;color:var(--volcano);font-family:monospace;margin-bottom:12px">
+          <div style="font-size:13px;font-weight:700;margin-bottom:8px">⚠️ Nenhuma campanha encontrada</div>
+          <div style="color:var(--text2);margin-bottom:12px;line-height:1.5">Você precisa criar uma campanha para adicionar leads. Clique no botão abaixo:</div>
+          <button onclick="openCampaignModal();document.getElementById('manualLeadsList').innerHTML='';" style="padding:9px 18px;border-radius:10px;background:var(--accent);color:#fff;border:none;cursor:pointer;font-family:monospace;font-size:12px;font-weight:700">➕ Criar Nova Campanha</button>
+        </div>`;
+      }
       return;
     }
   }
@@ -12643,38 +12652,61 @@ async function searchAndEnrichByName(){
       const d=await r.json();
       const results=d.organic_results||[];
       if(results.length>0){
+        // Store results globally so click handler can access them
+        window._searchResults = results;
+
+        // Auto-fill from first result
         const first=results[0];
-        // Auto-fill fields with found data
+        const allSnippets = results.map(r=>(r.snippet||'')+(r.rich_snippet?.top?.detected_extensions?.phone||'')).join(' ');
         const siteUrl=first.link||'';
-        if(siteUrl && !$('mWebsite').value){
-          $('mWebsite').value=siteUrl;
-        }
-        // Try to extract phone from snippet
-        const snippet=(first.snippet||'')+(first.rich_snippet?.top?.detected_extensions?.phone||'');
-        const phoneMatch=snippet.match(/(\(?\d{2}\)?\s?\d{4,5}[\-\s]?\d{4})/);
+        if(siteUrl && !$('mWebsite').value) $('mWebsite').value=siteUrl;
+        // Extract phone from all snippets
+        const phoneMatch=allSnippets.match(/(\(?\d{2}\)?\s?\d{4,5}[\-\s]?\d{4})/);
         if(phoneMatch && !$('mPhone').value) $('mPhone').value=phoneMatch[1];
-        // Fill address
-        const addrMatch=snippet.match(/([A-Za-záàâãéêíóôõúç\s]+,\s*[A-Za-záàâãéêíóôõúç\s]+-\s*[A-Z]{2})/);
-        if(addrMatch && !$('mAddress').value) $('mAddress').value=addrMatch[1];
-        // Show results preview
+        // Extract address more broadly
+        const addrMatch=allSnippets.match(/([A-Za-záàâãéêíóôõúçÁÀÂÃÉÊÍÓÔÕÚÇ][^\n,]{3,40},\s*[^\n,]{3,30}[\-–]\s*[A-Z]{2})/);
+        if(addrMatch && !$('mAddress').value) $('mAddress').value=addrMatch[1].trim();
+        // Extract Instagram
+        const igMatch=allSnippets.match(/instagram\.com\/([\w.]+)/i)||results.map(r=>r.link||'').join(' ').match(/instagram\.com\/([\w.]+)/i);
+        if(igMatch && !$('mInstagram').value) $('mInstagram').value='https://instagram.com/'+igMatch[1];
+
+        // Show all results as clickable cards
         const list=$('manualLeadsList');
         if(list){
           list.innerHTML=`<div class="search-results-preview" style="background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)">
-            <div style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--green);display:flex;align-items:center;gap:8px">
+            <div style="font-size:13px;font-weight:600;margin-bottom:4px;color:var(--green);display:flex;align-items:center;gap:8px">
               <span style="width:20px;height:20px;background:var(--green-bg);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px">✓</span>
-              ${results.length} resultado(s) — campos preenchidos automaticamente
+              ${results.length} resultado(s) encontrado(s)
             </div>
-            ${results.slice(0,3).map(r=>`<div style="padding:10px 0;border-bottom:1px solid var(--border);font-size:12px" class="search-result-item">
-              <div style="font-weight:600;color:var(--text);margin-bottom:2px">${r.title||''}</div>
-              <div style="color:var(--accent);font-size:11px;margin-bottom:4px">${r.link||''}</div>
-              <div style="color:var(--muted2);font-size:11px;line-height:1.4">${(r.snippet||'').substring(0,140)}</div>
-            </div>`).join('')}
-            <div style="margin-top:10px;font-size:11px;color:var(--muted2)">Verifique os campos preenchidos acima e clique em <strong>+ Adicionar</strong></div>
+            <div style="font-size:11px;color:var(--muted2);margin-bottom:12px">👆 Clique em um resultado para preencher os campos automaticamente</div>
+            ${results.map((r,i)=>{
+              const rPhone=(r.snippet||'').match(/(\(?\d{2}\)?\s?\d{4,5}[\-\s]?\d{4})/);
+              const rAddr=(r.snippet||'').match(/([A-Za-záàâãéêíóôõúçÁÀÂÃÉÊÍÓÔÕÚÇ][^\n,]{3,40},\s*[^\n,]{3,30}[\-–]\s*[A-Z]{2})/);
+              const rIg=(r.link||'').match(/instagram\.com\/([\w.]+)/i);
+              return `<div onclick="(function(){
+                if('${escHtml(r.link||'')}') document.getElementById('mWebsite').value='${escHtml(r.link||'')}';
+                if('${rPhone?rPhone[1]:''}') document.getElementById('mPhone').value='${rPhone?rPhone[1]:''}';
+                if('${rAddr?rAddr[1].trim():''}') document.getElementById('mAddress').value='${rAddr?rAddr[1].trim():''}';
+                if('${rIg?'https://instagram.com/'+rIg[1]:''}') document.getElementById('mInstagram').value='${rIg?'https://instagram.com/'+rIg[1]:''}';
+                document.querySelectorAll('.search-result-item').forEach(el=>el.style.background='');
+                this.style.background='var(--accent-bg)';
+                typeof toast==='function' && toast('✓ Campos preenchidos com este resultado!','ok',2000);
+              }).call(this)" 
+              style="padding:10px 12px;border-bottom:1px solid var(--border);font-size:12px;cursor:pointer;border-radius:8px;transition:background .15s" 
+              class="search-result-item"
+              onmouseover="this.style.background='var(--s2)'" 
+              onmouseout="if(!this.style.background.includes('accent'))this.style.background=''">
+                <div style="font-weight:600;color:var(--text);margin-bottom:2px">${r.title||''}</div>
+                <div style="color:var(--accent);font-size:11px;margin-bottom:4px;word-break:break-all">${r.link||''}</div>
+                <div style="color:var(--muted2);font-size:11px;line-height:1.4">${(r.snippet||'').substring(0,180)}</div>
+                ${rPhone?`<div style="color:var(--green);font-size:10px;margin-top:4px">📞 ${rPhone[1]}</div>`:''}
+              </div>`;
+            }).join('')}
+            <div style="margin-top:12px;font-size:11px;color:var(--muted2)">Verifique os campos preenchidos acima e clique em <strong style="color:var(--text)">+ Adicionar</strong></div>
           </div>`;
-          // keep results visible for 30s
-        setTimeout(()=>{if(list&&list.querySelector('.search-results-preview'))list.innerHTML='';},30000);
+          setTimeout(()=>{if(list&&list.querySelector('.search-results-preview'))list.innerHTML='';},60000);
         }
-        toast('✓ Dados encontrados e preenchidos!','ok');
+        toast('✓ '+results.length+' resultado(s) encontrado(s)! Clique em um para preencher.','ok');
       } else {
         toast('Nenhum resultado encontrado. Tente outro nome.','warn');
       }
