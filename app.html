@@ -836,8 +836,8 @@ select option{background:var(--s2);color:var(--text)}
     --shadow-lg:0 16px 60px rgba(0,0,0,.6),0 6px 20px rgba(0,0,0,.35);
     --shadow-accent:0 4px 24px rgba(79,142,255,.3),0 2px 8px rgba(79,142,255,.2);
   }
-  .theme-gray{--bg:#b2cece;--s1:#c4d8d8;--s2:#cfe0e0;--border:#a0bebe;--border2:#8eb0b0;--text:#0d1f1f;--muted:#2a5050;--muted2:#3d6e6e;--email-ok:#0a4a1e;--email-conf:#6b3a08;--accent:#1a7070;--accent2:#1a8585;--accent-bg:rgba(26,112,112,.12);}
-  .theme-white{--bg:#f2f2f7;--s1:#ffffff;--s2:#e8eaed;--border:#d0d3d8;--border2:#b8bcc2;--text:#1a1c1f;--muted:#6b7280;--muted2:#4b5563;--email-ok:#166534;--email-conf:#78350f;}
+  .theme-gray{--bg:#b2cece;--s1:#c4d8d8;--s2:#cfe0e0;--s3:#bfd4d4;--border:#a0bebe;--border2:#8eb0b0;--text:#0d1f1f;--muted:#2a5050;--muted2:#3d6e6e;--email-ok:#0a4a1e;--email-conf:#6b3a08;--accent:#1a7070;--accent2:#1a8585;--accent-bg:rgba(26,112,112,.12);}
+  .theme-white{--bg:#f2f2f7;--s1:#ffffff;--s2:#e8eaed;--s3:#dde1e7;--border:#d0d3d8;--border2:#b8bcc2;--text:#1a1c1f;--muted:#6b7280;--muted2:#4b5563;--email-ok:#166534;--email-conf:#78350f;}
 
   /* ── SIDEBAR SWATCHES — ocultos, movidos para topnav ── */
   .sb-theme-row{display:none!important;}
@@ -1446,6 +1446,19 @@ select:focus {
   padding-top: 0 !important;
 }
 
+/* ── CAPTURO brand name: green neon palette ── */
+.sb-section-label .sb-label {
+  color: #85B82E !important;
+  text-shadow: 0 0 8px rgba(133,184,46,.55), 0 0 20px rgba(133,184,46,.2);
+  letter-spacing: .18em !important;
+  opacity: 0;
+  transition: opacity .15s .05s;
+}
+.sidebar:hover .sb-section-label .sb-label,
+.sidebar.expanded .sb-section-label .sb-label {
+  opacity: 1 !important;
+}
+
 /* LAYOUT GERAL — padding e margens corretos */
 .main {
   padding: 28px 32px !important;
@@ -1480,6 +1493,10 @@ select:focus {
 }
 
 /* BUSCA MANUAL — margem e padding */
+#pageManual .field label { font-weight: 600 !important; color: var(--text2) !important; font-size: 12px !important; margin-bottom: 5px !important; display: block !important; }
+#pageManual textarea:focus, #pageManual input:focus { background: var(--s2) !important; color: var(--text) !important; }
+#pageManual .cfield-row .field label, #pageManual .cfield-full label { font-weight: 600 !important; }
+#pageManual textarea { color: var(--text) !important; }
 #pageManual .search-area {
   margin-bottom: 0 !important;
 }
@@ -2549,10 +2566,10 @@ button:focus-visible, input:focus-visible, select:focus-visible {
   align-items: center;
   justify-content: center;
   width: 64px; height: 64px;
-  background: linear-gradient(145deg, #1a1a2e 0%, #0f0f1a 100%);
-  border: 1px solid rgba(94,156,255,.25);
+  background: linear-gradient(145deg, #0e1a08 0%, #0A0A0A 100%);
+  border: 1px solid rgba(133,184,46,.3);
   border-radius: 20px;
-  box-shadow: 0 0 40px rgba(94,156,255,.2), 0 8px 32px rgba(0,0,0,.5);
+  box-shadow: 0 0 40px rgba(133,184,46,.22), 0 8px 32px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.06);
   margin-bottom: 18px;
   position: relative;
   overflow: hidden;
@@ -2561,14 +2578,30 @@ button:focus-visible, input:focus-visible, select:focus-visible {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(145deg, rgba(94,156,255,.08) 0%, transparent 60%);
+  background: linear-gradient(145deg, rgba(133,184,46,.08) 0%, transparent 60%);
+}
+@keyframes capturoGlow {
+  0%,100%{ filter:drop-shadow(0 0 18px rgba(133,184,46,.38)) drop-shadow(0 0 5px rgba(133,184,46,.18)); }
+  50%     { filter:drop-shadow(0 0 32px rgba(133,184,46,.65)) drop-shadow(0 0 10px rgba(133,184,46,.35)); }
 }
 .login-logo-title {
-  font-size: 28px;
-  font-weight: 800;
-  letter-spacing: -0.06em;
-  color: #f0f0fa;
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
   margin-bottom: 6px;
+  background: linear-gradient(
+    130deg,
+    #c8d8e0 0%,
+    #ffffff 22%,
+    #d8f0a0 45%,
+    #85B82E 68%,
+    #6a9420 85%,
+    #a8cc50 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: capturoGlow 3.5s ease-in-out infinite;
 }
 .login-logo-sub {
   font-size: 13px;
@@ -2787,14 +2820,14 @@ button:focus-visible, input:focus-visible, select:focus-visible {
     <div class="login-logo-wrap">
       <div class="login-logo-icon">
         <svg width="32" height="32" viewBox="0 0 36 36" fill="none">
-          <circle cx="18" cy="18" r="13" stroke="rgba(94,156,255,.4)" stroke-width="1.5"/>
-          <circle cx="18" cy="18" r="8.5" stroke="rgba(94,156,255,.6)" stroke-width="1.5"/>
-          <circle cx="18" cy="18" r="4" stroke="rgba(94,156,255,.8)" stroke-width="1.5"/>
-          <circle cx="18" cy="18" r="1.8" fill="#5e9cff"/>
-          <line x1="18" y1="18" x2="28" y2="10" stroke="rgba(94,156,255,.5)" stroke-width="1.2" stroke-linecap="round"/>
-          <circle cx="27.5" cy="10.2" r="2.2" fill="#5e9cff" opacity=".9"/>
-          <circle cx="9" cy="24" r="2" fill="rgba(255,82,82,.8)"/>
-          <circle cx="24" cy="27" r="1.6" fill="rgba(255,191,0,.7)"/>
+          <circle cx="18" cy="18" r="13" stroke="rgba(133,184,46,.35)" stroke-width="1.5"/>
+          <circle cx="18" cy="18" r="8.5" stroke="rgba(133,184,46,.55)" stroke-width="1.5"/>
+          <circle cx="18" cy="18" r="4" stroke="rgba(133,184,46,.8)" stroke-width="1.5"/>
+          <circle cx="18" cy="18" r="1.8" fill="#85B82E"/>
+          <line x1="18" y1="18" x2="28" y2="10" stroke="rgba(133,184,46,.5)" stroke-width="1.2" stroke-linecap="round"/>
+          <circle cx="27.5" cy="10.2" r="2.2" fill="#85B82E" opacity=".95"/>
+          <circle cx="9" cy="24" r="2" fill="rgba(200,232,120,.7)"/>
+          <circle cx="24" cy="27" r="1.6" fill="rgba(255,255,255,.5)"/>
         </svg>
       </div>
       <div class="login-logo-title">CAPTURO</div>
@@ -4161,24 +4194,20 @@ function toast(msg, type='info', duration=3500){
       <div class="manual-grid">
         <div class="field">
           <label>Nome do Negócio *</label>
-          <input type="text" id="mName" placeholder="Ex: Clínica Dr. João Silva">
+          <input type="text" id="mName" placeholder="Ex: Clínica Dr. João — digite e clique em Buscar Dados">
         </div>
         <div class="field">
           <label>Cidade *</label>
-          <input type="text" id="mCity" placeholder="Ex: São Paulo">
+          <input type="text" id="mCity" placeholder="Ex: São Paulo — ajuda a encontrar o resultado certo">
         </div>
-        <div class="field">
-          <label>Nicho</label>
-          <input type="text" id="mNiche" placeholder="Ex: Dentista">
-        </div>
-        <button class="btn btn-primary" onclick="addManualLead()" style="height:37px">+ Adicionar</button>
+        <button class="btn btn-primary" onclick="addManualLead()" style="height:37px;align-self:flex-end">💾 Salvar Lead</button>
       </div>
       <div style="background:var(--accent-bg);border:1px solid rgba(0,122,255,.15);border-radius:12px;padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:14px">
         <div style="width:36px;height:36px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </div>
         <div style="flex:1;font-size:13px;color:var(--text)">
-          <strong style="color:var(--accent)">Busca Inteligente</strong> — Informe só o nome e clique em Buscar. O sistema encontra telefone, site e endereço automaticamente.
+          <strong style="color:var(--accent)">Busca Inteligente</strong> — Digite o nome do negócio acima (e a cidade, se quiser mais precisão) e clique em <strong style="color:var(--text)">Buscar Dados</strong>. O sistema localiza automaticamente telefone, site, endereço e Instagram. Depois é só confirmar e salvar.
         </div>
         <button id="btnSearchByName" class="btn btn-primary" onclick="searchAndEnrichByName()" style="border-radius:20px;white-space:nowrap">🔍 Buscar Dados</button>
       </div>
@@ -4231,8 +4260,8 @@ function toast(msg, type='info', duration=3500){
       <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.2);margin-top:10px">
         <span style="font-size:22px;flex-shrink:0">🤖</span>
         <div>
-          <div style="font-size:11px;font-weight:700;color:var(--purple);font-family:'IBM Plex Mono',monospace;margin-bottom:3px">IA OPCIONAL — Enriquecimento Automático</div>
-          <div style="font-size:11px;color:var(--muted2);line-height:1.5">Se a <strong style="color:var(--text)">Claude API Key</strong> estiver configurada em <em>Configurações → Integrações</em>, a IA enriquece cada lead adicionado com: análise do site, pitch personalizado, problemas detectados e temperatura sugerida.</div>
+          <div style="font-size:11px;font-weight:700;color:var(--purple);font-family:'IBM Plex Mono',monospace;margin-bottom:3px">✨ Enriquecimento Automático por IA</div>
+          <div style="font-size:11px;color:var(--muted2);line-height:1.5">Quando a integração de IA estiver ativa, o CAPTURO enriquece cada lead salvo com: análise do site, pitch personalizado, problemas detectados e temperatura sugerida — sem nenhuma ação extra da sua parte.</div>
         </div>
         <button onclick="openSettings();setSettingsTab('integrações')" style="display:none;flex-shrink:0;padding:6px 12px;border-radius:8px;background:rgba(168,85,247,.12);color:var(--purple);border:1px solid rgba(168,85,247,.3);font-size:10px;font-weight:700;cursor:pointer;font-family:'IBM Plex Mono',monospace;white-space:nowrap">⚙ Config IA</button>
       </div>
@@ -5052,7 +5081,7 @@ function toast(msg, type='info', duration=3500){
         <div id="iap-error" style="display:none;text-align:center;padding:30px 20px">
           <div style="font-size:36px;margin-bottom:12px">⚠️</div>
           <div style="font-size:14px;font-weight:700;color:var(--orange);margin-bottom:6px">Análise Indisponível</div>
-          <div id="iap-error-msg" style="font-size:12px;color:var(--muted2);margin-bottom:16px">Verifique sua Claude API Key nas configurações.</div>
+          <div id="iap-error-msg" style="font-size:12px;color:var(--muted2);margin-bottom:16px">Verifique a integração de IA nas configurações.</div>
           <div style="display:flex;gap:8px;justify-content:center">
             <button onclick="regenerarIAProposta()" class="btn btn-primary" style="font-size:12px">🔄 Tentar Novamente</button>
             <button onclick="fecharIAPropostaModal()" class="btn btn-ghost" style="font-size:12px">Fechar</button>
@@ -5602,7 +5631,7 @@ function toast(msg, type='info', duration=3500){
         <div style="font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--purple);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">🤖 Inteligência Artificial</div>
         <div style="font-size:10px;color:var(--muted2);margin-bottom:10px;line-height:1.6">Chave Anthropic (Claude) — usada para análise automática de sites e geração de pitch. Custo: ~US$0,003 por lead analisado. Obtenha em: <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--accent2)">console.anthropic.com</a></div>
         <div class="field" style="margin-bottom:10px">
-          <label>Chave de IA (Claude / Anthropic)</label>
+          <label>Chave de IA do CAPTURO</label>
           <div style="display:flex;gap:8px">
             <input type="password" id="cKey" placeholder="sk-ant-..." autocomplete="off" style="flex:1">
             <button class="btn btn-ghost" onclick="testAIKey()" id="btnTestAI" style="font-size:11px;white-space:nowrap">Testar</button>
@@ -9684,7 +9713,7 @@ let aiChatHistory = [];
 function clearAIChat(){
   aiChatHistory=[];
   const msgs=$('aiChatMessages');
-  if(msgs) msgs.innerHTML=`<div style="text-align:center;color:var(--muted2);font-size:13px;padding:40px 20px"><div style="font-size:36px;margin-bottom:12px">🤖</div><div style="font-weight:600;margin-bottom:6px">Claude está pronto para ajudar</div><div style="font-size:12px">Clique em um atalho acima ou escreva sua pergunta</div></div>`;
+  if(msgs) msgs.innerHTML=`<div style="text-align:center;color:var(--muted2);font-size:13px;padding:40px 20px"><div style="font-size:36px;margin-bottom:12px">🤖</div><div style="font-weight:600;margin-bottom:6px">Assistente CAPTURO pronto</div><div style="font-size:12px">Clique em um atalho acima ou escreva sua pergunta</div></div>`;
 }
 
 function appendAIMsg(role, text){
@@ -12502,15 +12531,23 @@ function addManualLead(){
       leads=[...(campaigns[0].leads||[])];
       toast('✓ Campanha "'+campaigns[0].name+'" selecionada automaticamente.','info',3000);
     } else if(campaigns.length>1){
-      toast('⚠️ Selecione uma campanha primeiro! Clique em uma campanha na tela inicial.','error',6000);
-      // Mostra o seletor de campanha no painel
+      // Show clean dropdown selector instead of confusing button list
       const listEl=$('manualLeadsList');
       if(listEl){
-        listEl.innerHTML=`<div style="background:var(--volcano-bg);border:1px solid var(--volcano-b);border-radius:10px;padding:14px 18px;font-size:12px;color:var(--volcano);font-family:monospace;margin-bottom:12px">
-          ⚠️ Selecione uma campanha antes de adicionar leads:<br><br>
-          ${campaigns.map(c=>`<button onclick="activeCampaignId='${c.id}';leads=[...(campaigns.find(x=>x.id==='${c.id}').leads||[])];document.getElementById('manualLeadsList').innerHTML='';toast('✓ Campanha \"'+escHtml(c.name)+'\" selecionada!','success');updateManualCampaignBanner();" style="margin:4px 4px 4px 0;padding:6px 12px;border-radius:8px;background:var(--accent);color:#fff;border:none;cursor:pointer;font-family:monospace;font-size:11px">${escHtml(c.name)}</button>`).join('')}
-          <button onclick="openCampaignModal();document.getElementById('manualLeadsList').innerHTML='';" style="margin:4px 4px 4px 0;padding:6px 12px;border-radius:8px;background:var(--s2);color:var(--text2);border:1px solid var(--border);cursor:pointer;font-family:monospace;font-size:11px">➕ Nova Campanha</button>
+        const optHtml=campaigns.map(c=>`<option value="${c.id}">${escHtml(c.name)}</option>`).join('');
+        listEl.innerHTML=`<div id="campaignSelectorPanel" style="background:var(--s1);border:2px solid var(--accent);border-radius:14px;padding:18px 20px;font-family:monospace;margin-bottom:12px">
+          <div style="font-weight:700;color:var(--text);margin-bottom:6px;font-size:14px">📁 Onde salvar este lead?</div>
+          <div style="color:var(--text2);margin-bottom:14px;font-size:12px;line-height:1.5">Escolha a campanha para receber o lead, ou crie uma nova:</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <select id="campaignPickerSelect" style="flex:1;min-width:180px;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--s2);color:var(--text);font-size:12px;font-family:monospace">
+              <option value="">— Selecione uma campanha —</option>
+              ${optHtml}
+            </select>
+            <button onclick="(function(){const sel=document.getElementById('campaignPickerSelect');if(!sel||!sel.value){toast('Selecione uma campanha!','error');return;}activeCampaignId=sel.value;leads=[...(campaigns.find(x=>x.id===sel.value).leads||[])];const panel=document.getElementById('campaignSelectorPanel');if(panel)panel.remove();updateManualCampaignBanner();toast('✓ Campanha selecionada! Clique em Salvar Lead novamente.','success',4000);})()" style="padding:8px 16px;border-radius:8px;background:var(--accent);color:#fff;border:none;cursor:pointer;font-size:12px;font-weight:700">✓ Confirmar</button>
+            <button onclick="openCampaignModal();const p=document.getElementById('campaignSelectorPanel');if(p)p.remove();" style="padding:8px 14px;border-radius:8px;background:var(--s2);color:var(--text2);border:1px solid var(--border);cursor:pointer;font-size:12px">➕ Nova</button>
+          </div>
         </div>`;
+        listEl.scrollIntoView({behavior:'smooth',block:'nearest'});
       }
       return;
     } else {
@@ -12566,7 +12603,7 @@ function addManualLead(){
   setTimeout(()=>syncToSheets(true), 2000);
 
   // Clear fields
-  ['mName','mNiche','mPhone','mEmail','mWebsite','mNotes','mInstagram','mWhatsapp','mAddress'].forEach(id=>{const el=$(id);if(el)el.value='';});
+  ['mName','mPhone','mEmail','mWebsite','mNotes','mInstagram','mWhatsapp','mAddress'].forEach(id=>{const el=$(id);if(el)el.value='';});
 
   // Show success + trigger AI enrichment if Claude key available
   const list=$('manualLeadsList');
@@ -12669,6 +12706,12 @@ async function searchAndEnrichByName(){
         // Extract Instagram
         const igMatch=allSnippets.match(/instagram\.com\/([\w.]+)/i)||results.map(r=>r.link||'').join(' ').match(/instagram\.com\/([\w.]+)/i);
         if(igMatch && !$('mInstagram').value) $('mInstagram').value='https://instagram.com/'+igMatch[1];
+        // BioLinks detection: if any result is a Linktree/bio link, prefer it for website
+        const bioLinkPatterns=['linktr.ee','bio.link','linkin.bio','beacons.ai','taplink.cc','lnk.bio','campsite.bio','bento.me'];
+        const bioResult=results.find(r=>(r.link||'').match(new RegExp(bioLinkPatterns.map(p=>p.replace('.','\\.+')).join('|'),'i')));
+        if(bioResult && bioResult.link){
+          $('mWebsite').value=bioResult.link;
+        }
 
         // Show all results as clickable cards
         const list=$('manualLeadsList');
@@ -12690,7 +12733,8 @@ async function searchAndEnrichByName(){
                 if('${rIg?'https://instagram.com/'+rIg[1]:''}') document.getElementById('mInstagram').value='${rIg?'https://instagram.com/'+rIg[1]:''}';
                 document.querySelectorAll('.search-result-item').forEach(el=>el.style.background='');
                 this.style.background='var(--accent-bg)';
-                typeof toast==='function' && toast('✓ Campos preenchidos com este resultado!','ok',2000);
+                typeof toast==='function' && toast('✓ Campos preenchidos! Role para cima para ver.','ok',2000);
+                setTimeout(()=>{const fn=document.getElementById('mName');if(fn)fn.scrollIntoView({behavior:'smooth',block:'center'});},150);
               }).call(this)"
               style="padding:10px 12px;border-bottom:1px solid var(--border);font-size:12px;cursor:pointer;border-radius:8px;transition:background .15s"
               class="search-result-item"
@@ -12702,7 +12746,7 @@ async function searchAndEnrichByName(){
                 ${rPhone?`<div style="color:var(--green);font-size:10px;margin-top:4px">📞 ${rPhone[1]}</div>`:''}
               </div>`;
             }).join('')}
-            <div style="margin-top:12px;font-size:11px;color:var(--muted2)">Verifique os campos preenchidos acima e clique em <strong style="color:var(--text)">+ Adicionar</strong></div>
+            <div style="margin-top:12px;font-size:11px;color:var(--muted2)">Verifique os campos preenchidos acima e clique em <strong style="color:var(--text)">💾 Salvar Lead</strong></div>
           </div>`;
           setTimeout(()=>{if(list&&list.querySelector('.search-results-preview'))list.innerHTML='';},60000);
         }
@@ -12753,8 +12797,15 @@ function updateManualCampaignBanner(){
     banner.style.background='var(--volcano-bg)';
     banner.style.borderColor='var(--volcano-b)';
     banner.style.color='var(--volcano)';
-    const btns=campaigns.map(c=>`<button onclick="openCampaign('${c.id}');setTimeout(()=>showPage('pageManual'),100);" style="margin:4px 4px 0 0;padding:5px 10px;border-radius:8px;background:var(--accent);color:#fff;border:none;cursor:pointer;font-size:11px">${escHtml(c.name)}</button>`).join('');
-    banner.innerHTML=`<div><strong>⚠️ Nenhuma campanha selecionada!</strong> Escolha uma para adicionar leads:<br><div style="margin-top:6px">${btns}</div></div>`;
+    const optHtml2=campaigns.map(c=>`<option value="${c.id}">${escHtml(c.name)}</option>`).join('');
+    banner.innerHTML=`<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span style="font-size:12px">⚠️ <strong>Nenhuma campanha selecionada.</strong> Escolha:</span>
+      <select onchange="if(this.value){activeCampaignId=this.value;leads=[...(campaigns.find(x=>x.id===this.value).leads||[])];updateManualCampaignBanner();toast('✓ Campanha selecionada!','success');}" style="padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--s2);color:var(--text);font-size:11px;font-family:monospace">
+        <option value="">— Selecione —</option>
+        ${optHtml2}
+      </select>
+      <button onclick="openCampaignModal()" style="padding:5px 12px;border-radius:8px;background:var(--accent);color:#fff;border:none;cursor:pointer;font-size:11px">➕ Nova</button>
+    </div>`;
   }
 }
 
@@ -14962,7 +15013,7 @@ const FAQ_ITEMS = [
   },
   {
     q: '🤖 Como usar a análise com IA?',
-    a: 'Configure sua <strong>Claude API Key</strong> em Configurações → Integrações. Ative a opção "Análise com IA durante busca". O CAPTURO vai enriquecer cada lead com análise de problemas, pitch personalizado e temperatura sugerida.'
+    a: 'Ative a integração de IA em Configurações → Integrações. O CAPTURO vai enriquecer cada lead com análise de problemas, pitch personalizado e temperatura sugerida — automaticamente.'
   },
   {
     q: '📱 Posso usar o WhatsApp direto pelo CAPTURO?',
@@ -16622,7 +16673,7 @@ const TOUR_STEPS = [
   { title:'⭐ Favoritos', desc:'Marque os Leads mais promissores com uma estrela. Eles ficam reunidos aqui para acompanhamento rápido, independente da campanha.', target:'#sb-favoritos', pos:'right' },
   { title:'📊 Relatórios', desc:'Veja desempenho por campanha, distribuição de temperatura, taxa de conversão e muito mais. Descubra quais nichos convertem melhor.', target:'#sb-relatorio', pos:'right' },
   { title:'🔍 Busca Global — Ctrl+K', desc:'Pressione Ctrl+K a qualquer momento para buscar por nome, telefone, e-mail ou cidade — resultado instantâneo sem trocar de tela.', target:null, pos:'center' },
-  { title:'⚙️ Integrações & APIs', desc:'Conecte Google Maps, Hunter, Apollo, SerpAPI e Claude para ativar busca automática, e-mails verificados e análise por IA. Cada integração tem link direto para criar conta grátis.', target:null, pos:'center' },
+  { title:'⚙️ Integrações & APIs', desc:'Conecte Google Maps, Hunter, Apollo, integrações avançadas para busca automática, e-mails verificados e análise por IA. Cada integração tem link direto para criar conta grátis.', target:null, pos:'center' },
   { title:'📥 Exportar / Importar', desc:'Exporte todos os Leads em planilha com todas as colunas — ou importe listas externas em CSV. Seus dados sempre portáveis.', target:null, pos:'center' },
   { title:'🚀 Tudo pronto!', desc:'Crie sua primeira campanha, escolha nicho e cidade, e deixe o radar trabalhar. Para rever este tour, clique na bússola 🧭 no canto inferior direito. Boas vendas!', target:null, pos:'center' }
 ];
@@ -19255,7 +19306,7 @@ Estrutura obrigatória:
     document.getElementById('iap-error').style.display   = 'block';
     document.getElementById('iap-error-msg').textContent =
       err?.message?.includes('key')||err?.message?.includes('API')
-        ? 'Configure sua Claude API Key em Configurações → Integrações para usar esta feature.'
+        ? 'Ative a integração de IA em Configurações → Integrações para usar esta feature.'
         : (err?.message||'Erro ao gerar análise. Tente novamente.');
   }
 }
