@@ -3030,10 +3030,10 @@ function openProfile(id){
       <div class="profile-section-title">📸 Instagram</div>
       ${igHtml}
     </div>
-    ${l.siteIssues?.length?`<div class="profile-section"><div class="profile-section-title">✦ Análise IA do Site</div><ul style="font-size:11px;color:var(--muted2);padding-left:16px;line-height:1.8">${l.siteIssues.map(i=>'<li>'+i+'</li>').join('')}</ul></div>`:''}
+    ${l.siteIssues?.length?`<div class="profile-section"><div class="profile-section-title">✦ Análise IA do Site</div><ul style="font-size:11px;color:var(--muted2);padding-left:16px;line-height:1.8">${l.siteIssues.map(i=>'<li>'+escHtml(i)+'</li>').join('')}</ul></div>`:''}
     <div class="profile-section">
       <div class="profile-section-title">📝 Notas</div>
-      <textarea style="width:100%;min-height:80px;background:var(--s2);border:1px solid var(--border2);border-radius:6px;padding:8px;color:var(--text);font-size:11px;resize:vertical" onchange="saveNote('${l.id}',this.value)">${l.notes||''}</textarea>
+      <textarea style="width:100%;min-height:80px;background:var(--s2);border:1px solid var(--border2);border-radius:6px;padding:8px;color:var(--text);font-size:11px;resize:vertical" onchange="saveNote('${escJs(l.id)}',this.value)">${escHtml(l.notes||'')}</textarea>
     </div>
     <div style="display:flex;gap:8px;padding:4px 0 16px;flex-wrap:wrap">
       <button class="card-btn btn-wa" onclick="openMsgModal('${l.id}');closeProfile()">💬 Mensagem</button>
@@ -3080,24 +3080,34 @@ function _buildCnpjHtml(l){
   const idade  = anoAb ? new Date().getFullYear()-anoAb : null;
   const isNova = idade!==null && idade<=1;
   const capital = d.capital_social ? 'R$ '+parseFloat(d.capital_social).toLocaleString('pt-BR',{minimumFractionDigits:2}) : '—';
-  const situacao = d.situacao_cadastral||d.situacao||'—';
+  const situacaoRaw = d.descricao_situacao_cadastral||d.situacao_cadastral||d.situacao||'—';
+  const situacao = String(situacaoRaw);
   const cnae = d.cnae_fiscal_descricao||(d.atividade_principal&&d.atividade_principal[0]?.text)||'—';
   const socios = d.qsa||[];
+  // CNPJ formatado
+  const cnpjRaw = (d.cnpj||'').replace(/\D/g,'');
+  const cnpjFmt = cnpjRaw.length===14 ? cnpjRaw.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,'$1.$2.$3/$4-$5') : (d.cnpj||'—');
+  // Endereço + Google Maps
+  const endParts = [d.logradouro,d.numero,d.complemento,d.bairro,d.municipio,d.uf,d.cep?'CEP '+d.cep:''].filter(Boolean);
+  const endereco = endParts.join(', ');
+  const mapsUrl = endereco ? `https://maps.google.com/?q=${encodeURIComponent(endereco)}` : '';
   return `<div class="profile-section">
     <div class="profile-section-title" style="display:flex;align-items:center;justify-content:space-between">
       🏢 Receita Federal
       ${isNova?'<span style="font-size:10px;background:rgba(255,149,0,.18);color:#f5a623;padding:2px 8px;border-radius:20px;font-weight:700">⚡ Empresa nova!</span>':''}
     </div>
     <div class="profile-stat"><span>Razão Social</span><span style="font-size:11px">${escHtml(d.razao_social||d.nome||'—')}</span></div>
-    <div class="profile-stat"><span>CNPJ</span><span style="font-family:monospace;font-size:11px">${escHtml(d.cnpj||'—')}</span></div>
-    <div class="profile-stat"><span>Situação</span><span style="color:${situacao==='ATIVA'?'var(--green)':'var(--muted2)'};font-weight:600;font-size:11px">${escHtml(situacao)}</span></div>
+    <div class="profile-stat"><span>CNPJ</span><span style="font-family:monospace;font-size:11px">${escHtml(cnpjFmt)}</span></div>
+    <div class="profile-stat"><span>Situação</span><span style="color:${situacao.toUpperCase().includes('ATIVA')?'var(--green)':'var(--muted2)'};font-weight:600;font-size:11px">${escHtml(situacao)}</span></div>
     <div class="profile-stat"><span>Abertura</span><span style="font-size:11px">${escHtml(dataAb)} ${idade!==null?'<span style="color:var(--muted2)">('+idade+' ano'+(idade!==1?'s':'')+')</span>':''}</span></div>
     <div class="profile-stat"><span>CNAE</span><span style="font-size:11px">${escHtml(cnae)}</span></div>
-    <div class="profile-stat"><span>Capital</span><span style="font-size:11px">${capital}</span></div>
-    ${socios.length?`<div style="margin-top:8px"><div style="font-size:10px;color:var(--muted2);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Sócios</div>
-      ${socios.map(s=>`<div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-bottom:0.5px solid var(--border)">
-        <span>${escHtml(s.nome_socio||s.nome||'—')}</span>
-        <span style="color:var(--muted2)">${escHtml(s.qualificacao_socio||s.qualificacao||'—')}</span>
+    <div class="profile-stat"><span>Capital</span><span style="font-size:11px;color:var(--green);font-weight:600">${capital}</span></div>
+    ${endereco?`<div class="profile-stat" style="align-items:flex-start"><span>Endereço</span><span style="font-size:11px;text-align:right;line-height:1.4">${escHtml(endereco)}${mapsUrl?` <a href="${mapsUrl}" target="_blank" style="display:inline-flex;align-items:center;gap:2px;color:var(--accent);text-decoration:none;font-size:10px;white-space:nowrap;margin-left:4px">📍 Ver Maps ↗</a>`:''}
+    </span></div>`:''}
+    ${socios.length?`<div style="margin-top:8px"><div style="font-size:10px;color:var(--muted2);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Sócios / QSA</div>
+      ${socios.map(s=>`<div style="display:flex;justify-content:space-between;align-items:flex-start;font-size:11px;padding:5px 0;border-bottom:0.5px solid var(--border);gap:8px">
+        <span style="font-weight:600">${escHtml(s.nome_socio||s.nome||'—')}</span>
+        <span style="color:var(--muted2);text-align:right;font-size:10px">${escHtml(s.descricao_qualificacao_socio||s.qualificacao_socio||s.qualificacao||'Sócio')}</span>
       </div>`).join('')}
     </div>`:''}
   </div>`;
@@ -3125,48 +3135,78 @@ async function buscarCnpjLead(leadId){
     if(cnpjNum){
       const cnpjClean = cnpjNum.replace(/\D/g,'');
       const r2 = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjClean}`,
-        {headers:{Accept:'application/json','User-Agent':'Mozilla/5.0'}});
-      if(r2.ok){
-        const d = await r2.json();
-        _aplicarCnpjEnriquecimento(l, d);
-        saveCampaigns();
-        const sec2 = document.getElementById('cnpjSection');
-        if(sec2) sec2.outerHTML = _buildCnpjHtml(l);
-        renderAll();
-        return;
+        {headers:{Accept:'application/json'}}).catch(()=>null);
+      if(r2&&r2.ok){
+        const d = await r2.json().catch(()=>null);
+        if(d){ _aplicarCnpjEnriquecimento(l, d); saveCampaigns(); _refreshCnpjSection(l); renderAll(); return; }
+      }
+      // Fallback: CNPJ.ws
+      const rws = await fetch(`https://publica.cnpj.ws/cnpj/${cnpjClean}`,{headers:{Accept:'application/json'}}).catch(()=>null);
+      if(rws&&rws.ok){
+        const dws = await rws.json().catch(()=>null);
+        if(dws){ _aplicarCnpjEnriquecimento(l, _normalizeCnpjWs(dws)); saveCampaigns(); _refreshCnpjSection(l); renderAll(); return; }
       }
     }
-    const r3 = await fetch(`https://brasilapi.com.br/api/cnpj/v1/search?text=${encodeURIComponent(l.name||'')}`,
-      {headers:{Accept:'application/json','User-Agent':'Mozilla/5.0'}}).catch(()=>null);
+    // Sem CNPJ pelo ReceitaWS — tenta busca direta na BrasilAPI via cidade+nome
+    const r3 = await fetch(`https://brasilapi.com.br/api/cnpj/v1/search?query=${encodeURIComponent(l.name||'')}`,
+      {headers:{Accept:'application/json'}}).catch(()=>null);
     if(r3&&r3.ok){
       const list = await r3.json().catch(()=>[]);
-      const match = Array.isArray(list) && list[0];
+      const match = Array.isArray(list)&&list[0];
       if(match?.cnpj){
         const cnpjClean2 = match.cnpj.replace(/\D/g,'');
-        const r4 = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjClean2}`,
-          {headers:{Accept:'application/json','User-Agent':'Mozilla/5.0'}});
-        if(r4.ok){
-          const d2 = await r4.json();
-          l.cnpjData = d2;
-          saveCampaigns();
-          const sec3 = document.getElementById('cnpjSection');
-          if(sec3) sec3.outerHTML = _buildCnpjHtml(l);
-          return;
+        const r4 = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjClean2}`,{headers:{Accept:'application/json'}}).catch(()=>null);
+        if(r4&&r4.ok){
+          const d2 = await r4.json().catch(()=>null);
+          if(d2){ _aplicarCnpjEnriquecimento(l, d2); saveCampaigns(); _refreshCnpjSection(l); renderAll(); return; }
         }
       }
     }
     l.cnpjData = null;
     saveCampaigns();
-    const sec4 = document.getElementById('cnpjSection');
-    if(sec4) sec4.outerHTML = _buildCnpjHtml(l);
+    _refreshCnpjSection(l);
   }catch(e){
     console.warn('[CNPJ]',e);
     l.cnpjData = null;
     saveCampaigns();
-    const sec5 = document.getElementById('cnpjSection');
-    if(sec5) sec5.innerHTML = `<div class="profile-section-title">🏢 Receita Federal</div>
-      <div style="font-size:11px;color:var(--muted2)">Erro ao buscar CNPJ.</div>`;
+    _refreshCnpjSection(l);
   }
+}
+
+function _refreshCnpjSection(l){
+  const sec = document.getElementById('cnpjSection');
+  if(sec) sec.outerHTML = _buildCnpjHtml(l);
+}
+
+// Normaliza resposta do CNPJ.ws para o formato BrasilAPI
+function _normalizeCnpjWs(d){
+  if(!d) return d;
+  return {
+    cnpj: d.cnpj||'',
+    razao_social: d.razao_social||'',
+    nome_fantasia: d.estabelecimento?.nome_fantasia||'',
+    descricao_situacao_cadastral: d.estabelecimento?.situacao_cadastral||'',
+    data_inicio_atividade: d.estabelecimento?.data_inicio_atividade||'',
+    cnae_fiscal: d.estabelecimento?.atividade_principal?.id||'',
+    cnae_fiscal_descricao: d.estabelecimento?.atividade_principal?.descricao||'',
+    logradouro: d.estabelecimento?.logradouro||'',
+    numero: d.estabelecimento?.numero||'',
+    complemento: d.estabelecimento?.complemento||'',
+    bairro: d.estabelecimento?.bairro||'',
+    municipio: d.estabelecimento?.cidade?.nome||'',
+    uf: d.estabelecimento?.estado?.sigla||'',
+    cep: d.estabelecimento?.cep||'',
+    ddd_telefone_1: d.estabelecimento?.ddd1&&d.estabelecimento?.telefone1 ? d.estabelecimento.ddd1+d.estabelecimento.telefone1 : '',
+    ddd_telefone_2: d.estabelecimento?.ddd2&&d.estabelecimento?.telefone2 ? d.estabelecimento.ddd2+d.estabelecimento.telefone2 : '',
+    email: d.estabelecimento?.email||'',
+    capital_social: d.capital_social||0,
+    descricao_porte: d.porte?.descricao||'',
+    natureza_juridica: d.natureza_juridica?.descricao||'',
+    qsa: (d.socios||[]).map(s=>({
+      nome_socio: s.nome||'',
+      descricao_qualificacao_socio: s.qualificacao_socio?.descricao||''
+    }))
+  };
 }
 
 // ── CNPJ EM LOTE ─────────────────────────────────────────────────
@@ -4930,6 +4970,126 @@ function toast(msg, type='info', duration=3500){
     </div>
   </div>
 
+  <!-- ══════════════════════════════════════════════════════════
+       MODAL: IA PROPOSTA INTELIGENTE — Etapa 4 / Etapa 5
+       Ativado automaticamente quando lead entra em Proposta ou Negociando
+       ══════════════════════════════════════════════════════════ -->
+  <div id="modalIAPropostaWrap" onclick="if(event.target===this)fecharIAPropostaModal()" style="display:none;position:fixed;inset:0;z-index:10500;background:rgba(0,0,0,.78);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:16px;overflow-y:auto">
+    <div id="modalIAPropostaBox" style="background:var(--s1);border:1px solid rgba(184,122,255,.3);border-radius:24px;max-width:720px;width:100%;position:relative;box-shadow:0 32px 80px rgba(0,0,0,.7),0 0 60px rgba(184,122,255,.08);animation:fadeInCard .3s ease;overflow:hidden">
+
+      <!-- Glow bar top -->
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--purple),var(--accent),var(--purple),transparent)"></div>
+
+      <!-- Close -->
+      <button onclick="fecharIAPropostaModal()" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,.07);border:1px solid var(--border);color:var(--muted2);cursor:pointer;font-size:15px;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:10;transition:all .15s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted2)'">✕</button>
+
+      <div style="padding:26px 28px 24px">
+
+        <!-- Header -->
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+          <div style="width:44px;height:44px;background:linear-gradient(135deg,var(--purple),var(--accent));border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 4px 18px rgba(184,122,255,.4)">🤖</div>
+          <div>
+            <div style="font-size:16px;font-weight:800;letter-spacing:-.02em;color:var(--text)">IA Proposta Inteligente</div>
+            <div style="font-size:11px;color:var(--muted2);display:flex;align-items:center;gap:6px;margin-top:2px">
+              <span id="iap-stage-badge" style="background:rgba(184,122,255,.15);color:var(--purple);border:1px solid rgba(184,122,255,.3);padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700">📋 Etapa: Proposta</span>
+              <span id="iap-lead-nome" style="color:var(--muted)">Analisando...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lead context pill -->
+        <div id="iap-context-bar" style="background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin:14px 0;display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+          <span id="iap-nicho" style="font-size:11px;color:var(--accent2);font-weight:600">—</span>
+          <span style="color:var(--border2)">·</span>
+          <span id="iap-cidade" style="font-size:11px;color:var(--muted2)">—</span>
+          <span style="color:var(--border2)">·</span>
+          <span id="iap-temp-badge" style="font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;background:var(--volcano-bg);color:var(--volcano);border:1px solid var(--volcano-b)">—</span>
+          <span style="color:var(--border2)">·</span>
+          <span id="iap-site-info" style="font-size:11px;color:var(--muted2)">—</span>
+        </div>
+
+        <!-- ── LOADING STATE ── -->
+        <div id="iap-loading" style="text-align:center;padding:40px 20px">
+          <div style="width:56px;height:56px;border:3px solid var(--border);border-top-color:var(--purple);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 16px"></div>
+          <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px">Auditoria Digital em andamento</div>
+          <div id="iap-loading-step" style="font-size:12px;color:var(--muted2)">Analisando presença digital do lead...</div>
+          <div style="margin-top:18px;display:flex;flex-direction:column;gap:6px;max-width:320px;margin-left:auto;margin-right:auto" id="iap-steps-list">
+            <div class="iap-step-item" id="iap-s1">🔍 Verificando website e SEO...</div>
+            <div class="iap-step-item" id="iap-s2">🗺 Analisando presença no Maps / GMB...</div>
+            <div class="iap-step-item" id="iap-s3">📲 Avaliando redes sociais...</div>
+            <div class="iap-step-item" id="iap-s4">🤖 IA gerando diagnóstico personalizado...</div>
+            <div class="iap-step-item" id="iap-s5">💬 Redigindo proposta sob medida...</div>
+          </div>
+        </div>
+
+        <!-- ── RESULT STATE ── -->
+        <div id="iap-result" style="display:none">
+
+          <!-- Score geral -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;background:var(--s2);border:1px solid var(--border);border-radius:16px;padding:16px 20px;flex-wrap:wrap;gap:12px">
+            <div style="display:flex;align-items:center;gap:14px">
+              <div id="iap-score-circle" style="width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;border:3px solid var(--volcano);background:rgba(255,77,77,.1);color:var(--volcano);flex-shrink:0">—</div>
+              <div>
+                <div id="iap-score-label" style="font-size:14px;font-weight:800;color:var(--volcano)">Score Digital</div>
+                <div id="iap-score-reason" style="font-size:11px;color:var(--muted2);margin-top:2px;max-width:280px;line-height:1.4"></div>
+              </div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;font-family:monospace">Prob. Fechamento</div>
+              <div id="iap-prob-fechamento" style="font-size:22px;font-weight:900;color:var(--green)">—</div>
+            </div>
+          </div>
+
+          <!-- Auditoria Digital (4 cards) -->
+          <div style="font-size:10px;color:var(--muted2);font-family:monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">// Auditoria Digital — 4 Dimensões</div>
+          <div id="iap-audit-cards" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px"></div>
+
+          <!-- Diagnóstico -->
+          <div style="font-size:10px;color:var(--muted2);font-family:monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">// Problemas Detectados pela IA</div>
+          <div id="iap-diagnostico" style="display:flex;flex-direction:column;gap:6px;margin-bottom:18px"></div>
+
+          <!-- Recomendações -->
+          <div style="font-size:10px;color:var(--muted2);font-family:monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">// Serviços Recomendados</div>
+          <div id="iap-recomendacoes" style="display:flex;flex-direction:column;gap:6px;margin-bottom:18px"></div>
+
+          <!-- ROI Projeção -->
+          <div id="iap-roi-block" style="background:linear-gradient(135deg,rgba(82,217,148,.06),rgba(79,142,255,.06));border:1px solid rgba(82,217,148,.2);border-radius:14px;padding:16px;margin-bottom:18px">
+            <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:10px;display:flex;align-items:center;gap:6px">📈 Projeção de ROI para o Cliente</div>
+            <div id="iap-roi-content" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px"></div>
+          </div>
+
+          <!-- Proposta Pronta -->
+          <div style="font-size:10px;color:var(--muted2);font-family:monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">// Proposta Gerada pela IA</div>
+          <div id="iap-proposta-box" style="background:var(--bg);border:1px solid rgba(79,142,255,.25);border-radius:14px;padding:16px;font-size:12px;line-height:1.75;color:var(--text2);white-space:pre-wrap;font-family:'Plus Jakarta Sans',sans-serif;margin-bottom:6px;max-height:220px;overflow-y:auto;cursor:text"></div>
+          <div style="font-size:10px;color:var(--muted2);margin-bottom:16px;display:flex;align-items:center;gap:4px">💡 Edite diretamente acima se quiser personalizar antes de enviar.</div>
+
+          <!-- Ações -->
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button onclick="copiarIAProposta()" class="btn btn-ghost" style="flex:1;min-width:120px;font-size:12px;display:flex;align-items:center;justify-content:center;gap:5px">📋 Copiar Proposta</button>
+            <button onclick="enviarIAPropostaWhatsApp()" class="btn" style="flex:2;min-width:140px;font-size:12px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;box-shadow:none;display:flex;align-items:center;justify-content:center;gap:6px">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
+              Enviar WhatsApp
+            </button>
+            <button onclick="exportarIAPropostaHTML()" class="btn btn-ghost" style="flex:1;min-width:120px;font-size:12px;display:flex;align-items:center;justify-content:center;gap:5px">⬇ Baixar PDF</button>
+            <button onclick="regenerarIAProposta()" class="btn btn-ghost" style="font-size:11px;padding:8px 14px;display:flex;align-items:center;gap:4px;color:var(--purple)">🔄 Regenerar</button>
+          </div>
+        </div>
+
+        <!-- ── ERROR STATE ── -->
+        <div id="iap-error" style="display:none;text-align:center;padding:30px 20px">
+          <div style="font-size:36px;margin-bottom:12px">⚠️</div>
+          <div style="font-size:14px;font-weight:700;color:var(--orange);margin-bottom:6px">Análise Indisponível</div>
+          <div id="iap-error-msg" style="font-size:12px;color:var(--muted2);margin-bottom:16px">Verifique sua Claude API Key nas configurações.</div>
+          <div style="display:flex;gap:8px;justify-content:center">
+            <button onclick="regenerarIAProposta()" class="btn btn-primary" style="font-size:12px">🔄 Tentar Novamente</button>
+            <button onclick="fecharIAPropostaModal()" class="btn btn-ghost" style="font-size:12px">Fechar</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- ═══ PAGE: RELATÓRIOS ═══ -->
   <div class="page" id="pageRelatorio">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
@@ -5388,6 +5548,9 @@ function toast(msg, type='info', duration=3500){
         <!-- BUSCA PRINCIPAL -->
         <div style="font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">🗺 Busca de Leads — Google Maps</div>
         <div style="font-size:10px;color:var(--muted2);margin-bottom:10px;line-height:1.6">Usada para encontrar negócios no Google Maps. Gratuito até 200 req/mês, depois US$0,017/req. Obtenha em: <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:var(--accent2)">console.cloud.google.com</a></div>
+        <div style="font-size:10px;color:var(--muted2);margin-bottom:10px;line-height:1.5;background:rgba(255,200,0,.07);border:1px solid rgba(255,200,0,.2);border-radius:8px;padding:8px 10px">
+          🔐 <strong style="color:var(--text)">Proteja sua chave:</strong> a Google Maps API Key é enviada em requisições do navegador (necessário para APIs de Maps). Para evitar uso indevido, restrinja sua chave por <strong>Referenciador HTTP</strong> (seu domínio) e por <strong>API</strong> (apenas Places + Maps JavaScript) no <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:var(--accent2)">Google Cloud Console</a>.
+        </div>
         <div class="field" style="margin-bottom:10px">
           <label>Google Maps API Key</label>
           <div style="display:flex;gap:8px">
@@ -5489,6 +5652,23 @@ function toast(msg, type='info', duration=3500){
             <input type="text" id="proxyUrl" placeholder="https://script.google.com/macros/s/..." style="flex:1">
             <button class="btn btn-ghost" onclick="testProxy()" style="font-size:11px;white-space:nowrap">Testar</button>
             <span id="proxyStatus" class="status-pill pill-idle">— Não testado</span>
+          </div>
+        </div>
+
+        <!-- BACKEND / SUPABASE -->
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+          <div style="font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">🔒 Backend (Supabase)</div>
+          <div style="font-size:10px;color:var(--muted2);margin-bottom:10px;line-height:1.6;background:rgba(255,200,0,.07);border:1px solid rgba(255,200,0,.2);border-radius:8px;padding:8px 10px">
+            ⚠️ <strong style="color:var(--text)">Segurança:</strong> a chave anon do Supabase é pública por design, mas proteja seu backend ativando <strong>Row Level Security (RLS)</strong> em todas as tabelas. Acesse: <a href="https://supabase.com/dashboard" target="_blank" style="color:var(--accent2)">supabase.com/dashboard</a> → Authentication → Policies.
+          </div>
+          <div class="field" style="margin-bottom:8px">
+            <label>Supabase URL (projeto)</label>
+            <input type="text" id="sbUrl" placeholder="https://xxxx.supabase.co" autocomplete="off" style="font-family:monospace;font-size:11px">
+          </div>
+          <div class="field" style="margin-bottom:8px">
+            <label>Supabase Anon Key</label>
+            <input type="password" id="sbKey" placeholder="eyJhbGci..." autocomplete="off" style="font-family:monospace;font-size:11px">
+            <div style="font-size:10px;color:var(--muted2);margin-top:4px">Deixe em branco para usar o backend padrão do CAPTURO.</div>
           </div>
         </div>
       </div>
@@ -8714,7 +8894,7 @@ function cardHTML(l){
   // Bio link row (clicável!)
   const bioRow=l.bioUrl?`<div class="lead-biolink">🔗 <a href="${l.bioUrl}" target="_blank">${l.bioUrl}</a></div>`:'';
   // Snippet
-  const snippetRow=l.snippet&&l.source==='google'?`<div class="lead-snippet">${l.snippet.substring(0,150)}...</div>`:'';
+  const snippetRow=l.snippet&&l.source==='google'?`<div class="lead-snippet">${escHtml(l.snippet.substring(0,150))}...</div>`:'';
 
   // Email row
   let emailRow='';
@@ -8778,8 +8958,8 @@ function cardHTML(l){
   const aberturaRow = _cnpjDias!==null && _cnpjDias<=365
     ? `<div style="font-size:10px;color:${_cnpjDias<=30?'#ffb84d':'var(--muted2)'};margin:2px 0;font-family:'IBM Plex Mono',monospace">📅 Aberto há ${_cnpjDias<=30?'<strong>'+_cnpjDias+' dias</strong>':_cnpjDias<=90?_cnpjDias+' dias':Math.floor(_cnpjDias/30)+' meses'}${l.cnpjData?.capital_social?' · 💰 R$'+parseFloat(l.cnpjData.capital_social).toLocaleString('pt-BR',{maximumFractionDigits:0}):''}</div>`
     : '';
-  const aiObsBox=l.aiObservations?`<div style="background:rgba(168,85,247,.07);border:1px solid #2a1040;border-radius:7px;padding:8px 11px;margin-bottom:7px;font-size:10px;color:var(--muted2);font-family:'IBM Plex Mono',monospace;line-height:1.6"><span style="color:var(--purple);font-weight:700;font-size:9px">🤖 IA:</span> ${l.aiObservations}</div>`:'';
-  const aiBox=(l.siteIssues?.length||l.sitePitch)?`<div class="ai-analysis show"><div class="ai-analysis-title">✦ Análise IA</div><ul class="ai-issues">${(l.siteIssues||[]).map(i=>`<li>${i}</li>`).join('')}</ul>${l.sitePitch?`<div class="ai-pitch">"${l.sitePitch}"</div>`:''}</div>`:(l.aiObservations?aiObsBox:'');
+  const aiObsBox=l.aiObservations?`<div style="background:rgba(168,85,247,.07);border:1px solid #2a1040;border-radius:7px;padding:8px 11px;margin-bottom:7px;font-size:10px;color:var(--muted2);font-family:'IBM Plex Mono',monospace;line-height:1.6"><span style="color:var(--purple);font-weight:700;font-size:9px">🤖 IA:</span> ${escHtml(l.aiObservations)}</div>`:'';
+  const aiBox=(l.siteIssues?.length||l.sitePitch)?`<div class="ai-analysis show"><div class="ai-analysis-title">✦ Análise IA</div><ul class="ai-issues">${(l.siteIssues||[]).map(i=>`<li>${escHtml(i)}</li>`).join('')}</ul>${l.sitePitch?`<div class="ai-pitch">"${escHtml(l.sitePitch)}"</div>`:''}</div>`:(l.aiObservations?aiObsBox:'');
 
   // Bio badge — sempre que tiver bioUrl ou for volcano
   const bioBadge=(l.bioUrl||l.t==='volcano')?`<span class="tag tag-bio" onclick="openBioLinksModal('${l.id}')" title="Ver / buscar bio links">🔗 Bio</span>`:'';
@@ -8939,6 +9119,10 @@ function setCRMStatus(id, status){
     showConvertToClientBanner(id, l.name);
   } else {
     toast(`Status: ${getCRMLabel(status)}`,'ok');
+  }
+  // ── IA Proposta Inteligente — ativa na Etapa 4 (Proposta) ou 5 (Negociando) ──
+  if(status==='proposal'||status==='negotiating'){
+    setTimeout(()=>abrirIAPropostaModal(id), 400);
   }
   setTimeout(()=>syncToSheets(),500);
 }
@@ -9463,7 +9647,11 @@ function appendAIMsg(role, text){
   avatar.textContent=isUser?'👤':'🤖';
   const bubble=document.createElement('div');
   bubble.style.cssText=`max-width:75%;padding:12px 16px;border-radius:${isUser?'16px 4px 16px 16px':'4px 16px 16px 16px'};font-size:13px;line-height:1.6;${isUser?'background:var(--accent);color:#fff':'background:var(--s2);color:var(--text)'}`;
-  bubble.textContent=text;
+  // Seguro: usa createTextNode para evitar XSS, suporta \n como <br>
+  String(text||'').split('\n').forEach((line,i,arr)=>{
+    bubble.appendChild(document.createTextNode(line));
+    if(i<arr.length-1) bubble.appendChild(document.createElement('br'));
+  });
   div.appendChild(avatar);div.appendChild(bubble);
   msgs.appendChild(div);
   msgs.scrollTop=msgs.scrollHeight;
@@ -10181,6 +10369,7 @@ function _renderAlertasResultados(lista, cidade, nicho, dias){
     // Endereço completo
     const endParts = [emp.logradouro, emp.numero, emp.complemento, emp.bairro, emp.municipio, emp.uf, emp.cep ? 'CEP '+emp.cep : ''].filter(Boolean);
     const endereco = endParts.length ? escHtml(endParts.join(', ')) : '';
+    const endMapsUrl = endParts.length ? `https://maps.google.com/?q=${encodeURIComponent(endParts.join(', '))}` : '';
 
     // Sócios com qualificação
     const sociosArr = (emp.qsa||[]);
@@ -10235,13 +10424,15 @@ function _renderAlertasResultados(lista, cidade, nicho, dias){
 
       <!-- Dados principais sempre visíveis -->
       <div style="font-size:11px;color:var(--text2);line-height:1.9;margin-bottom:10px;border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:1px">
-        ${dtFmt!=='—' ? `<div>📅 <strong style="color:var(--text)">${dtFmt}</strong>${emp._apiFonte?` <span style="font-size:9px;background:var(--accent-bg);color:var(--accent);padding:1px 5px;border-radius:8px">${escHtml(emp._apiFonte)}</span>`:''}</div>` : ''}
+        ${cnpjFmt ? `<div>🏢 <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted2)">${cnpjFmt}</span>${emp._apiFonte?` <span style="font-size:9px;background:var(--accent-bg);color:var(--accent);padding:1px 5px;border-radius:8px">${escHtml(emp._apiFonte)}</span>`:''}</div>` : ''}
+        ${dtFmt!=='—' ? `<div>📅 <strong style="color:var(--text)">${dtFmt}</strong></div>` : ''}
         ${cnaePrinc ? `<div>🏷 <span title="${cnaeCod?'CNPJ CNAE: '+cnaeCod:''}">${cnaePrinc}${cnaeCod?` <span style="font-size:9px;color:var(--muted2)">[${cnaeCod}]</span>`:''}</span></div>` : ''}
         ${telFixo ? `<div>📞 <span style="font-family:'IBM Plex Mono',monospace;color:#4f8eff;font-weight:700;background:rgba(79,142,255,.13);padding:1px 7px;border-radius:6px;border:1px solid rgba(79,142,255,.25)">${telFixo}</span> <span style="font-size:9px;color:var(--muted2)">fixo</span></div>` : `<div style="opacity:.4">📞 Tel. não encontrado</div>`}
         ${telCel  ? `<div>📱 <span style="font-family:'IBM Plex Mono',monospace;color:#2dd4bf;font-weight:700;background:rgba(45,212,191,.13);padding:1px 7px;border-radius:6px;border:1px solid rgba(45,212,191,.25)">${telCel}</span> <span style="font-size:9px;color:var(--muted2)">celular</span></div>` : ''}
         ${email   ? `<div>✉ <a href="mailto:${email}" style="color:var(--accent);text-decoration:none;font-family:'IBM Plex Mono',monospace">${email}</a></div>` : ''}
         ${capital ? `<div>💰 <strong style="color:var(--green)">${capital}</strong> <span style="font-size:9px;color:var(--muted2)">capital social</span></div>` : ''}
-        ${endereco ? `<div>📍 <span style="color:var(--text2);font-weight:500">${endereco}</span></div>` : ''}
+        ${endereco ? `<div>📍 <span style="color:var(--text2);font-weight:500">${endereco}</span>${endMapsUrl?` <a href="${endMapsUrl}" target="_blank" onclick="event.stopPropagation()" style="color:var(--accent);text-decoration:none;font-size:9px;margin-left:4px;white-space:nowrap">Maps ↗</a>`:''}
+</div>` : ''}
       </div>
 
       <!-- Sócios e CNAEs secundários (expansível) -->
@@ -13517,6 +13708,11 @@ function openSettings(){
   $('proxyUrl').value = localStorage.getItem('capturo-proxyUrl')||'';
   $('cseId').value = localStorage.getItem('capturo-cseId')||'80d765485a3f94fa9';
   $('gKeyCSE').value = localStorage.getItem('capturo-gKeyCSE')||'';
+  // Supabase backend (não mostra o padrão, apenas o customizado)
+  const sbUrlStored = localStorage.getItem('capturo-sbUrl')||'';
+  const sbKeyStored = localStorage.getItem('capturo-sbKey')||'';
+  if($('sbUrl')) $('sbUrl').value = sbUrlStored;
+  if($('sbKey')) $('sbKey').value = sbKeyStored ? '••••••••••••' : '';
   $('serpKey').value = 'via-edge-function';
   $('rrKey').value = 'via-edge-function';
   $('enableAI').checked = localStorage.getItem('capturo-enableAI')==='true';
@@ -13602,6 +13798,13 @@ function saveSettings(){
     'serpKey':            $('serpKey').value.trim(),
     'capturo-rrKey':      $('rrKey').value.trim(),
   };
+  // Supabase backend — só salva se não for o placeholder de máscara
+  const sbUrlVal = $('sbUrl') ? $('sbUrl').value.trim() : '';
+  const sbKeyVal = $('sbKey') ? $('sbKey').value.trim() : '';
+  if(sbUrlVal && !sbUrlVal.startsWith('•')) localStorage.setItem('capturo-sbUrl', sbUrlVal);
+  else if(!sbUrlVal) localStorage.removeItem('capturo-sbUrl');
+  if(sbKeyVal && !sbKeyVal.startsWith('•')) localStorage.setItem('capturo-sbKey', sbKeyVal);
+  else if(!sbKeyVal) localStorage.removeItem('capturo-sbKey');
   Promise.all(Object.entries(keys).map(([k,v])=>saveEncryptedKey(k,v))).then(()=>{
     localStorage.setItem('capturo-enableAI', $('enableAI').checked);
     localStorage.setItem('capturo-enableHunter', $('enableHunter').checked);
@@ -15005,8 +15208,14 @@ function _syncShow(state){
 <!-- ══ SUPABASE AUTH + SYNC ══════════════════════════════════ -->
 <script>
 // ── Configuração ──────────────────────────────────────────────
-const SUPABASE_URL = 'https://qnxabfowdvohrolamktx.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFueGFiZm93ZHZvaHJvbGFta3R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0ODc0MTQsImV4cCI6MjA5MDA2MzQxNH0.FrhemfUDOWL4O632KchesHxM7f3BXDlPfuhZibn7PZ4';
+// SEGURANÇA: URL e chave anon carregadas do localStorage (não hardcoded).
+// A chave anon do Supabase é pública por design (role "anon"), mas
+// deve ter Row Level Security (RLS) ativado no painel do Supabase.
+// Configure em ⚙️ Configurações → Backend.
+const _SB_URL_DEFAULT = 'https://qnxabfowdvohrolamktx.supabase.co';
+const _SB_KEY_DEFAULT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFueGFiZm93ZHZvaHJvbGFta3R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0ODc0MTQsImV4cCI6MjA5MDA2MzQxNH0.FrhemfUDOWL4O632KchesHxM7f3BXDlPfuhZibn7PZ4';
+const SUPABASE_URL = localStorage.getItem('capturo-sbUrl') || _SB_URL_DEFAULT;
+const SUPABASE_KEY = localStorage.getItem('capturo-sbKey') || _SB_KEY_DEFAULT;
 
 // ── EDGE FUNCTIONS GATEWAY (chaves ficam no servidor) ─────────
 const EF = SUPABASE_URL + '/functions/v1';
@@ -15635,10 +15844,23 @@ async function loadFromSupabase(){
         if(msgs){
           msgs.innerHTML='';
           aiChatHistory.forEach(m=>{
-            const d=document.createElement('div');
-            d.style.cssText=`display:flex;gap:10px;align-items:flex-start;${m.role==='user'?'flex-direction:row-reverse':''}`;
-            d.innerHTML=`<div style="max-width:80%;padding:10px 14px;border-radius:${m.role==='user'?'16px 4px 16px 16px':'4px 16px 16px 16px'};background:${m.role==='user'?'var(--accent)':'var(--s2)'};color:${m.role==='user'?'#fff':'var(--text)'};font-size:13px;line-height:1.5">${(m.content||'').replace(/\n/g,'<br>')}</div>`;
-            msgs.appendChild(d);
+            // SEGURANÇA: usa appendAIMsg para renderização segura (textContent, sem innerHTML)
+            if(typeof appendAIMsg==='function'){
+              appendAIMsg(m.role, m.content||'');
+            } else {
+              // Fallback seguro: cria nós de texto, converte \n em <br> sem innerHTML bruto
+              const d=document.createElement('div');
+              d.style.cssText=`display:flex;gap:10px;align-items:flex-start;${m.role==='user'?'flex-direction:row-reverse':''}`;
+              const bubble=document.createElement('div');
+              bubble.style.cssText=`max-width:80%;padding:10px 14px;border-radius:${m.role==='user'?'16px 4px 16px 16px':'4px 16px 16px 16px'};background:${m.role==='user'?'var(--accent)':'var(--s2)'};color:${m.role==='user'?'#fff':'var(--text)'};font-size:13px;line-height:1.5`;
+              // Quebra o texto por \n e intercala <br> sem interpretar HTML
+              (m.content||'').split('\n').forEach((line,i,arr)=>{
+                bubble.appendChild(document.createTextNode(line));
+                if(i<arr.length-1) bubble.appendChild(document.createElement('br'));
+              });
+              d.appendChild(bubble);
+              msgs.appendChild(d);
+            }
           });
           msgs.scrollTop=msgs.scrollHeight;
         }
@@ -15978,6 +16200,9 @@ function resetFiltros(){
 }
 
 function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+// Escape para uso dentro de atributos JS (onclick, ondragstart, etc.)
+// Escapa: \  '  "  `  <  >  para evitar XSS em contextos JavaScript inline
+function escJs(s){ return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"').replace(/`/g,'\\`').replace(/</g,'\\x3c').replace(/>/g,'\\x3e'); }
 
 function gsGoToLead(leadId, campId){
   closeGlobalSearch({});
@@ -18666,6 +18891,463 @@ function aiDeletarConversa(convId){
     }
   };
 })();
+</script>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     IA PROPOSTA INTELIGENTE — CSS + Lógica completa
+     Etapa 4 (Proposta) e Etapa 5 (Negociando) do Pipeline
+     ══════════════════════════════════════════════════════════════════ -->
+<style>
+/* ── Steps de loading ── */
+.iap-step-item{
+  font-size:11px;color:var(--muted2);padding:5px 10px;border-radius:8px;
+  background:var(--s2);border:1px solid var(--border);
+  transition:all .3s;display:flex;align-items:center;gap:6px;
+  font-family:'IBM Plex Mono',monospace;
+}
+.iap-step-item.done{color:var(--green);border-color:rgba(82,217,148,.3);background:rgba(82,217,148,.06)}
+.iap-step-item.done::before{content:'✓ ';color:var(--green)}
+.iap-step-item.active{color:var(--accent2);border-color:rgba(79,142,255,.3);background:rgba(79,142,255,.06)}
+
+/* ── Audit card ── */
+.iap-audit-card{
+  background:var(--s2);border:1px solid var(--border);border-radius:12px;
+  padding:12px 10px;text-align:center;
+}
+.iap-audit-score{
+  font-size:20px;font-weight:900;font-family:'IBM Plex Mono',monospace;
+  line-height:1;margin-bottom:4px;
+}
+.iap-audit-label{font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:6px}
+.iap-audit-bar{height:4px;border-radius:4px;background:var(--border);overflow:hidden}
+.iap-audit-bar-fill{height:100%;border-radius:4px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+
+/* ── Diagnóstico ── */
+.iap-diag-item{
+  display:flex;align-items:flex-start;gap:10px;
+  background:var(--s2);border:1px solid var(--border);border-radius:10px;
+  padding:10px 13px;font-size:12px;line-height:1.5;
+}
+.iap-diag-badge{
+  font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;
+  white-space:nowrap;flex-shrink:0;margin-top:1px;font-family:monospace;
+}
+.iap-sev-alta{background:rgba(255,77,77,.12);color:var(--volcano);border:1px solid rgba(255,77,77,.25)}
+.iap-sev-media{background:rgba(255,191,0,.1);color:var(--warm);border:1px solid rgba(255,191,0,.25)}
+.iap-sev-baixa{background:rgba(82,217,148,.1);color:var(--green);border:1px solid rgba(82,217,148,.25)}
+
+/* ── Recomendação ── */
+.iap-rec-item{
+  display:flex;align-items:center;gap:10px;
+  background:var(--s2);border:1px solid var(--border);border-radius:10px;
+  padding:10px 13px;transition:border-color .15s;
+}
+.iap-rec-item:hover{border-color:rgba(79,142,255,.35)}
+.iap-rec-rank{
+  width:24px;height:24px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:900;flex-shrink:0;
+  font-family:'IBM Plex Mono',monospace;
+}
+.iap-rec-rank-1{background:rgba(255,215,0,.15);color:#ffd700;border:1px solid rgba(255,215,0,.3)}
+.iap-rec-rank-2{background:rgba(192,192,192,.15);color:#c0c0c0;border:1px solid rgba(192,192,192,.3)}
+.iap-rec-rank-3{background:rgba(205,127,50,.15);color:#cd7f32;border:1px solid rgba(205,127,50,.3)}
+.iap-rec-rank-n{background:var(--s3);color:var(--muted2);border:1px solid var(--border)}
+
+/* ── ROI metric ── */
+.iap-roi-metric{text-align:center;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 8px}
+.iap-roi-val{font-size:16px;font-weight:900;color:var(--green);line-height:1;margin-bottom:4px}
+.iap-roi-lbl{font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;font-family:monospace}
+</style>
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// IA PROPOSTA INTELIGENTE — Motor principal
+// ══════════════════════════════════════════════════════════════════
+
+let _iapLeadId = null;
+let _iapLeadData = null;
+
+// ── Abrir modal ───────────────────────────────────────────────────
+function abrirIAPropostaModal(leadId){
+  const lead = findLeadAnywhere ? findLeadAnywhere(leadId) : leads.find(x=>x.id===leadId);
+  if(!lead) return;
+  _iapLeadId  = leadId;
+  _iapLeadData = lead;
+
+  const camp = campaigns.find(c=>(c.leads||[]).some(l=>l.id===leadId));
+
+  // Preencher contexto no modal
+  const stageLabel = lead.status==='negotiating' ? '🤝 Etapa 5: Negociando' : '📋 Etapa 4: Proposta';
+  const tempMap = {volcano:'🌋 Vulcão',hot:'🔥 Quente',warm:'🌡 Morno',cold:'❄ Frio',frozen:'🧊 Gelado'};
+  const tempColors = {volcano:'var(--volcano)',hot:'var(--orange)',warm:'var(--warm)',cold:'var(--accent)',frozen:'var(--teal)'};
+  const tempBg = {volcano:'var(--volcano-bg)',hot:'var(--hot-bg)',warm:'var(--warm-bg)',cold:'var(--cold-bg)',frozen:'var(--frozen-bg)'};
+  const tempB  = {volcano:'var(--volcano-b)',hot:'var(--hot-b)',warm:'var(--warm-b)',cold:'var(--cold-b)',frozen:'var(--frozen-b)'};
+
+  const $=id=>document.getElementById(id);
+  $('iap-stage-badge').textContent = stageLabel;
+  $('iap-lead-nome').textContent   = lead.name || '—';
+  $('iap-nicho').textContent       = (camp&&camp.nicho)||lead.nicho||'Negócio local';
+  $('iap-cidade').textContent      = lead.city||(camp&&camp.city)||lead.formatted_address||'—';
+  $('iap-temp-badge').textContent  = tempMap[lead.t]||'—';
+  $('iap-temp-badge').style.color  = tempColors[lead.t]||'var(--muted2)';
+  $('iap-temp-badge').style.background = tempBg[lead.t]||'var(--s2)';
+  $('iap-temp-badge').style.borderColor = tempB[lead.t]||'var(--border)';
+
+  const siteInfo = lead.website ? `🌐 ${lead.website}` : (lead.t==='volcano'?'🔗 Só Bio Link':'✕ Sem site');
+  $('iap-site-info').textContent = siteInfo;
+
+  // Resetar estados
+  $('iap-loading').style.display = 'block';
+  $('iap-result').style.display  = 'none';
+  $('iap-error').style.display   = 'none';
+  document.querySelectorAll('.iap-step-item').forEach(el=>{el.classList.remove('done','active');});
+
+  // Mostrar modal
+  const wrap = $('modalIAPropostaWrap');
+  wrap.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
+  // Iniciar geração
+  _iapRunAnalysis(lead, camp);
+}
+
+function fecharIAPropostaModal(){
+  const wrap = document.getElementById('modalIAPropostaWrap');
+  if(wrap) wrap.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+// ── Animar steps de loading ───────────────────────────────────────
+async function _iapAnimateStep(stepId, delay=0){
+  return new Promise(res=>{
+    setTimeout(()=>{
+      const prev = parseInt(stepId.replace('iap-s',''));
+      if(prev>1){
+        const prevEl = document.getElementById('iap-s'+(prev-1));
+        if(prevEl){ prevEl.classList.remove('active'); prevEl.classList.add('done'); }
+      }
+      const el = document.getElementById(stepId);
+      if(el) el.classList.add('active');
+      res();
+    }, delay);
+  });
+}
+
+// ── Executar análise com Claude ───────────────────────────────────
+async function _iapRunAnalysis(lead, camp){
+  const steps = ['iap-s1','iap-s2','iap-s3','iap-s4','iap-s5'];
+
+  // Animar steps progressivamente
+  _iapAnimateStep('iap-s1', 0);
+  _iapAnimateStep('iap-s2', 600);
+  _iapAnimateStep('iap-s3', 1200);
+  _iapAnimateStep('iap-s4', 1800);
+
+  const nicho    = (camp&&camp.nicho)||lead.nicho||'negócio local';
+  const cidade   = lead.city||(camp&&camp.city)||'cidade';
+  const bairro   = lead.neighborhood||'';
+  const website  = lead.website||'';
+  const rating   = lead.rating ? `${lead.rating} estrelas com ${lead.user_ratings_total||0} avaliações` : 'sem avaliações no Google';
+  const siteScore= lead.siteScore!=null ? `${lead.siteScore}/10` : 'não analisado';
+  const issues   = (lead.siteIssues||[]).join(', ')||'não identificados';
+  const temSite  = lead.t!=='volcano' && !!lead.website;
+  const temBio   = lead.t==='volcano';
+  const temInst  = !!(lead.instagram||lead.instagramUrl||(lead.bioSite&&lead.bioSite.includes('insta')));
+  const temFB    = !!(lead.facebook||lead.facebookUrl);
+  const notes    = lead.notes||lead.aiObservations||'';
+  const tempLabel= {volcano:'Vulcão (só bio link / sem site)',hot:'Quente (sem site)',warm:'Morno (site fraco)',cold:'Frio (site ruim)',frozen:'Gelado (boa presença)'}[lead.t]||lead.t;
+
+  const prompt = `Você é um analista sênior de marketing digital com 15 anos de experiência. Realize uma auditoria completa de presença digital do seguinte negócio para gerar uma proposta comercial premium.
+
+DADOS DO LEAD:
+- Nome: ${lead.name||'—'}
+- Nicho: ${nicho}
+- Cidade/Bairro: ${cidade}${bairro?' — '+bairro:''}
+- Site: ${website||'NÃO TEM SITE'}
+- Temperatura: ${tempLabel}
+- Avaliação Google Maps: ${rating}
+- Score do site (análise anterior): ${siteScore}
+- Problemas já detectados no site: ${issues}
+- Tem Instagram: ${temInst?'Sim':'Não confirmado'}
+- Tem Facebook: ${temFB?'Sim':'Não confirmado'}
+- Observações adicionais: ${notes||'—'}
+
+INSTRUÇÃO:
+Gere uma análise completa e estruturada. Responda APENAS com JSON válido, sem markdown, sem texto fora do JSON.
+
+Estrutura obrigatória:
+{
+  "score_geral": <número 0-100>,
+  "score_reason": "<frase curta explicando o score>",
+  "prob_fechamento": "<percentual ex: 82%>",
+  "urgencia": <1-10>,
+  "auditoria": {
+    "website": {"score": <0-100>, "status": "<status>", "cor": "<green|orange|red>"},
+    "gmb": {"score": <0-100>, "status": "<status>", "cor": "<green|orange|red>"},
+    "social": {"score": <0-100>, "status": "<status>", "cor": "<green|orange|red>"},
+    "seo_local": {"score": <0-100>, "status": "<status>", "cor": "<green|orange|red>"}
+  },
+  "diagnostico": [
+    {"severidade": "<alta|media|baixa>", "problema": "<descrição específica do problema>"},
+    {"severidade": "<alta|media|baixa>", "problema": "<...>"},
+    {"severidade": "<alta|media|baixa>", "problema": "<...>"},
+    {"severidade": "<media|baixa>", "problema": "<...>"}
+  ],
+  "recomendacoes": [
+    {"rank": 1, "servico": "<nome do serviço>", "motivo": "<por que é urgente>", "valor": "<ex: R$ 1.497/mês>"},
+    {"rank": 2, "servico": "<nome>", "motivo": "<...>", "valor": "<...>"},
+    {"rank": 3, "servico": "<nome>", "motivo": "<...>", "valor": "<...>"}
+  ],
+  "roi": {
+    "investimento": "<ex: R$ 1.997/mês>",
+    "novos_clientes": "<ex: +18 clientes/mês>",
+    "payback": "<ex: 8 dias>",
+    "observacao": "<frase de impacto sobre o ROI>"
+  },
+  "proposta_texto": "<mensagem de proposta completa, profissional e persuasiva, 4-6 parágrafos, em português brasileiro, personalizada para o negócio. Mencione problemas específicos detectados. Termine com call-to-action claro.>"
+}`;
+
+  try {
+    _iapAnimateStep('iap-s4', 0);
+
+    const resp = await efCall('claude-ai', {
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 2000,
+      messages: [{role:'user', content: prompt}]
+    });
+
+    const txt = resp?.content?.[0]?.text || '';
+    const jsonMatch = txt.match(/\{[\s\S]*\}/);
+    if(!jsonMatch) throw new Error('Resposta inválida da IA');
+
+    const data = JSON.parse(jsonMatch[0]);
+
+    // Animar último step
+    await _iapAnimateStep('iap-s5', 0);
+    await new Promise(r=>setTimeout(r,600));
+
+    // Marcar todos como done
+    document.querySelectorAll('.iap-step-item').forEach(el=>{ el.classList.remove('active'); el.classList.add('done'); });
+
+    await new Promise(r=>setTimeout(r,400));
+
+    // Renderizar resultado
+    _iapRenderResult(data, lead);
+
+  } catch(err){
+    console.error('[IA Proposta]', err);
+    document.getElementById('iap-loading').style.display = 'none';
+    document.getElementById('iap-error').style.display   = 'block';
+    document.getElementById('iap-error-msg').textContent =
+      err?.message?.includes('key')||err?.message?.includes('API')
+        ? 'Configure sua Claude API Key em Configurações → Integrações para usar esta feature.'
+        : (err?.message||'Erro ao gerar análise. Tente novamente.');
+  }
+}
+
+// ── Renderizar resultado ──────────────────────────────────────────
+function _iapRenderResult(data, lead){
+  const $=id=>document.getElementById(id);
+
+  // Esconder loading, mostrar resultado
+  $('iap-loading').style.display = 'none';
+  $('iap-result').style.display  = 'block';
+
+  // Score geral
+  const score = data.score_geral||0;
+  const scoreColor = score>=80?'var(--volcano)':score>=60?'var(--orange)':score>=40?'var(--warm)':'var(--accent)';
+  const scoreBg    = score>=80?'rgba(255,77,77,.12)':score>=60?'rgba(255,140,0,.1)':score>=40?'rgba(255,191,0,.1)':'rgba(79,142,255,.1)';
+  const scoreLabel = score>=80?'🌋 Alta Oportunidade':score>=60?'🔥 Boa Oportunidade':score>=40?'🌡 Oportunidade Moderada':'❄ Baixa Prioridade';
+  $('iap-score-circle').textContent   = score;
+  $('iap-score-circle').style.color   = scoreColor;
+  $('iap-score-circle').style.borderColor = scoreColor;
+  $('iap-score-circle').style.background  = scoreBg;
+  $('iap-score-label').textContent    = scoreLabel;
+  $('iap-score-label').style.color    = scoreColor;
+  $('iap-score-reason').textContent   = data.score_reason||'';
+  $('iap-prob-fechamento').textContent= data.prob_fechamento||'—';
+
+  // Auditoria cards
+  const auditMap = {
+    website: {icon:'🌐', label:'Website'},
+    gmb:     {icon:'🗺', label:'GMB'},
+    social:  {icon:'📲', label:'Social'},
+    seo_local:{icon:'🔍', label:'SEO Local'}
+  };
+  const colorMap = {green:['var(--green)','rgba(82,217,148,.6)'], orange:['var(--orange)','rgba(255,149,0,.6)'], red:['var(--volcano)','rgba(255,77,77,.6)']};
+  let auditHTML = '';
+  Object.entries(auditMap).forEach(([key,{icon,label}])=>{
+    const a = data.auditoria?.[key]||{score:0,status:'—',cor:'red'};
+    const [clr, barClr] = colorMap[a.cor]||colorMap.red;
+    auditHTML += `
+    <div class="iap-audit-card">
+      <div style="font-size:18px;margin-bottom:4px">${icon}</div>
+      <div class="iap-audit-label">${label}</div>
+      <div class="iap-audit-score" style="color:${clr}">${a.score}</div>
+      <div style="font-size:9px;color:var(--muted2);margin-bottom:6px;line-height:1.3">${a.status}</div>
+      <div class="iap-audit-bar"><div class="iap-audit-bar-fill" style="width:${a.score}%;background:${barClr}"></div></div>
+    </div>`;
+  });
+  $('iap-audit-cards').innerHTML = auditHTML;
+
+  // Diagnóstico
+  const sevLabel = {alta:'🔴 Alta',media:'🟡 Média',baixa:'🟢 Baixa'};
+  const sevClass = {alta:'iap-sev-alta',media:'iap-sev-media',baixa:'iap-sev-baixa'};
+  const diagHTML = (data.diagnostico||[]).map(d=>`
+    <div class="iap-diag-item">
+      <span class="iap-diag-badge ${sevClass[d.severidade]||'iap-sev-media'}">${sevLabel[d.severidade]||d.severidade}</span>
+      <span style="color:var(--text2)">${escHtml?escHtml(d.problema):d.problema}</span>
+    </div>`).join('');
+  $('iap-diagnostico').innerHTML = diagHTML||'<div style="font-size:12px;color:var(--muted2)">Nenhum problema crítico identificado.</div>';
+
+  // Recomendações
+  const rankClass = ['iap-rec-rank-1','iap-rec-rank-2','iap-rec-rank-3'];
+  const recHTML = (data.recomendacoes||[]).map((r,i)=>`
+    <div class="iap-rec-item">
+      <div class="iap-rec-rank ${rankClass[i]||'iap-rec-rank-n'}">${r.rank||i+1}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px">${escHtml?escHtml(r.servico):r.servico}</div>
+        <div style="font-size:10px;color:var(--muted2);line-height:1.4">${escHtml?escHtml(r.motivo):r.motivo}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:11px;font-weight:700;color:var(--green);font-family:monospace">${r.valor||'—'}</div>
+      </div>
+    </div>`).join('');
+  $('iap-recomendacoes').innerHTML = recHTML||'<div style="font-size:12px;color:var(--muted2)">Nenhuma recomendação gerada.</div>';
+
+  // ROI
+  const roi = data.roi||{};
+  $('iap-roi-content').innerHTML = `
+    <div class="iap-roi-metric">
+      <div class="iap-roi-val">${roi.investimento||'—'}</div>
+      <div class="iap-roi-lbl">Investimento Sugerido</div>
+    </div>
+    <div class="iap-roi-metric">
+      <div class="iap-roi-val" style="color:var(--teal)">${roi.novos_clientes||'—'}</div>
+      <div class="iap-roi-lbl">Novos Clientes Est.</div>
+    </div>
+    <div class="iap-roi-metric">
+      <div class="iap-roi-val" style="color:var(--accent)">${roi.payback||'—'}</div>
+      <div class="iap-roi-lbl">Payback Estimado</div>
+    </div>
+    ${roi.observacao?`<div style="grid-column:1/-1;font-size:10px;color:var(--muted2);font-style:italic;text-align:center;padding-top:4px">💡 ${roi.observacao}</div>`:''}`;
+
+  // Proposta texto
+  $('iap-proposta-box').textContent = data.proposta_texto||'—';
+  $('iap-proposta-box').setAttribute('contenteditable','true');
+
+  // Salvar no lead para referência futura
+  if(_iapLeadData){
+    _iapLeadData.iapPropostaData = data;
+    _iapLeadData.iapPropostaTs   = Date.now();
+    if(typeof saveCampaigns==='function') saveCampaigns();
+  }
+
+  // Registrar atividade no lead
+  if(typeof addLeadActivity==='function' && _iapLeadId){
+    addLeadActivity(_iapLeadId,'ai','🤖 IA Proposta gerada — Score: '+score+' | '+data.prob_fechamento+' prob. fechamento');
+  }
+}
+
+// ── Ações do modal ────────────────────────────────────────────────
+function copiarIAProposta(){
+  const box = document.getElementById('iap-proposta-box');
+  if(!box) return;
+  const txt = box.textContent||box.innerText||'';
+  navigator.clipboard.writeText(txt).then(()=>{
+    toast('Proposta copiada!','ok',2500);
+  }).catch(()=>{
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = txt; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    toast('Proposta copiada!','ok',2500);
+  });
+}
+
+function enviarIAPropostaWhatsApp(){
+  const lead = _iapLeadData;
+  if(!lead){ toast('Lead não encontrado','warn'); return; }
+  const phone = (lead.manualWa||lead.formatted_phone_number||'').replace(/\D/g,'');
+  const box   = document.getElementById('iap-proposta-box');
+  const txt   = (box?.textContent||box?.innerText||'').trim();
+  if(!txt){ toast('Gere uma proposta primeiro','warn'); return; }
+  if(!phone){ toast('Lead não tem WhatsApp cadastrado','warn',3000); return; }
+  const url = `https://wa.me/${phone}?text=${encodeURIComponent(txt)}`;
+  window.open(url,'_blank');
+}
+
+function exportarIAPropostaHTML(){
+  const lead  = _iapLeadData;
+  const box   = document.getElementById('iap-proposta-box');
+  const txt   = (box?.textContent||box?.innerText||'').trim();
+  const data  = lead?.iapPropostaData||{};
+  const nicho = lead?.nicho||(campaigns.find(c=>(c.leads||[]).some(l=>l.id===_iapLeadId))?.nicho)||'negócio';
+
+  const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><title>Proposta — ${lead?.name||'Lead'}</title>
+<style>
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:#f5f5f7;color:#1a1a2e;margin:0;padding:0}
+  .wrap{max-width:720px;margin:40px auto;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.12)}
+  .header{background:linear-gradient(135deg,#0A0A1F,#1C1C3A);padding:36px 40px;color:#fff}
+  .header h1{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
+  .header .sub{font-size:13px;color:rgba(255,255,255,.55)}
+  .body{padding:36px 40px}
+  .score-row{display:flex;gap:16px;margin-bottom:28px;flex-wrap:wrap}
+  .score-card{flex:1;min-width:140px;background:#f5f5f7;border-radius:12px;padding:16px;text-align:center}
+  .score-card .val{font-size:24px;font-weight:900;color:#4F8EFF}
+  .score-card .lbl{font-size:10px;color:#7070a0;text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
+  .section-title{font-size:11px;color:#7070a0;text-transform:uppercase;letter-spacing:.08em;font-family:monospace;margin:24px 0 10px;font-weight:700}
+  .diag-item{background:#f9f9fc;border-left:3px solid #ff5252;border-radius:0 8px 8px 0;padding:8px 12px;font-size:13px;margin-bottom:6px}
+  .rec-item{display:flex;align-items:center;gap:12px;background:#f9f9fc;border-radius:8px;padding:10px 14px;margin-bottom:6px}
+  .rec-rank{width:22px;height:22px;border-radius:50%;background:#4F8EFF;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0}
+  .proposta{background:#f5f5f7;border-radius:12px;padding:24px;font-size:14px;line-height:1.8;white-space:pre-wrap;margin-top:8px}
+  .footer{background:#f5f5f7;padding:20px 40px;font-size:11px;color:#7070a0;text-align:center;border-top:1px solid #e5e5ea}
+</style></head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="sub">CAPTURO — IA Proposta Inteligente</div>
+    <h1>${lead?.name||'Proposta Comercial'}</h1>
+    <div class="sub">${nicho} · ${lead?.city||''} · ${new Date().toLocaleDateString('pt-BR')}</div>
+  </div>
+  <div class="body">
+    <div class="score-row">
+      <div class="score-card"><div class="val">${data.score_geral||'—'}</div><div class="lbl">Score Digital</div></div>
+      <div class="score-card"><div class="val" style="color:#52d994">${data.prob_fechamento||'—'}</div><div class="lbl">Prob. Fechamento</div></div>
+      <div class="score-card"><div class="val" style="color:#ffbf00">${data.urgencia||'—'}/10</div><div class="lbl">Urgência</div></div>
+      <div class="score-card"><div class="val" style="color:#52d994">${data.roi?.investimento||'—'}</div><div class="lbl">Investimento Sug.</div></div>
+    </div>
+    ${(data.diagnostico||[]).length?`<div class="section-title">Problemas Detectados</div>${(data.diagnostico||[]).map(d=>`<div class="diag-item">${d.problema}</div>`).join('')}`:''}
+    ${(data.recomendacoes||[]).length?`<div class="section-title">Serviços Recomendados</div>${(data.recomendacoes||[]).map(r=>`<div class="rec-item"><div class="rec-rank">${r.rank}</div><div><strong>${r.servico}</strong> <span style="color:#7070a0;font-size:12px">— ${r.motivo}</span></div><div style="margin-left:auto;font-weight:700;color:#52d994">${r.valor}</div></div>`).join('')}`:''}
+    <div class="section-title">Proposta Personalizada</div>
+    <div class="proposta">${txt}</div>
+  </div>
+  <div class="footer">Gerado por CAPTURO IA · ${new Date().toLocaleString('pt-BR')} · Confidencial</div>
+</div>
+</body></html>`;
+
+  const blob = new Blob([html],{type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `proposta_${(lead?.name||'lead').replace(/[^a-z0-9]/gi,'_').toLowerCase()}.html`;
+  a.click();
+  toast('Proposta baixada!','ok',2500);
+}
+
+function regenerarIAProposta(){
+  if(!_iapLeadId||!_iapLeadData) return;
+  const camp = campaigns.find(c=>(c.leads||[]).some(l=>l.id===_iapLeadId));
+  const $ = id=>document.getElementById(id);
+  $('iap-loading').style.display = 'block';
+  $('iap-result').style.display  = 'none';
+  $('iap-error').style.display   = 'none';
+  document.querySelectorAll('.iap-step-item').forEach(el=>{el.classList.remove('done','active');});
+  _iapRunAnalysis(_iapLeadData, camp);
+}
 </script>
 </body>
 </html>
