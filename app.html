@@ -5996,6 +5996,68 @@ function toast(msg, type='info', duration=3500){
   </div>
 </div>
 
+<!-- ══ HELPERS — devem ser carregados ANTES de qualquer outro script ══ -->
+<script>
+// ── Escape seguro para HTML e atributos JS inline ─────────────────────────
+function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escJs(s){ return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"').replace(/`/g,'\\`').replace(/</g,'\\x3c').replace(/>/g,'\\x3e'); }
+// ── LocalStorage helpers — nunca lançam exceção ────────────────────────────
+function lsGet(key, fallback){ try{ const v=localStorage.getItem(key); return v===null ? fallback : JSON.parse(v); }catch(e){ console.warn('[CAPTURO] lsGet corrompido:',key,e); return fallback; } }
+function lsSet(key, value){ try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){ console.warn('[CAPTURO] lsSet falhou:',key,e); } }
+// ── Schema Validators ─────────────────────────────────────────────────────
+function _validateLead(l){
+  if(!l || typeof l !== 'object') return null;
+  return {
+    id:         (typeof l.id==='string' && l.id) ? l.id : crypto.randomUUID(),
+    name:       typeof l.name==='string'   ? l.name   : '',
+    status:     ['new','contacted','replied','proposal','negotiating','closed','lost'].includes(l.status) ? l.status : 'new',
+    t:          ['volcano','hot','warm','cold','frozen'].includes(l.t) ? l.t : 'cold',
+    score:      typeof l.score==='number'  ? l.score  : 0,
+    email:      typeof l.email==='string'  ? l.email  : '',
+    phone:      typeof l.phone==='string'  ? l.phone  : '',
+    website:    typeof l.website==='string'? l.website: '',
+    city:       typeof l.city==='string'   ? l.city   : '',
+    notes:      typeof l.notes==='string'  ? l.notes  : '',
+    activities: Array.isArray(l.activities)? l.activities : [],
+    siteIssues: Array.isArray(l.siteIssues)? l.siteIssues : [],
+    source:     typeof l.source==='string' ? l.source : 'manual',
+    ...Object.fromEntries(Object.entries(l).filter(([k])=>!['id','name','status','t','score','email','phone','website','city','notes','activities','siteIssues','source'].includes(k)))
+  };
+}
+function _validateCampaign(c){
+  if(!c || typeof c !== 'object') return null;
+  return {
+    id:    (typeof c.id==='string' && c.id) ? c.id : crypto.randomUUID(),
+    name:  typeof c.name==='string'  ? c.name   : 'Campanha',
+    nicho: typeof c.nicho==='string' ? c.nicho  : '',
+    city:  typeof c.city==='string'  ? c.city   : '',
+    leads: Array.isArray(c.leads)    ? c.leads.map(_validateLead).filter(Boolean) : [],
+    ...Object.fromEntries(Object.entries(c).filter(([k])=>!['id','name','nicho','city','leads'].includes(k)))
+  };
+}
+function _validateCampaigns(raw){ if(!Array.isArray(raw)){ console.warn('[CAPTURO] campaigns corrompido — resetando para []'); return []; } return raw.map(_validateCampaign).filter(Boolean); }
+function _validateClients(raw){ if(!Array.isArray(raw)) return []; return raw.filter(c => c && typeof c === 'object' && c.id); }
+function _validateFollowups(raw){ if(!Array.isArray(raw)) return []; return raw.filter(f => f && typeof f === 'object' && f.id && f.date); }
+// ── Fetch com timeout ─────────────────────────────────────────────────────
+async function _fetch(url, opts={}, ms=10000){ const ctrl = new AbortController(); const tid = setTimeout(()=>ctrl.abort(), ms); try{ return await fetch(url, {...opts, signal: ctrl.signal}); } finally { clearTimeout(tid); } }
+// ── Sleep helper ──────────────────────────────────────────────────────────
+const _sleep = ms => new Promise(r => setTimeout(r, ms));
+// ── Rate limiter com backoff exponencial em 429 ───────────────────────────
+const _rlState = {};
+async function _rateLimitedCall(fn, apiName='api', maxRetries=3){
+  for(let attempt=0; attempt<=maxRetries; attempt++){
+    try{ const result = await fn(); if(_rlState[apiName]) _rlState[apiName] = 0; return result; }
+    catch(e){
+      const is429 = e?.message?.includes('429') || e?.status === 429;
+      if(is429 && attempt < maxRetries){ const wait = Math.min(1000 * Math.pow(2, attempt), 16000); console.warn(`[CAPTURO] ${apiName} 429 — aguardando ${wait}ms`); await _sleep(wait); continue; }
+      if(e?.name === 'AbortError') throw new Error(`Timeout na chamada ${apiName}`);
+      throw e;
+    }
+  }
+}
+const MAX_AI_BATCH = 30;
+</script>
+
 <script>
 // ══════════════════════════════════════════
 // DATA
@@ -16194,110 +16256,6 @@ function resetFiltros(){
   sel('filterMaxLeads', '0');
   toast('Filtros restaurados para o padrão.', 'ok', 2000);
 }
-
-function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-// Escape para uso dentro de atributos JS (onclick, ondragstart, etc.)
-function escJs(s){ return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"').replace(/`/g,'\\`').replace(/</g,'\\x3c').replace(/>/g,'\\x3e'); }
-// Leitura segura do localStorage — nunca lança SyntaxError se JSON corrompido
-function lsGet(key, fallback){ try{ const v=localStorage.getItem(key); return v===null ? fallback : JSON.parse(v); }catch(e){ console.warn('[CAPTURO] lsGet corrompido:',key,e); return fallback; } }
-// Escrita segura no localStorage — ignora silenciosamente se quota excedida
-function lsSet(key, value){ try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){ console.warn('[CAPTURO] lsSet falhou:',key,e); } }
-
-// ── Schema Validation ─────────────────────────────────────────────────────────
-// Garante que dados lidos do localStorage têm a estrutura mínima esperada.
-// Corrige campos ausentes/inválidos sem apagar os dados existentes.
-
-function _validateLead(l){
-  if(!l || typeof l !== 'object') return null;
-  return {
-    id:           (typeof l.id==='string' && l.id) ? l.id : crypto.randomUUID(),
-    name:         typeof l.name==='string'   ? l.name   : '',
-    status:       ['new','contacted','replied','proposal','negotiating','closed','lost'].includes(l.status) ? l.status : 'new',
-    t:            ['volcano','hot','warm','cold','frozen'].includes(l.t) ? l.t : 'cold',
-    score:        typeof l.score==='number'  ? l.score  : 0,
-    email:        typeof l.email==='string'  ? l.email  : '',
-    phone:        typeof l.phone==='string'  ? l.phone  : '',
-    website:      typeof l.website==='string'? l.website: '',
-    city:         typeof l.city==='string'   ? l.city   : '',
-    notes:        typeof l.notes==='string'  ? l.notes  : '',
-    activities:   Array.isArray(l.activities)? l.activities : [],
-    siteIssues:   Array.isArray(l.siteIssues)? l.siteIssues : [],
-    source:       typeof l.source==='string' ? l.source : 'manual',
-    // Preserva todos os outros campos sem modificar
-    ...Object.fromEntries(Object.entries(l).filter(([k])=>!['id','name','status','t','score','email','phone','website','city','notes','activities','siteIssues','source'].includes(k)))
-  };
-}
-
-function _validateCampaign(c){
-  if(!c || typeof c !== 'object') return null;
-  return {
-    id:     (typeof c.id==='string' && c.id) ? c.id : crypto.randomUUID(),
-    name:   typeof c.name==='string'  ? c.name   : 'Campanha',
-    nicho:  typeof c.nicho==='string' ? c.nicho  : '',
-    city:   typeof c.city==='string'  ? c.city   : '',
-    leads:  Array.isArray(c.leads)    ? c.leads.map(_validateLead).filter(Boolean) : [],
-    ...Object.fromEntries(Object.entries(c).filter(([k])=>!['id','name','nicho','city','leads'].includes(k)))
-  };
-}
-
-function _validateCampaigns(raw){
-  if(!Array.isArray(raw)){
-    console.warn('[CAPTURO] campaigns corrompido — resetando para []');
-    return [];
-  }
-  return raw.map(_validateCampaign).filter(Boolean);
-}
-
-function _validateClients(raw){
-  if(!Array.isArray(raw)) return [];
-  return raw.filter(c => c && typeof c === 'object' && c.id);
-}
-
-function _validateFollowups(raw){
-  if(!Array.isArray(raw)) return [];
-  return raw.filter(f => f && typeof f === 'object' && f.id && f.date);
-}
-// Fetch com timeout configurável (padrão 10s) — evita interface travada
-async function _fetch(url, opts={}, ms=10000){
-  const ctrl = new AbortController();
-  const tid  = setTimeout(()=>ctrl.abort(), ms);
-  try{
-    return await fetch(url, {...opts, signal: ctrl.signal});
-  } finally {
-    clearTimeout(tid);
-  }
-}
-// Sleep helper — substitui await new Promise(r=>setTimeout(r,X)) espalhados pelo código
-const _sleep = ms => new Promise(r => setTimeout(r, ms));
-
-// Rate limiter para APIs externas
-// Uso: await _rateLimitedCall(fn, 'claude') — respeita 429 com backoff exponencial
-const _rlState = {};
-async function _rateLimitedCall(fn, apiName='api', maxRetries=3){
-  for(let attempt=0; attempt<=maxRetries; attempt++){
-    try{
-      const result = await fn();
-      // Reseta backoff em sucesso
-      if(_rlState[apiName]) _rlState[apiName] = 0;
-      return result;
-    }catch(e){
-      const is429 = e?.message?.includes('429') || e?.status === 429;
-      const isAbort = e?.name === 'AbortError';
-      if(is429 && attempt < maxRetries){
-        const wait = Math.min(1000 * Math.pow(2, attempt), 16000); // 1s, 2s, 4s, 8s…
-        console.warn(`[CAPTURO] ${apiName} rate limit (429) — aguardando ${wait}ms (tentativa ${attempt+1})`);
-        toast(`⏳ Limite da API ${apiName}. Aguardando ${wait/1000}s...`, 'warn', wait);
-        await _sleep(wait);
-        continue;
-      }
-      if(isAbort) throw new Error(`Timeout na chamada ${apiName}`);
-      throw e;
-    }
-  }
-}
-
-// Limite máximo de leads analisados por batch de IA (evita custo inesperado)
-const MAX_AI_BATCH = 30;
 
 function gsGoToLead(leadId, campId){
   closeGlobalSearch({});
