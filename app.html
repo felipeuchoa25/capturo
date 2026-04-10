@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   ╔══════════════════════════════════════════════════════════════════╗
-  ║  CAPTURO v1.0.0 — Sistema de Prospecção Inteligente de Leads       ║
+  ║  CAPTURO v1.5.0 — Sistema de Prospecção Inteligente de Leads       ║
   ║  Desenvolvido por Felipe Uchoa — Todos os direitos reservados    ║
   ║  © 2024–2025 Felipe Uchoa | felipelabat@hotmail.com              ║
   ║  Código-fonte protegido. Reprodução não autorizada é proibida.   ║
@@ -18,7 +18,7 @@
 <meta name="generator" content="CAP-7B3E92A1F0C84D56">
 <!-- PWA -->
 <meta name="mobile-web-app-capable" content="yes"><!-- iOS splash / icon --><!-- CAPTURO:Q0FQVFJPLS1GZWxpcGUtVWNob2EtMjAyNC1Qcm9zcGVjY2FvLUludGVsaWdlbnRlLWRlLUxlYWRz -->
-<title>CAPTURO v1.0.0</title>
+<title>CAPTURO v1.5.0</title>
   <!-- ═══ CAPTURO — Favicon & App Icons ═══════════════════ -->
   <link rel="icon" type="image/svg+xml"        href="favicon.svg">
   <link rel="icon" type="image/png" sizes="64x64"   href="favicon-64.png">
@@ -1951,6 +1951,11 @@ body::before {
 .sb-item-radar-local.active { color: var(--green) !important; background: rgba(46,204,113,.1) !important; }
 .sb-item-radar-local.active::before { background: linear-gradient(to bottom, var(--green), #5dde92) !important; }
 
+/* Campanhas accent */
+.sb-item-campanhas:hover { color: #60a5fa !important; background: rgba(10,132,255,.08) !important; }
+.sb-item-campanhas.active { color: #60a5fa !important; background: rgba(10,132,255,.1) !important; }
+.sb-item-campanhas.active::before { background: linear-gradient(to bottom, #0a84ff, #60a5fa) !important; }
+
 /* Automações accent */
 .sb-item-automacoes:hover { color: var(--purple) !important; background: var(--purple-bg) !important; }
 .sb-item-automacoes.active { color: var(--purple) !important; background: var(--purple-bg) !important; }
@@ -2551,7 +2556,7 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 </head>
 <body class="theme-blue" data-theme="blue">
 <!-- CAPTURO authorship watermark — do not remove -->
-<span aria-hidden="true" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;pointer-events:none;opacity:0" data-cap="CAP-7B3E92A1F0C84D56" data-author="Felipe Uchoa" data-year="2025">CAPTURO v1.0.0 © 2024-2025 Felipe Uchoa <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="593f3c3530293c35383b382d1931362d34383035773a3634">[email&#160;protected]</a></span>
+<span aria-hidden="true" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;pointer-events:none;opacity:0" data-cap="CAP-7B3E92A1F0C84D56" data-author="Felipe Uchoa" data-year="2025">CAPTURO v1.5.0 © 2024-2025 Felipe Uchoa <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="593f3c3530293c35383b382d1931362d34383035773a3634">[email&#160;protected]</a></span>
 
 <!-- ══ LOGIN SCREEN — CAPTURO v6 Apple Dark ═══════════════════ -->
 <style>
@@ -2942,7 +2947,7 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 
     <!-- Rodapé da página -->
     <div class="login-page-footer">
-      CAPTURO v1.0.0 &nbsp;·&nbsp; Prospecção Inteligente
+      CAPTURO v1.5.0 &nbsp;·&nbsp; Prospecção Inteligente
     </div>
 
   </div>
@@ -2977,7 +2982,7 @@ function setAuthMsg(msg, color){
 
 <script>
 /**
- * CAPTURO v1.0.0 — Sistema de Prospecção Inteligente de Leads
+ * CAPTURO v1.5.0 — Sistema de Prospecção Inteligente de Leads
  * @author    Felipe Uchoa <felipelabat@hotmail.com>
  * @copyright © 2024–2025 Felipe Uchoa. Todos os direitos reservados.
  * @license   Proprietário — uso não autorizado é proibido por lei.
@@ -2987,7 +2992,7 @@ function setAuthMsg(msg, color){
 const CAPTURO_SIGNATURE = {
   author:    'Felipe Uchoa',
   email:     'felipelabat@hotmail.com',
-  product:   'CAPTURO v1.0.0 — Sistema de Prospecção Inteligente de Leads',
+  product:   'CAPTURO v1.5.0 — Sistema de Prospecção Inteligente de Leads',
   build:     'CAP-7B3E92A1F0C84D56',
   hash:      '7b3e92a1f0c84d563f291ae8b047209901f3da849d1bf54d1ebdcb10f72a4c1e',
   copyright: '© 2024-2025 Felipe Uchoa. Reprodução não autorizada proibida.',
@@ -3502,7 +3507,78 @@ function toast(msg, type='info', duration=3500){
     <span class="sb-label">Favoritos</span>
   </div>
 
-  <!-- ── BLOCO 2: RADAR CNPJ ── -->
+  <!-- ── BLOCO 2: CAMPANHAS ── -->
+  <div class="sb-divider"></div>
+  <div class="sb-section-label" style="--sl-color:#0a84ff"><span class="sb-label" style="color:#0a84ff88">CAMPANHAS</span></div>
+
+  <!-- Nova Campanha — botão de ação -->
+  <div class="sb-item sb-item-campanhas" id="sb-campanha-nova"
+       onclick="openCampaignModal()"
+       title="Criar nova campanha de prospecção"
+       style="position:relative">
+    <span class="sb-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+      </svg>
+    </span>
+    <span class="sb-label" style="font-weight:700;color:var(--accent2)">Nova Campanha</span>
+  </div>
+
+  <!-- Prospecção Ativa -->
+  <div class="sb-item sb-item-campanhas" id="sb-campanha-prosp"
+       onclick="showPage('pageCampaign');setSbActive('sb-campanha-prosp')"
+       title="Motor de prospecção — busca ativa de leads"
+       style="padding-left:20px;font-size:12px;opacity:.9">
+    <span class="sb-icon">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="5 3 19 12 5 21 5 3"/>
+      </svg>
+    </span>
+    <span class="sb-label">Prospecção Ativa</span>
+  </div>
+
+  <!-- Gerenciar Campanhas -->
+  <div class="sb-item sb-item-campanhas" id="sb-campanha-mgr"
+       onclick="showPage('pageHome');setSbActive('sb-campanha-mgr');setTimeout(()=>{const el=document.getElementById('campanhasListSection');if(el)el.scrollIntoView({behavior:'smooth'});},200)"
+       title="Gerenciar campanhas criadas"
+       style="padding-left:20px;font-size:12px;opacity:.9">
+    <span class="sb-icon">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+        <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+      </svg>
+    </span>
+    <span class="sb-label">Gerenciar</span>
+  </div>
+
+  <!-- Performance -->
+  <div class="sb-item sb-item-campanhas" id="sb-campanha-perf"
+       onclick="showPage('pageRelatorio');setSbActive('sb-campanha-perf')"
+       title="Performance e métricas das campanhas"
+       style="padding-left:20px;font-size:12px;opacity:.9">
+    <span class="sb-icon">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+      </svg>
+    </span>
+    <span class="sb-label">Performance</span>
+  </div>
+
+  <!-- Arquivadas -->
+  <div class="sb-item sb-item-campanhas" id="sb-campanha-arch"
+       onclick="showPage('pageHome');setSbActive('sb-campanha-arch');setTimeout(()=>{ if(typeof filterCampaigns==='function') filterCampaigns('archived'); },300)"
+       title="Campanhas arquivadas / concluídas"
+       style="padding-left:20px;font-size:12px;opacity:.9">
+    <span class="sb-icon">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/>
+        <line x1="10" y1="12" x2="14" y2="12"/>
+      </svg>
+    </span>
+    <span class="sb-label">Arquivadas</span>
+  </div>
+
+  <!-- ── BLOCO 3: RADAR CNPJ ── -->
   <div class="sb-divider"></div>
   <div class="sb-section-label" style="--sl-color:#ff6b6b"><span class="sb-label" style="color:#ff6b6b88">RADAR CNPJ</span></div>
 
@@ -3635,7 +3711,7 @@ function toast(msg, type='info', duration=3500){
       </div>
       <!-- TEXTO -->
       <span id="brandCapturo" style="background:linear-gradient(130deg,#c8d8e0 0%,#ffffff 22%,#d8f080 45%,#85B82E 68%,#6a9420 88%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 10px rgba(133,184,46,.45));font-weight:800;letter-spacing:-.02em">CAPTURO</span>
-      <span style="font-size:10px;background:var(--accent);color:#fff;padding:2px 10px;border-radius:20px;font-weight:600;letter-spacing:.02em"> v5.0</span>
+      <span style="font-size:10px;background:var(--accent);color:#fff;padding:2px 10px;border-radius:20px;font-weight:600;letter-spacing:.02em"> v1.5.0</span>
     </div>
     <!-- Separador vertical -->
     <div style="width:1px;height:22px;background:var(--border);flex-shrink:0;margin:0 6px"></div>
@@ -3660,8 +3736,7 @@ function toast(msg, type='info', duration=3500){
     </div>
 
 
-    <!-- Botão + Campanha — único no sistema -->
-    <button class="btn-new" onclick="openCampaignModal()" style="flex-shrink:0">+ Campanha</button>
+    <!-- Botão + Campanha movido para sidebar (módulo CAMPANHAS) -->
   </div>
 </div>
 
@@ -16324,7 +16399,7 @@ async function loadFromSupabase(){
 
 <script>
 /* ══════════════════════════════════════════════════════════════
-   CAPTURO v1.0.0 — FEATURES EXTRAS
+   CAPTURO v1.5.0 — FEATURES EXTRAS
    1. Busca Global
    2. Importar CSV
    3. Histórico de Atividades
@@ -18510,7 +18585,7 @@ function _importarAlertaLeadUnicoFix(idx){
 
 
 // ════════════════════════════════════════════════════════════════
-// AUTOMAÇÕES PROGRAMADAS — CAPTURO v1.0.0
+// AUTOMAÇÕES PROGRAMADAS — CAPTURO v1.5.0
 // Engine 100% client-side: scheduler via setInterval + localStorage
 
 function toggleSearchBar(){

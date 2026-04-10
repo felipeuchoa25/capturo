@@ -216,6 +216,8 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div class="sb-item" onclick="showPage('pageWaitlist',this)">⏳ Waitlist</div>
     <div class="sb-section">Financeiro</div>
     <div class="sb-item" onclick="showPage('pageHotmart',this);loadHotmartWebhooks()">🛒 Hotmart / Webhooks</div>
+    <div class="sb-item" onclick="showPage('pageCustos',this);initCustos()">💰 Custos & Simulador</div>
+    <div class="sb-item" onclick="showPage('pagePlanos',this);initPlanos()">📦 Planos & Limites</div>
     <div class="sb-section">Sistema</div>
     <div class="sb-item" onclick="showPage('pageAPIMonitor',this);loadAPIMonitor()">📊 APIs & Consumo</div>
     <div class="sb-item" onclick="showPage('pageAPIs',this)">🔑 Chaves Globais</div>
@@ -550,6 +552,377 @@ tr:hover td{background:rgba(255,255,255,.02)}
         <div id="serpLogContainer" style="padding:16px 20px;max-height:380px;overflow-y:auto">
           <div style="color:var(--muted2);font-size:12px">Clique em ↻ para ver histórico</div>
         </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         💰 CUSTOS & SIMULADOR
+    ══════════════════════════════════════════════════════ -->
+    <div class="page" id="pageCustos">
+      <div class="page-header">
+        <div class="page-title">Custos & Simulador <span>// controle financeiro de APIs</span></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost" onclick="initCustos()">↻ Atualizar</button>
+          <button class="btn btn-primary" onclick="salvarCustosConfig()">💾 Salvar Config</button>
+        </div>
+      </div>
+
+      <!-- ── CUSTOS REAIS POR API ── -->
+      <div style="font-family:var(--mono);font-size:10px;color:var(--muted2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px">// Preço atual por API (editável)</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:28px" id="apiCostCards">
+
+        <!-- Google Places -->
+        <div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+            <span style="font-size:20px">🗺</span>
+            <div><div style="font-weight:700;font-size:13px">Google Places API</div><div style="font-size:10px;color:var(--muted2);font-family:var(--mono)">console.cloud.google.com</div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px">
+            <div>
+              <div style="color:var(--muted2);font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.06em">Text Search</div>
+              <div style="display:flex;align-items:center;gap:4px;margin-top:4px">
+                <span style="color:var(--muted2)">US$</span>
+                <input type="number" id="cost_places_text" value="0.032" step="0.001" min="0"
+                  style="width:70px;background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:4px 6px;color:var(--text);font-family:var(--mono);font-size:11px">
+                <span style="color:var(--muted2)">/req</span>
+              </div>
+            </div>
+            <div>
+              <div style="color:var(--muted2);font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.06em">Place Details</div>
+              <div style="display:flex;align-items:center;gap:4px;margin-top:4px">
+                <span style="color:var(--muted2)">US$</span>
+                <input type="number" id="cost_places_detail" value="0.017" step="0.001" min="0"
+                  style="width:70px;background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:4px 6px;color:var(--text);font-family:var(--mono);font-size:11px">
+                <span style="color:var(--muted2)">/req</span>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:12px;padding:8px;background:rgba(52,199,89,.08);border-radius:6px;font-size:10px;color:var(--green)">
+            ✅ Free tier: US$200/mês (≈6.250 Text Searches grátis)
+          </div>
+        </div>
+
+        <!-- SerpAPI -->
+        <div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+            <span style="font-size:20px">🔍</span>
+            <div><div style="font-weight:700;font-size:13px">SerpAPI</div><div style="font-size:10px;color:var(--muted2);font-family:var(--mono)">serpapi.com</div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px">
+            <div>
+              <div style="color:var(--muted2);font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.06em">Por busca</div>
+              <div style="display:flex;align-items:center;gap:4px;margin-top:4px">
+                <span style="color:var(--muted2)">US$</span>
+                <input type="number" id="cost_serp" value="0.015" step="0.001" min="0"
+                  style="width:70px;background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:4px 6px;color:var(--text);font-family:var(--mono);font-size:11px">
+                <span style="color:var(--muted2)">/req</span>
+              </div>
+            </div>
+            <div>
+              <div style="color:var(--muted2);font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.06em">Plano atual</div>
+              <select id="cost_serp_plano" style="margin-top:4px;font-size:11px;background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:4px 6px;color:var(--text);width:100%">
+                <option value="0">Free (100/mês)</option>
+                <option value="50" selected>Hobby $50 (5k/mês)</option>
+                <option value="130">Business $130 (15k/mês)</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top:12px;padding:8px;background:rgba(255,149,0,.08);border-radius:6px;font-size:10px;color:var(--orange)">
+            ⚠️ Custos crescem rápido com volume — monitore diariamente
+          </div>
+        </div>
+
+        <!-- Claude AI -->
+        <div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+            <span style="font-size:20px">🤖</span>
+            <div><div style="font-weight:700;font-size:13px">Claude AI (Anthropic)</div><div style="font-size:10px;color:var(--muted2);font-family:var(--mono)">anthropic.com/api</div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px">
+            <div>
+              <div style="color:var(--muted2);font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.06em">Haiku (input/MTok)</div>
+              <div style="display:flex;align-items:center;gap:4px;margin-top:4px">
+                <span style="color:var(--muted2)">US$</span>
+                <input type="number" id="cost_claude_in" value="0.80" step="0.01" min="0"
+                  style="width:70px;background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:4px 6px;color:var(--text);font-family:var(--mono);font-size:11px">
+              </div>
+            </div>
+            <div>
+              <div style="color:var(--muted2);font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.06em">Haiku (output/MTok)</div>
+              <div style="display:flex;align-items:center;gap:4px;margin-top:4px">
+                <span style="color:var(--muted2)">US$</span>
+                <input type="number" id="cost_claude_out" value="4.00" step="0.01" min="0"
+                  style="width:70px;background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:4px 6px;color:var(--text);font-family:var(--mono);font-size:11px">
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:12px;padding:8px;background:rgba(99,102,241,.08);border-radius:6px;font-size:10px;color:var(--accent2)">
+            ≈ US$0.004 por enriquecimento (2k tokens input + 500 output)
+          </div>
+        </div>
+
+        <!-- Hunter.io -->
+        <div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+            <span style="font-size:20px">📧</span>
+            <div><div style="font-weight:700;font-size:13px">Hunter.io</div><div style="font-size:10px;color:var(--muted2);font-family:var(--mono)">hunter.io</div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px">
+            <div>
+              <div style="color:var(--muted2);font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.06em">Por busca</div>
+              <div style="display:flex;align-items:center;gap:4px;margin-top:4px">
+                <span style="color:var(--muted2)">US$</span>
+                <input type="number" id="cost_hunter" value="0.068" step="0.001" min="0"
+                  style="width:70px;background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:4px 6px;color:var(--text);font-family:var(--mono);font-size:11px">
+                <span style="color:var(--muted2)">/req</span>
+              </div>
+            </div>
+            <div>
+              <div style="color:var(--muted2);font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.06em">Plano</div>
+              <select id="cost_hunter_plano" style="margin-top:4px;font-size:11px;background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:4px 6px;color:var(--text);width:100%">
+                <option value="0">Free (25/mês)</option>
+                <option value="34" selected>Starter $34 (500/mês)</option>
+                <option value="104">Growth $104 (5k/mês)</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top:12px;padding:8px;background:rgba(52,199,89,.08);border-radius:6px;font-size:10px;color:var(--green)">
+            ✅ Free tier: 25 buscas/mês — bom para começar
+          </div>
+        </div>
+
+        <!-- WhatsApp (futuro) -->
+        <div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;opacity:.7">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+            <span style="font-size:20px">💬</span>
+            <div>
+              <div style="font-weight:700;font-size:13px">WhatsApp API</div>
+              <div style="font-size:10px;color:var(--muted2);font-family:var(--mono)">
+                <span style="background:rgba(255,149,0,.15);color:var(--orange);padding:1px 6px;border-radius:10px">Em planejamento</span>
+              </div>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--muted2);line-height:1.7">
+            <div>📌 <b>Meta Cloud API (oficial):</b> US$0,042/conversa iniciada</div>
+            <div>📌 <b>Z-API (BR):</b> R$69-299/mês por instância</div>
+            <div>📌 Grátis: 1.000 conversas/mês (user-initiated)</div>
+          </div>
+          <div style="margin-top:12px;padding:8px;background:rgba(255,149,0,.08);border-radius:6px;font-size:10px;color:var(--orange)">
+            ⚠️ Z-API viola ToS do WhatsApp. Meta Cloud API = seguro e escalável
+          </div>
+        </div>
+
+        <!-- Radar Local / GMB -->
+        <div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+            <span style="font-size:20px">📡</span>
+            <div><div style="font-weight:700;font-size:13px">Radar Local (Grid GMB)</div><div style="font-size:10px;color:var(--muted2);font-family:var(--mono)">Google Places (já incluído)</div></div>
+          </div>
+          <div style="font-size:11px;color:var(--muted2);line-height:1.7">
+            <div>3×3 grid = 9 calls = <b style="color:var(--text)">US$0,29</b></div>
+            <div>5×5 grid = 25 calls = <b style="color:var(--text)">US$0,80</b></div>
+            <div>7×7 grid = 49 calls = <b style="color:var(--text)">US$1,57</b></div>
+            <div>9×9 grid = 81 calls = <b style="color:var(--text)">US$2,59</b></div>
+          </div>
+          <div style="margin-top:12px;padding:8px;background:rgba(52,199,89,.08);border-radius:6px;font-size:10px;color:var(--green)">
+            ✅ Já usa seu projeto do Google Cloud — mesma chave do Places API
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── SIMULADOR DE CUSTOS ── -->
+      <div class="table-wrap" style="padding:24px;margin-bottom:24px">
+        <div class="table-title" style="margin-bottom:20px">🧮 Simulador de Custo Mensal</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:20px">
+          <div>
+            <label style="font-family:var(--mono);font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px">Clientes ativos</label>
+            <input type="number" id="sim_users" value="10" min="1" oninput="calcSimulador()"
+              style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);padding:8px 12px;color:var(--text);font-family:var(--mono);font-size:14px">
+          </div>
+          <div>
+            <label style="font-family:var(--mono);font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px">Buscas Maps/cliente/mês</label>
+            <input type="number" id="sim_maps" value="500" min="0" oninput="calcSimulador()"
+              style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);padding:8px 12px;color:var(--text);font-family:var(--mono);font-size:14px">
+          </div>
+          <div>
+            <label style="font-family:var(--mono);font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px">Buscas Serp/cliente/mês</label>
+            <input type="number" id="sim_serp" value="100" min="0" oninput="calcSimulador()"
+              style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);padding:8px 12px;color:var(--text);font-family:var(--mono);font-size:14px">
+          </div>
+          <div>
+            <label style="font-family:var(--mono);font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px">Enriquecimentos IA/cliente/mês</label>
+            <input type="number" id="sim_ai" value="200" min="0" oninput="calcSimulador()"
+              style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);padding:8px 12px;color:var(--text);font-family:var(--mono);font-size:14px">
+          </div>
+          <div>
+            <label style="font-family:var(--mono);font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px">Grids Radar Local/cliente/mês</label>
+            <input type="number" id="sim_radar" value="5" min="0" oninput="calcSimulador()"
+              style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);padding:8px 12px;color:var(--text);font-family:var(--mono);font-size:14px">
+          </div>
+          <div>
+            <label style="font-family:var(--mono);font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px">Tamanho grid (pontos)</label>
+            <select id="sim_grid_size" onchange="calcSimulador()"
+              style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);padding:8px 12px;color:var(--text);font-family:var(--mono);font-size:14px">
+              <option value="9">3×3 = 9 pontos</option>
+              <option value="25" selected>5×5 = 25 pontos</option>
+              <option value="49">7×7 = 49 pontos</option>
+              <option value="81">9×9 = 81 pontos</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Resultado do simulador -->
+        <div id="simResultado" style="background:var(--bg);border:1px solid var(--border2);border-radius:var(--r-lg);padding:20px">
+          <div style="font-family:var(--mono);font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px">// Resultado da simulação</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px" id="simCards">
+            <div style="text-align:center;color:var(--muted2);font-size:12px">Configure os parâmetros acima</div>
+          </div>
+          <div id="simResumo" style="margin-top:16px;padding:14px;background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.2);border-radius:var(--r);display:none">
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TABELA DE USO POR USUÁRIO ── -->
+      <div class="table-wrap" style="margin-bottom:24px">
+        <div class="table-header">
+          <span class="table-title">👤 CONSUMO POR USUÁRIO (estimado)</span>
+          <button class="btn btn-ghost btn-sm" onclick="loadUsagePerUser()">↻ Carregar</button>
+        </div>
+        <div id="usagePerUserTable" style="padding:16px 20px">
+          <div style="color:var(--muted2);font-size:12px">Clique em ↻ para carregar dados de consumo</div>
+        </div>
+      </div>
+
+      <!-- ── ALERTAS DE GASTO ── -->
+      <div class="table-wrap" style="padding:24px">
+        <div class="table-title" style="margin-bottom:16px">🚨 Alertas de Gasto</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div>
+            <label style="font-family:var(--mono);font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px">Custo máximo mensal (US$)</label>
+            <input type="number" id="alert_max_cost" value="100" min="0"
+              style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);padding:8px 12px;color:var(--text);font-family:var(--mono);font-size:14px">
+          </div>
+          <div>
+            <label style="font-family:var(--mono);font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px">Uso máximo por usuário/dia (requisições)</label>
+            <input type="number" id="alert_max_user_daily" value="500" min="0"
+              style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);padding:8px 12px;color:var(--text);font-family:var(--mono);font-size:14px">
+          </div>
+        </div>
+        <button class="btn btn-primary" style="margin-top:12px" onclick="salvarAlertas()">💾 Salvar Alertas</button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         📦 PLANOS & LIMITES
+    ══════════════════════════════════════════════════════ -->
+    <div class="page" id="pagePlanos">
+      <div class="page-header">
+        <div class="page-title">Planos & Limites <span>// configuração de tiers</span></div>
+        <button class="btn btn-primary" onclick="salvarPlanos()">💾 Salvar Planos</button>
+      </div>
+
+      <div style="font-family:var(--mono);font-size:10px;color:var(--muted2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px">// Defina os limites e preços de cada plano</div>
+
+      <!-- TABELA DE PLANOS -->
+      <div class="table-wrap" style="margin-bottom:24px;overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Plano</th>
+              <th>Preço (R$/mês)</th>
+              <th>Leads/mês</th>
+              <th>Buscas Maps/dia</th>
+              <th>Buscas Serp/dia</th>
+              <th>Enriq. IA/mês</th>
+              <th>Radar Grids/mês</th>
+              <th>Campanhas</th>
+              <th>WhatsApp</th>
+            </tr>
+          </thead>
+          <tbody id="planosTableBody">
+            <tr>
+              <td><span style="background:rgba(107,114,128,.15);color:#9ca3af;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">FREE</span></td>
+              <td><input type="number" class="plan-input" data-plan="free" data-field="preco" value="0" style="width:80px"></td>
+              <td><input type="number" class="plan-input" data-plan="free" data-field="leads" value="100" style="width:80px"></td>
+              <td><input type="number" class="plan-input" data-plan="free" data-field="maps_dia" value="50" style="width:80px"></td>
+              <td><input type="number" class="plan-input" data-plan="free" data-field="serp_dia" value="10" style="width:80px"></td>
+              <td><input type="number" class="plan-input" data-plan="free" data-field="ia_mes" value="20" style="width:80px"></td>
+              <td><input type="number" class="plan-input" data-plan="free" data-field="radar_mes" value="0" style="width:80px"></td>
+              <td><input type="number" class="plan-input" data-plan="free" data-field="campanhas" value="1" style="width:80px"></td>
+              <td><select class="plan-input" data-plan="free" data-field="whatsapp" style="width:80px"><option value="0">Não</option><option value="1">Sim</option></select></td>
+            </tr>
+            <tr>
+              <td><span style="background:rgba(52,199,89,.15);color:var(--green);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">STARTER</span></td>
+              <td><input type="number" class="plan-input" data-plan="starter" data-field="preco" value="97" style="width:80px"></td>
+              <td><input type="number" class="plan-input" data-plan="starter" data-field="leads" value="1000" style="width:80px"></td>
+              <td><input type="number" class="plan-input" data-plan="starter" data-field="maps_dia" value="200" style="width:80px"></td>
+              <td><input type="number" class="plan-input" data-plan="starter" data-field="serp_dia" value="50" style="width:80px"></td>
+              <td><input type="number" class="plan-input" data-plan="starter" data-field="ia_mes" value="200" style="width:80px"></td>
+              <td><input type="number" class="plan-input" data-plan="starter" data-field="radar_mes" value="10" style="width:80px"></td>
+              <td><input type="number" class="plan-input" data-plan="starter" data-field="campanhas" value="5" style="width:80px"></td>
+              <td><select class="plan-input" data-plan="starter" data-field="whatsapp" style="width:80px"><option value="0">Não</option><option value="1">Sim</option></select></td>
+            </tr>
+            <tr>
+              <td><span style="background:rgba(99,102,241,.15);color:var(--accent2);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">PRO</span></td>
+              <td><input type="number" class="plan-input" data-plan="pro" data-field="preco" value="297" style="width:80px"></td>
+              <td><input type="number" class="plan-input" data-plan="pro" data-field="leads" value="10000" style="width:80px"></td>
+              <td><input type="number" class="plan-input" data-plan="pro" data-field="maps_dia" value="1000" style="width:80px"></td>
+              <td><input type="number" class="plan-input" data-plan="pro" data-field="serp_dia" value="300" style="width:80px"></td>
+              <td><input type="number" class="plan-input" data-plan="pro" data-field="ia_mes" value="2000" style="width:80px"></td>
+              <td><input type="number" class="plan-input" data-plan="pro" data-field="radar_mes" value="50" style="width:80px"></td>
+              <td><input type="number" class="plan-input" data-plan="pro" data-field="campanhas" value="20" style="width:80px"></td>
+              <td><select class="plan-input" data-plan="pro" data-field="whatsapp" style="width:80px"><option value="0">Não</option><option value="1" selected>Sim</option></select></td>
+            </tr>
+            <tr>
+              <td><span style="background:rgba(255,149,0,.15);color:var(--orange);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">ENTERPRISE</span></td>
+              <td><input type="number" class="plan-input" data-plan="enterprise" data-field="preco" value="997" style="width:80px"></td>
+              <td><input type="number" class="plan-input" data-plan="enterprise" data-field="leads" value="999999" style="width:80px"></td>
+              <td><input type="number" class="plan-input" data-plan="enterprise" data-field="maps_dia" value="9999" style="width:80px"></td>
+              <td><input type="number" class="plan-input" data-plan="enterprise" data-field="serp_dia" value="9999" style="width:80px"></td>
+              <td><input type="number" class="plan-input" data-plan="enterprise" data-field="ia_mes" value="999999" style="width:80px"></td>
+              <td><input type="number" class="plan-input" data-plan="enterprise" data-field="radar_mes" value="999" style="width:80px"></td>
+              <td><input type="number" class="plan-input" data-plan="enterprise" data-field="campanhas" value="999" style="width:80px"></td>
+              <td><select class="plan-input" data-plan="enterprise" data-field="whatsapp" style="width:80px"><option value="0">Não</option><option value="1" selected>Sim</option></select></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- SIMULADOR DE RECEITA -->
+      <div class="table-wrap" style="padding:24px;margin-bottom:24px">
+        <div class="table-title" style="margin-bottom:20px">📈 Simulador de Receita vs Custo</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+          <div>
+            <label style="font-family:var(--mono);font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:4px">Clientes FREE</label>
+            <input type="number" id="rv_free" value="50" min="0" oninput="calcReceita()"
+              style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);padding:7px 10px;color:var(--text);font-family:var(--mono);font-size:13px">
+          </div>
+          <div>
+            <label style="font-family:var(--mono);font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:4px">Clientes STARTER</label>
+            <input type="number" id="rv_starter" value="20" min="0" oninput="calcReceita()"
+              style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);padding:7px 10px;color:var(--text);font-family:var(--mono);font-size:13px">
+          </div>
+          <div>
+            <label style="font-family:var(--mono);font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:4px">Clientes PRO</label>
+            <input type="number" id="rv_pro" value="5" min="0" oninput="calcReceita()"
+              style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);padding:7px 10px;color:var(--text);font-family:var(--mono);font-size:13px">
+          </div>
+          <div>
+            <label style="font-family:var(--mono);font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:4px">Clientes ENTERPRISE</label>
+            <input type="number" id="rv_enterprise" value="1" min="0" oninput="calcReceita()"
+              style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);padding:7px 10px;color:var(--text);font-family:var(--mono);font-size:13px">
+          </div>
+        </div>
+        <div id="receitaResultado" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px">
+        </div>
+      </div>
+
+      <!-- DISTRIBUIÇÃO VISUAL -->
+      <div class="table-wrap" style="padding:24px">
+        <div class="table-title" style="margin-bottom:16px">📊 Distribuição de Clientes (visual)</div>
+        <div id="planChart" style="display:flex;gap:4px;height:32px;border-radius:10px;overflow:hidden;margin-bottom:10px"></div>
+        <div id="planChartLegend" style="display:flex;gap:16px;flex-wrap:wrap;font-size:11px"></div>
       </div>
     </div>
 
@@ -1391,6 +1764,247 @@ async function loadSerpLog(){
 
 // Init
 document.getElementById('lockPass').focus();
+
+// ══════════════════════════════════════════════════════
+// 💰 CUSTOS & SIMULADOR
+// ══════════════════════════════════════════════════════
+const COST_STORAGE_KEY = 'capturo_custos_config';
+const PLANS_STORAGE_KEY = 'capturo_planos_config';
+const ALERTS_STORAGE_KEY = 'capturo_alertas_config';
+const USD_BRL = 5.75; // taxa de câmbio aproximada
+
+function initCustos(){
+  // Carrega config salva
+  const saved = JSON.parse(localStorage.getItem(COST_STORAGE_KEY)||'{}');
+  if(saved.places_text) document.getElementById('cost_places_text').value = saved.places_text;
+  if(saved.places_detail) document.getElementById('cost_places_detail').value = saved.places_detail;
+  if(saved.serp) document.getElementById('cost_serp').value = saved.serp;
+  if(saved.serp_plano !== undefined) document.getElementById('cost_serp_plano').value = saved.serp_plano;
+  if(saved.claude_in) document.getElementById('cost_claude_in').value = saved.claude_in;
+  if(saved.claude_out) document.getElementById('cost_claude_out').value = saved.claude_out;
+  if(saved.hunter) document.getElementById('cost_hunter').value = saved.hunter;
+  if(saved.hunter_plano !== undefined) document.getElementById('cost_hunter_plano').value = saved.hunter_plano;
+  if(saved.alert_max_cost) document.getElementById('alert_max_cost').value = saved.alert_max_cost;
+  if(saved.alert_max_user_daily) document.getElementById('alert_max_user_daily').value = saved.alert_max_user_daily;
+  calcSimulador();
+}
+
+function salvarCustosConfig(){
+  const cfg = {
+    places_text: parseFloat(document.getElementById('cost_places_text').value),
+    places_detail: parseFloat(document.getElementById('cost_places_detail').value),
+    serp: parseFloat(document.getElementById('cost_serp').value),
+    serp_plano: parseFloat(document.getElementById('cost_serp_plano').value),
+    claude_in: parseFloat(document.getElementById('cost_claude_in').value),
+    claude_out: parseFloat(document.getElementById('cost_claude_out').value),
+    hunter: parseFloat(document.getElementById('cost_hunter').value),
+    hunter_plano: parseFloat(document.getElementById('cost_hunter_plano').value),
+    alert_max_cost: parseFloat(document.getElementById('alert_max_cost').value),
+    alert_max_user_daily: parseFloat(document.getElementById('alert_max_user_daily').value),
+  };
+  localStorage.setItem(COST_STORAGE_KEY, JSON.stringify(cfg));
+  toast('✅ Configurações de custo salvas!','ok');
+}
+
+function salvarAlertas(){
+  salvarCustosConfig();
+  toast('✅ Alertas salvos!','ok');
+}
+
+function calcSimulador(){
+  const users = parseInt(document.getElementById('sim_users').value)||0;
+  const maps = parseInt(document.getElementById('sim_maps').value)||0;
+  const serp = parseInt(document.getElementById('sim_serp').value)||0;
+  const ai = parseInt(document.getElementById('sim_ai').value)||0;
+  const radar = parseInt(document.getElementById('sim_radar').value)||0;
+  const gridSize = parseInt(document.getElementById('sim_grid_size').value)||9;
+
+  // Custos unitários (USD)
+  const cMaps = parseFloat(document.getElementById('cost_places_text')?.value||0.032);
+  const cSerp = parseFloat(document.getElementById('cost_serp')?.value||0.015);
+  const cAiIn = parseFloat(document.getElementById('cost_claude_in')?.value||0.80);
+  const cAiOut = parseFloat(document.getElementById('cost_claude_out')?.value||4.00);
+
+  // Free tier Google: $200/mês
+  const googleFreeTierUSD = 200;
+  const totalMapsReqs = users * maps;
+  const totalMapsUSD_raw = totalMapsReqs * cMaps;
+  const totalMapsUSD = Math.max(0, totalMapsUSD_raw - googleFreeTierUSD);
+
+  // SerpAPI
+  const serpPlanoUSD = parseFloat(document.getElementById('cost_serp_plano')?.value||50);
+  const totalSerpReqs = users * serp;
+  const totalSerpUSD = serpPlanoUSD; // paga o plano fixo
+
+  // Claude AI: ~2000 input + 500 output tokens por enrichment
+  const aiTokensIn = users * ai * 2000;
+  const aiTokensOut = users * ai * 500;
+  const totalAiUSD = (aiTokensIn / 1_000_000) * cAiIn + (aiTokensOut / 1_000_000) * cAiOut;
+
+  // Radar Local: gridSize calls × Places API cost
+  const totalRadarReqs = users * radar * gridSize;
+  // Já incluído no Google free tier junto com Maps
+  const totalAllGoogleReqs = totalMapsReqs + totalRadarReqs;
+  const totalGoogleUSD = Math.max(0, totalAllGoogleReqs * cMaps - googleFreeTierUSD);
+
+  // Hunter
+  const hunterPlanoUSD = parseFloat(document.getElementById('cost_hunter_plano')?.value||34);
+  const totalHunterUSD = hunterPlanoUSD;
+
+  // Total
+  const totalUSD = totalGoogleUSD + totalSerpUSD + totalAiUSD + totalHunterUSD;
+  const totalBRL = totalUSD * USD_BRL;
+
+  const fmtUSD = v => `US$ ${v.toFixed(2)}`;
+  const fmtBRL = v => `R$ ${v.toFixed(2)}`;
+  const fmtN = v => v.toLocaleString('pt-BR');
+
+  const cardsHTML = [
+    { label:'🗺 Google APIs', val:fmtUSD(totalGoogleUSD), sub:`${fmtN(totalAllGoogleReqs)} req/mês`, color: totalGoogleUSD===0?'var(--green)':'var(--orange)' },
+    { label:'🔍 SerpAPI', val:fmtUSD(totalSerpUSD), sub:`Plano fixo • ${fmtN(totalSerpReqs)} buscas`, color:'var(--text)' },
+    { label:'🤖 Claude IA', val:fmtUSD(totalAiUSD), sub:`${fmtN(users*ai)} enriquecimentos`, color:'var(--accent2)' },
+    { label:'📧 Hunter.io', val:fmtUSD(totalHunterUSD), sub:'Plano fixo', color:'var(--text)' },
+    { label:'💰 TOTAL (USD)', val:`<b style="font-size:20px">${fmtUSD(totalUSD)}</b>`, sub:`≈ ${fmtBRL(totalBRL)}/mês`, color: totalUSD<50?'var(--green)':totalUSD<200?'var(--orange)':'var(--red)' },
+    { label:'📊 Custo/cliente', val:fmtUSD(users>0?totalUSD/users:0), sub:`≈ ${fmtBRL(users>0?totalBRL/users:0)}`, color:'var(--muted2)' },
+  ].map(c=>`
+    <div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center">
+      <div style="font-family:var(--mono);font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">${c.label}</div>
+      <div style="font-size:15px;font-weight:700;color:${c.color}">${c.val}</div>
+      <div style="font-size:10px;color:var(--muted2);margin-top:3px">${c.sub}</div>
+    </div>`).join('');
+
+  document.getElementById('simCards').innerHTML = cardsHTML;
+
+  // Aviso de margem
+  const maxAlert = parseFloat(document.getElementById('alert_max_cost')?.value||100);
+  const resumo = document.getElementById('simResumo');
+  if(resumo){
+    resumo.style.display = 'block';
+    const pct = maxAlert>0 ? Math.round((totalUSD/maxAlert)*100) : 0;
+    const bar = `<div style="background:var(--border);border-radius:20px;height:6px;margin:8px 0">
+      <div style="width:${Math.min(pct,100)}%;height:100%;background:${pct<70?'var(--green)':pct<90?'var(--orange)':'var(--red)'};border-radius:20px;transition:width .5s"></div>
+    </div>`;
+    resumo.innerHTML = `
+      <div style="font-family:var(--mono);font-size:10px;color:var(--muted2);margin-bottom:6px">${pct}% do limite de US$${maxAlert} (${pct<70?'🟢 Seguro':pct<90?'🟡 Atenção':'🔴 Crítico'})</div>
+      ${bar}
+      <div style="font-size:11px;color:var(--muted2)">Com ${fmtN(users)} clientes usando os parâmetros acima, o custo mensal estimado é <b style="color:var(--text)">${fmtUSD(totalUSD)}</b> (${fmtBRL(totalBRL)}). O Google free tier cobre até US$200 em chamadas Places API — você paga apenas o excedente.</div>
+    `;
+  }
+}
+
+async function loadUsagePerUser(){
+  const el = document.getElementById('usagePerUserTable');
+  el.innerHTML = '<div style="color:var(--muted2);font-size:12px">⟳ Carregando...</div>';
+  try {
+    const { data } = await getSB().from('profiles')
+      .select('id,email,full_name,plan,credits_remaining,created_at')
+      .order('credits_remaining', { ascending: true })
+      .limit(50);
+    if(!data?.length){ el.innerHTML='<div style="color:var(--muted2);font-size:12px;padding:8px">Nenhum usuário encontrado.</div>'; return; }
+    const cPerLead = 0.032 + 0.004; // Places + Claude por lead enriquecido
+    const rows = data.map(u=>{
+      const used = Math.max(0, 100 - (u.credits_remaining||0));
+      const costEst = (used * cPerLead * USD_BRL).toFixed(2);
+      const pct = Math.min(100, Math.round((used/100)*100));
+      return `<tr>
+        <td style="font-size:11px">${escHtml(u.full_name||'—')}<br><span style="color:var(--muted2);font-size:10px">${escHtml(u.email||'')}</span></td>
+        <td><span style="font-size:10px;background:var(--accent-bg);color:var(--accent2);padding:2px 8px;border-radius:12px;font-family:var(--mono)">${u.plan||'free'}</span></td>
+        <td style="font-family:var(--mono);font-size:11px">${used} usados</td>
+        <td>
+          <div style="background:var(--border);border-radius:20px;height:4px;width:80px">
+            <div style="width:${pct}%;height:100%;background:${pct<50?'var(--green)':pct<80?'var(--orange)':'var(--red)'};border-radius:20px"></div>
+          </div>
+        </td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--orange)">≈ R$ ${costEst}</td>
+      </tr>`;
+    }).join('');
+    el.innerHTML = `<table><thead><tr><th>Usuário</th><th>Plano</th><th>Uso</th><th>Barra</th><th>Custo Est.</th></tr></thead><tbody>${rows}</tbody></table>`;
+  } catch(e){
+    el.innerHTML = `<div style="color:var(--red);font-size:12px;padding:8px">Erro: ${escHtml(e.message)}</div>`;
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// 📦 PLANOS & LIMITES
+// ══════════════════════════════════════════════════════
+function initPlanos(){
+  const saved = JSON.parse(localStorage.getItem(PLANS_STORAGE_KEY)||'{}');
+  if(Object.keys(saved).length){
+    document.querySelectorAll('.plan-input').forEach(inp=>{
+      const key = `${inp.dataset.plan}_${inp.dataset.field}`;
+      if(saved[key] !== undefined) inp.value = saved[key];
+    });
+  }
+  calcReceita();
+}
+
+function salvarPlanos(){
+  const cfg = {};
+  document.querySelectorAll('.plan-input').forEach(inp=>{
+    const key = `${inp.dataset.plan}_${inp.dataset.field}`;
+    cfg[key] = inp.value;
+  });
+  localStorage.setItem(PLANS_STORAGE_KEY, JSON.stringify(cfg));
+  toast('✅ Planos salvos!','ok');
+}
+
+function getPlanPreco(plan){
+  const el = document.querySelector(`.plan-input[data-plan="${plan}"][data-field="preco"]`);
+  return el ? parseFloat(el.value)||0 : 0;
+}
+
+function calcReceita(){
+  const free = parseInt(document.getElementById('rv_free')?.value)||0;
+  const starter = parseInt(document.getElementById('rv_starter')?.value)||0;
+  const pro = parseInt(document.getElementById('rv_pro')?.value)||0;
+  const enterprise = parseInt(document.getElementById('rv_enterprise')?.value)||0;
+
+  const pFree = getPlanPreco('free');
+  const pStarter = getPlanPreco('starter');
+  const pPro = getPlanPreco('pro');
+  const pEnterprise = getPlanPreco('enterprise');
+
+  const receitaTotal = (free*pFree) + (starter*pStarter) + (pro*pPro) + (enterprise*pEnterprise);
+  const totalClientes = free + starter + pro + enterprise;
+
+  // Custo estimado (baseado em uso médio por plano)
+  const custoApproxBRL = (starter*97*0.15) + (pro*297*0.12) + (enterprise*997*0.08);
+
+  const el = document.getElementById('receitaResultado');
+  if(!el) return;
+  el.innerHTML = [
+    { l:'💰 Receita Bruta/mês', v:`R$ ${receitaTotal.toLocaleString('pt-BR',{minimumFractionDigits:0})}`, c:'var(--green)' },
+    { l:'💸 Custo APIs (est.)', v:`R$ ${custoApproxBRL.toLocaleString('pt-BR',{minimumFractionDigits:0})}`, c:'var(--orange)' },
+    { l:'📈 Margem Bruta', v:`R$ ${(receitaTotal-custoApproxBRL).toLocaleString('pt-BR',{minimumFractionDigits:0})}`, c:receitaTotal>custoApproxBRL?'var(--accent2)':'var(--red)' },
+    { l:'👤 Clientes Totais', v:totalClientes, c:'var(--text)' },
+    { l:'📊 ARPU médio', v:`R$ ${totalClientes>0?(receitaTotal/totalClientes).toFixed(0):0}`, c:'var(--muted2)' },
+    { l:'🎯 Margem %', v:`${receitaTotal>0?Math.round(((receitaTotal-custoApproxBRL)/receitaTotal)*100):0}%`, c:'var(--accent2)' },
+  ].map(c=>`
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center">
+      <div style="font-family:var(--mono);font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">${c.l}</div>
+      <div style="font-size:18px;font-weight:800;color:${c.c}">${c.v}</div>
+    </div>`).join('');
+
+  // Gráfico de barras de distribuição
+  const total = Math.max(1, totalClientes);
+  const chart = document.getElementById('planChart');
+  const legend = document.getElementById('planChartLegend');
+  if(chart) chart.innerHTML = [
+    {n:'FREE', v:free, c:'#6b7280'},
+    {n:'STARTER', v:starter, c:'#34c759'},
+    {n:'PRO', v:pro, c:'#6366f1'},
+    {n:'ENTERPRISE', v:enterprise, c:'#ff9500'},
+  ].filter(p=>p.v>0).map(p=>`<div style="flex:${p.v};background:${p.c};min-width:${p.v>0?'4px':'0'}" title="${p.n}: ${p.v}"></div>`).join('');
+  if(legend) legend.innerHTML = [
+    {n:'FREE', v:free, c:'#6b7280'},{n:'STARTER', v:starter, c:'#34c759'},
+    {n:'PRO', v:pro, c:'#6366f1'},{n:'ENTERPRISE', v:enterprise, c:'#ff9500'},
+  ].filter(p=>p.v>0).map(p=>`<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${p.c};margin-right:4px;vertical-align:middle"></span>${p.n}: <b>${p.v}</b></span>`).join('');
+}
+
+// Add plan-input style
+const planStyle = document.createElement('style');
+planStyle.textContent = `.plan-input{background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:5px 7px;color:var(--text);font-family:var(--mono);font-size:11px;width:100%}`;
+document.head.appendChild(planStyle);
 </script>
 </body>
 </html>
