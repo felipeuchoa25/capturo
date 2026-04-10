@@ -1,20 +1,24 @@
 {
-  "name": "CAPTURO — Prospecção de Leads",
-  "short_name": "CAPTURO",
-  "description": "Sistema inteligente de prospecção de leads",
+  "name": "CAPTURO — Prospecção Inteligente",
+  "short_name": "Capturo",
+  "description": "Sistema de prospecção inteligente de leads com IA",
   "start_url": "/app.html",
-  "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#0f1117",
-  "theme_color": "#0f1117",
-  "lang": "pt-BR",
+  "theme_color": "#070C06",
+  "background_color": "#030503",
   "icons": [
+    {
+      "src": "favicon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     },
     {
       "src": "icon-512.png",
@@ -22,7 +26,5 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ],
-  "screenshots": [],
-  "categories": ["business", "productivity"]
+  ]
 }
