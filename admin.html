@@ -163,6 +163,9 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <button class="lock-btn" onclick="tryUnlock()">Entrar</button>
     <div class="lock-err" id="lockErr"></div>
     <button onclick="showAdminUrl()" style="margin-top:16px;background:none;border:none;color:rgba(255,255,255,.3);font-size:11px;cursor:pointer;font-family:monospace">🔗 Ver minha URL de acesso</button>
+    <div style="margin-top:10px;font-size:10px;color:rgba(255,255,255,.15);font-family:monospace;text-align:center;max-width:340px">
+      💡 Dica de segurança: renomeie este arquivo no servidor para um nome aleatório (ex: <em>cp-a9x7.html</em>) — ninguém adivinhará a URL
+    </div>
   </div>
 </div>
 
@@ -278,13 +281,13 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <div class="table-wrap" id="usersTableWrap">
         <table>
           <thead><tr>
-            <th>Usuário</th>
-            <th>E-mail</th>
+            <th></th>
+            <th>Nome / E-mail</th>
+            <th>Plano</th>
             <th>Leads</th>
-            <th>Campanhas</th>
-            <th>Criado em</th>
-            <th>Status</th>
-            <th>Ações</th>
+            <th>Camp.</th>
+            <th>Créditos</th>
+            <th>Cadastro</th>
           </tr></thead>
           <tbody id="usersTableBody">
             <tr><td colspan="7" style="text-align:center;color:var(--muted2);padding:32px">Carregando...</td></tr>
@@ -857,15 +860,20 @@ function renderUsersTable(users){
   }
   tbody.innerHTML = users.map(u=>`
     <tr>
-      <td><div style="width:28px;height:28px;border-radius:50%;background:var(--accent-bg);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent2)">U</div></td>
-      <td><span style="font-family:var(--mono);font-size:11px">${escHtml(u.id.substring(0,12))}…</span></td>
-      <td><span class="badge badge-accent">⚡ ${u.leads} Leads</span></td>
-      <td>${u.campaigns}</td>
-      <td>—</td>
-      <td><span class="badge badge-green">ativo</span></td>
-      <td style="display:flex;gap:6px">
-        <button class="btn btn-ghost btn-sm" onclick="openAddCreditsModal()">+ Leads</button>
+      <td>
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--accent-bg);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--accent2)">
+          ${u.name && u.name !== '—' ? escHtml(u.name[0].toUpperCase()) : '?'}
+        </div>
       </td>
+      <td>
+        <div style="font-size:13px;font-weight:500">${escHtml(u.name||'—')}</div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--muted2)">${escHtml(u.email||'—')}</div>
+      </td>
+      <td><span class="badge badge-muted" style="font-size:10px;text-transform:uppercase">${escHtml(u.plan||'free')}</span></td>
+      <td><span class="badge badge-accent">⚡ ${u.leads}</span></td>
+      <td>${u.campaigns}</td>
+      <td><span style="font-family:var(--mono);font-size:11px;color:var(--green)">${u.credits}</span></td>
+      <td style="font-family:var(--mono);font-size:10px;color:var(--muted2)">${u.created_at ? fmtDate(u.created_at) : '—'}</td>
     </tr>`).join('');
 }
 
