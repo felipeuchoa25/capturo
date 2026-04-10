@@ -1458,6 +1458,36 @@ select:focus {
 .sidebar.expanded .sb-section-label .sb-label {
   opacity: 1 !important;
 }
+/* Radar premium: dark bg + green glow on light themes */
+#navRadarWrap {
+  transition: box-shadow .25s ease;
+}
+.theme-teal #navRadarWrap,
+.theme-gray #navRadarWrap,
+.theme-white #navRadarWrap {
+  --accent: #85B82E;
+  background: rgba(6,16,6,.92);
+  border-radius: 50%;
+  padding: 1px;
+  box-shadow:
+    0 0 0 1.5px rgba(133,184,46,.55),
+    0 0 14px rgba(133,184,46,.4),
+    0 0 28px rgba(133,184,46,.18),
+    0 2px 8px rgba(0,0,0,.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.theme-teal #navRadarWrap:hover,
+.theme-gray #navRadarWrap:hover,
+.theme-white #navRadarWrap:hover {
+  box-shadow:
+    0 0 0 1.5px rgba(133,184,46,.8),
+    0 0 20px rgba(133,184,46,.6),
+    0 0 40px rgba(133,184,46,.25),
+    0 2px 8px rgba(0,0,0,.35);
+}
+
 /* CAPTURO topnav brand: dark/contrasting gradient on light themes */
 .theme-teal #brandCapturo,
 .theme-gray #brandCapturo,
@@ -3580,7 +3610,7 @@ function toast(msg, type='info', duration=3500){
     </button>
     <div class="logo" onclick="goHome();setSbActive('sb-home')" style="cursor:pointer;flex-shrink:0;display:flex;align-items:center;gap:10px" title="Dashboard">
       <!-- RADAR SVG -->
-      <div style="position:relative;width:36px;height:36px;flex-shrink:0">
+      <div id="navRadarWrap" style="position:relative;width:36px;height:36px;flex-shrink:0">
         <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="18" cy="18" r="16" stroke="var(--accent)" stroke-width="1" opacity="0.2"/>
           <circle cx="18" cy="18" r="11" stroke="var(--accent)" stroke-width="1" opacity="0.3"/>
