@@ -901,7 +901,7 @@ const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsI
 
 // ── Link do seu Canal do WhatsApp ─────────────────────────────
 // Depois de criar o canal: cole o link aqui
-const WA_CANAL = 'https://chat.whatsapp.com/GSZqrePYcLi6x6vAhM7wYs?mode=gi_t';
+const WA_CANAL = 'https://whatsapp.com/channel/0029Vb7tHKu1XquWKPw2Hw3s';
 
 // ── Máscara WhatsApp brasileiro ───────────────────────────────
 function mascaraWa(el) {
@@ -940,8 +940,19 @@ async function capturarLeadCompleto(prefixo) {
     const res = await fetch(SUPA_URL + '/rest/v1/waitlist', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ nome, email, whatsapp: wa.replace(/\D/g,''), source: 'landing_' + prefixo, created_at: new Date().toISOString() })
-    });
+      body: JSON.stringify({ 
+  nome, 
+  email, 
+  whatsapp: wa.replace(/\D/g,''),
+
+  status: "novo",
+  tipo: "lead",
+  interesse: "capturo",
+  origem_detalhada: prefixo,
+
+  source: 'landing_' + prefixo, 
+  created_at: new Date().toISOString() 
+})
     if (res.ok || res.status === 409) {
       ['Nome','Email','Wa'].forEach(f => { const el = document.getElementById(prefixo + f); if (el) el.value = ''; });
       btn.textContent = '✓ Inscrito!';
